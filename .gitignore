@@ -1,0 +1,6 @@
+.vscode
+a.out
+*.o
+client
+server
+client.cpp
