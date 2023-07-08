@@ -31,7 +31,7 @@ int main() {
     }
 
     // Prepare the sockaddr_in structure
-    address.sin_family = AF_INET;
+    address.sin_family = AF_UNSPEC;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(PORT);
 
