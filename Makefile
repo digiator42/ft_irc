@@ -1,21 +1,17 @@
-SRV_NAME = server
-CLNT_NAME = client
+NAME = irc
 
-SRCS = *.cpp
+SRCS = Server.cpp main.cpp
 
 CXX = c++
 
 OBJS = $(SRCS:.cpp=.o)
 
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -g3
 
-all: $(SRV_NAME) $(CLNT_NAME)
+all: $(NAME)
 
-$(SRV_NAME): server.o
-	$(CXX) $(CXXFLAGS) server.o -o $(SRV_NAME)
-
-$(CLNT_NAME): client.o
-	$(CXX) $(CXXFLAGS) client.o -o $(CLNT_NAME)
+$(NAME): $(OBJS)
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
@@ -24,6 +20,6 @@ clean:
 	rm -f $(OBJS)
 
 fclean: clean
-	rm -f $(SRV_NAME) $(CLNT_NAME)
+	rm -f $(NAME)
 
 re: fclean all

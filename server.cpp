@@ -1,33 +1,23 @@
-#include <iostream>
-#include <string>
-#include <cstring>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <cerrno>
+#include "./includes/Server.hpp"
 
-const int MAX_CLIENTS = 10;
-const int BUFFER_SIZE = 1024;
-const int PORT = 6667;
+Server::Server() : serverSocket(0), sd(0) {
+    openSocket();
+    run();
+}
 
-int main() {
-    int serverSocket, clientSockets[MAX_CLIENTS], i, valread, sd;
-    int max_sd;
-    struct sockaddr_in address;
-    char buffer[BUFFER_SIZE];
-    fd_set readfds;
+void Server::openSocket() {
 
-    // Create the server socket
+	// Create the server socket
     if ((serverSocket = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
         std::cerr << "Failed to create socket" << std::endl;
-        return -1;
+        return ;
     }
 
     // Set socket options
     int opt = 1;
     if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0) {
         std::cerr << "setsockopt failed" << std::endl;
-        return -1;
+        return ;
     }
 
     // Prepare the sockaddr_in structure
@@ -38,19 +28,24 @@ int main() {
     // Bind the server socket
     if (bind(serverSocket, (struct sockaddr *)&address, sizeof(address)) < 0) {
         std::cerr << "Bind failed" << std::endl;
-        return -1;
+        return ;
     }
 
     // Listen for incoming connections
     if (listen(serverSocket, MAX_CLIENTS) < 0) {
         std::cerr << "Listen failed" << std::endl;
-        return -1;
+        return ;
     }
 
     // Accept incoming connections
-    int addrlen = sizeof(address);
+    addrlen = sizeof(address);
     std::cout << "IRC Server started on port " << PORT << std::endl;
+    std::cout << "Waiting for incoming connections..." << std::endl;
+}
 
+void Server::run(void) {
+
+    int i = 0;
     while (true) {
         FD_ZERO(&readfds);
         FD_SET(serverSocket, &readfds);
@@ -77,7 +72,7 @@ int main() {
             int newSocket;
             if ((newSocket = accept(serverSocket, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0) {
                 std::cerr << "Accept failed" << std::endl;
-                return -1;
+                return ;
             }
             std::cout << "New connection, socket fd is " << newSocket << ", IP is : " << inet_ntoa(address.sin_addr) << ", port : " << ntohs(address.sin_port) << std::endl;
 
@@ -126,8 +121,10 @@ int main() {
             close(sd);
     }
 
-    // Close the server socket
-    close(serverSocket);
+}
 
-    return 0;
+Server::~Server()
+{
+    // Close the server socket
+	close(serverSocket);
 }
