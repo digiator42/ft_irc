@@ -4,3 +4,5 @@ a.out
 client
 server
 client.cpp
+ircserv
+.DS_Store

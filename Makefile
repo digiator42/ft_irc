@@ -1,4 +1,4 @@
-NAME = irc
+NAME = ircserv
 
 SRCS = Server.cpp main.cpp
 
