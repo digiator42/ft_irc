@@ -17,6 +17,7 @@ private:
 	int serverSocket;
 	int max_sd;
 	int sd;
+	int newSocket;
 	int valread;
 	int addrlen;
 	int clientSockets[MAX_CLIENTS];
@@ -30,5 +31,19 @@ public:
 
 	void openSocket(void);
 	void run(void);
+	void acceptConnection(void);
+	void sendWlcmMsg(void);
+	void handleClientMessages(void);	
+
+	// Getters
+	int getMax_sd(void);
+	int getServerSocket(void);
+	int getValread(void);
+	int getAddrlen(void);
+	int getSd(void);
+	int *getClientSockets(void);
+	fd_set getReadfds(void);
+	struct sockaddr_in getAddress(void);
+
 };
 
