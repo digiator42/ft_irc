@@ -19,7 +19,6 @@ void Server::openSocket() {
         std::cerr << "setsockopt failed" << std::endl;
         return ;
     }
-
     // Prepare the sockaddr_in structure
     address.sin_family = AF_UNSPEC;
     address.sin_addr.s_addr = INADDR_ANY;
@@ -88,6 +87,7 @@ void Server::acceptConnection() {
         ", port : " << ntohs(address.sin_port) << std::endl;
 
                 // Set the new client socket to non-blocking mode using fcntl
+
     // flags = fcntl(newSocket, F_GETFL, 0);
     if (fcntl(newSocket, F_SETFL, O_NONBLOCK) < 0) {
         std::cerr << "Failed to set client socket to non-blocking mode" << std::endl;

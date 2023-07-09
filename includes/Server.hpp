@@ -28,6 +28,7 @@ private:
 
 public:
 	Server(void);
+	Server(const std::string argv);
 	~Server();
 
 	void openSocket(void);

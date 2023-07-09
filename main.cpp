@@ -6,7 +6,8 @@ int main(int argc, char const *argv[])
 		std::cerr << "Usage: ./ircserv [port]" << std::endl;
 		return 1;
 	}
-	(void)argv;
+	(void)argv; // mustafa, attack ????
+	
 	Server server;
 	return 0;
 }
