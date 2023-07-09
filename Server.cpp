@@ -46,6 +46,7 @@ void Server::openSocket() {
 void Server::run(void) {
 
     int i = 0;
+    memset(clientSockets, 0, sizeof(clientSockets)); // fixes segfault in linux
     while (true) {
         FD_ZERO(&readfds);
         FD_SET(serverSocket, &readfds);
