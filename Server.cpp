@@ -62,11 +62,10 @@ void Server::run(void) {
         }
 
         // Wait for activity on any of the sockets
-        // int activity; // segfaults in linux
-        select(max_sd + 1, &readfds, NULL, NULL, NULL);
-        // if ((activity < 0) && (errno != EINTR)) {
-        //     std::cerr << "Select error" << std::endl;
-        // }
+        int activity = select(max_sd + 1, &readfds, NULL, NULL, NULL);
+        if ((activity < 0) && (errno != EINTR)) {
+            std::cerr << "Select error" << std::endl;
+        }
 
         // If activity on the server socket, it's a new connection
         if (FD_ISSET(serverSocket, &readfds)) {
