@@ -78,7 +78,6 @@ void Server::run(void) {
 
             // Send welcome message to the client
             const char *welcomeMessage = "Welcome to the IRC server!";
-            send(newSocket, "HELLLLLOOOOOOO", 15, 0);
             send(newSocket, welcomeMessage, strlen(welcomeMessage), 0);
 
             // Add new socket to the array of client sockets
