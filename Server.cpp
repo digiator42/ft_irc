@@ -86,6 +86,13 @@ void Server::acceptConnection() {
     }
     std::cout << "New connection, socket fd is " << newSocket << ", IP is : " << inet_ntoa(address.sin_addr) << 
         ", port : " << ntohs(address.sin_port) << std::endl;
+
+                // Set the new client socket to non-blocking mode using fcntl
+    // flags = fcntl(newSocket, F_GETFL, 0);
+    if (fcntl(newSocket, F_SETFL, O_NONBLOCK) < 0) {
+        std::cerr << "Failed to set client socket to non-blocking mode" << std::endl;
+        return ;
+    }        
 }   
 
 // Send welcome message to the client

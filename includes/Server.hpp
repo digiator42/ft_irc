@@ -5,6 +5,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <sys/select.h>
+#include <fcntl.h>
 #include <cerrno>
 
 const int MAX_CLIENTS = 10;
