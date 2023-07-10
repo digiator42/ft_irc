@@ -17,5 +17,6 @@ int main(int argc, char const *argv[])
 		return 1;
 	}
 	Server server;
+
 	return 0;
 }

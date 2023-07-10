@@ -44,6 +44,10 @@ void Server::openSocket() {
 
 // Getters
 
+std::string Server::getBufferStr(void) {
+    return bufferStr;
+}
+
 int Server::getMax_sd(void) {
     return max_sd;
 }
@@ -120,6 +124,7 @@ void Server::handleClientMessages() {
                 clientSockets[i] = 0;
             } else {
                 buffer[valread] = '\0';
+                bufferStr = buffer;
                 std::cout << "Received message from client: " << buffer << std::endl;
                 // validateMessage(buffer);
                 // Broadcast the message to other clients
@@ -174,6 +179,7 @@ void Server::run(void) {
             }
         }
         handleClientMessages(); // handle client messages
+
     }
 
     // Close all client sockets
