@@ -36,6 +36,7 @@ public:
 	void acceptConnection(void);
 	void sendWlcmMsg(void);
 	void handleClientMessages(void);	
+	// void validateMessage(char *msg);
 
 	// Getters
 	int getMax_sd(void);

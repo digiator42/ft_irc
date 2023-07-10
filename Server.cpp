@@ -1,6 +1,6 @@
 #include "./includes/Server.hpp"
 
-Server::Server() : serverSocket(0), sd(0) {
+Server::Server() : serverSocket(0), sd(0), valread(0) {
     openSocket();
     run();
 }
@@ -76,9 +76,13 @@ struct sockaddr_in Server::getAddress(void) {
     return address;
 }
 
+// void Server::validateMessage(char *msg) {
+    
+// }
+
 // accept new connection
 void Server::acceptConnection() {
-    if ((newSocket = accept(serverSocket, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0) {
+    if ((newSocket = accept(serverSocket, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0) { 
         std::cerr << "Accept failed" << std::endl;
         return ; //trhow exception here
     }
@@ -95,7 +99,9 @@ void Server::acceptConnection() {
 
 // Send welcome message to the client
 void Server::sendWlcmMsg() { 
-    const char *welcomeMessage = "Welcome to the IRC server!";
+    const char *welcomeMessage = "CAP * ACK :multi-prefix\r\n";
+    send(newSocket, welcomeMessage, strlen(welcomeMessage), 0);
+    welcomeMessage = "001 ops :Welcome to the IRC Network!\r\n";
     send(newSocket, welcomeMessage, strlen(welcomeMessage), 0);
 }
 
@@ -107,7 +113,7 @@ void Server::handleClientMessages() {
     for (i = 0; i < MAX_CLIENTS; i++) {
         sd = clientSockets[i];
         if (FD_ISSET(sd, &readfds)) {
-            if ((valread = read(sd, buffer, BUFFER_SIZE)) == 0) {
+            if ((valread = recv(sd, buffer, BUFFER_SIZE, 0)) == 0) {
                 getpeername(sd, (struct sockaddr *)&address, (socklen_t *)&addrlen);
                 std::cout << "Host disconnected, IP " << inet_ntoa(address.sin_addr) << ", port " << ntohs(address.sin_port) << std::endl;
                 close(sd);
@@ -115,12 +121,13 @@ void Server::handleClientMessages() {
             } else {
                 buffer[valread] = '\0';
                 std::cout << "Received message from client: " << buffer << std::endl;
+                // validateMessage(buffer);
                 // Broadcast the message to other clients
-                for (int j = 0; j < MAX_CLIENTS; j++) {
-                    if (clientSockets[j] != 0 && clientSockets[j] != sd) {
-                        send(clientSockets[j], buffer, strlen(buffer), 0);
-                    }
-                }
+                // for (int j = 0; j < MAX_CLIENTS; j++) {
+                //     if (clientSockets[j] != 0 && clientSockets[j] != sd) {
+                //         send(clientSockets[j], buffer, strlen(buffer), 0);
+                //     }
+                // }
             }
         }
     }
@@ -130,7 +137,7 @@ void Server::run(void) {
 
     int i = 0;
     memset(clientSockets, 0, sizeof(clientSockets)); // fixes segfault in linux
-    struct timeval tv = {0, 0}; // timeout for select
+    // struct timeval tv = {0, 0}; // timeout for select
     
     for (;;) {
         FD_ZERO(&readfds); // clears a file descriptor set
@@ -187,3 +194,8 @@ Server::~Server()
 
 // FD_CLR(int fd, fd_set *set) - removes fd from the set // might be useful for removing clients
 // FD_ISSET(int fd, fd_set *set) - returns true if fd is in the set
+
+// CMDS
+//  USER yoni NICK yoni PASS 123
+// /conn 10.11.2.13 6667 1
+
