@@ -64,7 +64,6 @@ int Server::getSd(void) {
     return sd;
 }
 
-
 int *Server::getClientSockets(void) {
     return clientSockets;
 }
@@ -86,10 +85,9 @@ void Server::acceptConnection() {
     std::cout << "New connection, socket fd is " << newSocket << ", IP is : " << inet_ntoa(address.sin_addr) << 
         ", port : " << ntohs(address.sin_port) << std::endl;
 
-                // Set the new client socket to non-blocking mode using fcntl
-
+    // Set the new client socket to non-blocking mode using fcntl
     // flags = fcntl(newSocket, F_GETFL, 0);
-    if (fcntl(newSocket, F_SETFL, O_NONBLOCK) < 0) {
+    if (fcntl(newSocket, F_SETFL, O_NONBLOCK) < 0) { // zero on success, -1 on error
         std::cerr << "Failed to set client socket to non-blocking mode" << std::endl;
         return ;
     }        
@@ -132,9 +130,11 @@ void Server::run(void) {
 
     int i = 0;
     memset(clientSockets, 0, sizeof(clientSockets)); // fixes segfault in linux
-    while (true) {
-        FD_ZERO(&readfds);
-        FD_SET(serverSocket, &readfds);
+    struct timeval tv = {0, 0}; // timeout for select
+    
+    for (;;) {
+        FD_ZERO(&readfds); // clears a file descriptor set
+        FD_SET(serverSocket, &readfds); // adds fd to the set
         max_sd = serverSocket;
 
         // Add client sockets to the set
@@ -153,7 +153,7 @@ void Server::run(void) {
         }
 
         // If activity on the server socket, it's a new connection
-        if (FD_ISSET(serverSocket, &readfds)) {
+        if (FD_ISSET(serverSocket, &readfds)) { // returns true if fd is in the set
 
             acceptConnection(); // accept new connection
             sendWlcmMsg(); // send welcome message to the client
@@ -183,3 +183,7 @@ Server::~Server()
     // Close the server socket
 	close(serverSocket);
 }
+
+
+// FD_CLR(int fd, fd_set *set) - removes fd from the set // might be useful for removing clients
+// FD_ISSET(int fd, fd_set *set) - returns true if fd is in the set
