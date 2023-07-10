@@ -1,6 +1,6 @@
 NAME = ircserv
 
-SRCS = Server.cpp main.cpp
+SRCS = Server.cpp main.cpp split.cpp
 
 CXX = c++
 

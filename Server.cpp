@@ -150,6 +150,8 @@ void Server::run(void) {
     // struct timeval tv = {0, 0}; // timeout for select
     
     for (;;) {
+		for(size_t j = 0; j < _cmd.size(); j++)
+			std::cout << _cmd[j] << "\n";
         FD_ZERO(&readfds); // clears a file descriptor set
         FD_SET(serverSocket, &readfds); // adds fd to the set
         max_sd = serverSocket;
@@ -202,6 +204,20 @@ Server::~Server()
 	close(serverSocket);
 }
 
+int	Server::parse_cmds(std::string str)
+{
+	std::vector<std::string> vector = split(str);
+
+	if (vector.size() != 6)
+		return 0;
+	
+	if(vector[0] != "USER" || vector[2] != "NICK" || \
+		vector[4] != "PASS")
+			return 0;
+
+	_cmd = vector;
+	return 1;
+}
 
 // FD_CLR(int fd, fd_set *set) - removes fd from the set // might be useful for removing clients
 // FD_ISSET(int fd, fd_set *set) - returns true if fd is in the set
