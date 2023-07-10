@@ -5,6 +5,11 @@ Server::Server() : serverSocket(0), sd(0), valread(0) {
     run();
 }
 
+Server::Server(const int port) : serverSocket(0), sd(0), valread(0), _port(port) {
+    openSocket();
+    run();
+}
+
 void Server::openSocket() {
 
 	// Create the server socket
@@ -22,7 +27,7 @@ void Server::openSocket() {
     // Prepare the sockaddr_in structure
     address.sin_family = AF_UNSPEC;
     address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(PORT);
+    address.sin_port = htons(_port);
 
     // Bind the server socket
     if (bind(serverSocket, (struct sockaddr *)&address, sizeof(address)) < 0) {
@@ -38,7 +43,7 @@ void Server::openSocket() {
 
     // Accept incoming connections
     addrlen = sizeof(address);
-    std::cout << "IRC Server started on port " << PORT << std::endl;
+    std::cout << "IRC Server started on port " << _port << std::endl;
     std::cout << "Waiting for incoming connections..." << std::endl;
 }
 
@@ -98,8 +103,8 @@ void Server::acceptConnection() {
     if (fcntl(newSocket, F_SETFL, O_NONBLOCK) < 0) { // zero on success, -1 on error
         std::cerr << "Failed to set client socket to non-blocking mode" << std::endl;
         return ;
-    }        
-}   
+    }
+}
 
 // Send welcome message to the client
 void Server::sendWlcmMsg() { 

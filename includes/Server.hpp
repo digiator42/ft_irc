@@ -18,8 +18,9 @@ private:
 	int serverSocket;
 	int max_sd;
 	int sd;
-	int newSocket;
 	int valread;
+	int _port;
+	int newSocket;
 	int addrlen;
 	int clientSockets[MAX_CLIENTS];
 	struct sockaddr_in address;
@@ -30,7 +31,7 @@ private:
 
 public:
 	Server(void);
-	Server(const std::string argv);
+	Server(const int port);
 	~Server();
 
 	void openSocket(void);
