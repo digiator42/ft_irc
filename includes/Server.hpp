@@ -31,6 +31,7 @@ private:
 	int clientSockets[MAX_CLIENTS];
 	struct sockaddr_in address;
 	char buffer[BUFFER_SIZE];
+	std::string bufferStr;
 	fd_set readfds;
 
 	std::vector<std::string> _cmd;
@@ -48,6 +49,7 @@ public:
 	// void validateMessage(char *msg);
 
 	// Getters
+	std::string getBufferStr(void);
 	int getMax_sd(void);
 	int getServerSocket(void);
 	int getValread(void);
