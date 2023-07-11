@@ -166,8 +166,11 @@ void Server::run(void) {
             if (sd > max_sd)
                 max_sd = sd;
         }
-        std::cout << "max: " << max_sd << std::endl;
-
+        // for (size_t i = 0; i < MAX_CLIENTS; i++)
+        // {
+        //     std::cout << "client socket -- > " << clientSockets[i] << std::endl;
+        // }
+        
         // Wait for activity on any of the sockets
         int activity = select(max_sd + 1, &readfds, NULL, NULL, NULL);
         if ((activity < 0) && (errno != EINTR)) {
@@ -177,17 +180,16 @@ void Server::run(void) {
         // If activity on the server socket, it's a new connection
         if (FD_ISSET(serverSocket, &readfds)) { // returns true if fd is in the set
 
-            acceptConnection(); // accept new connection
-            sendWlcmMsg(); // send welcome message to the client
             try {
-                std::cout << clientSockets[MAX_CLIENTS - 1] << std::endl;
-                std::string maxError = "Max Client [" + std::to_string(MAX_CLIENTS) + "] reached";
-                clientSockets[MAX_CLIENTS - 1] ? throw std::invalid_argument(maxError.c_str()): (void)0;
+                std::string maxClientError = "Max Client [" + std::to_string(MAX_CLIENTS) + "] reached";
+                clientSockets[MAX_CLIENTS - 1] ? throw ServerException(maxClientError): (void)0;
             } catch (std::exception &e) {
                 std::cerr << e.what() << std::endl;
                 close(newSocket);
                 return ;
             }
+            acceptConnection(); // accept new connection
+            sendWlcmMsg(); // send welcome message to the client
             // Add new socket to the array of client sockets
             for (i = 0; i < MAX_CLIENTS; i++) {
                 if (clientSockets[i] == 0) {

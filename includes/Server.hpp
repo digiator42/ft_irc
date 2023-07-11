@@ -42,7 +42,16 @@ public:
 	Server(void);
 	Server(const int port);
 	~Server();
-
+	class ServerException : public std::exception
+	{
+		private:
+			std::string _msg;
+		public:
+			ServerException(std::string msg) : _msg(msg) {}
+			virtual ~ServerException() throw() {}
+			virtual const char *what() const throw() { return _msg.c_str(); }
+	};
+	
 	void openSocket(void);
 	void run(void);
 	void acceptConnection(void);
