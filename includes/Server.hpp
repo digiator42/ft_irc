@@ -17,7 +17,7 @@
 
 #define MAX_PORT 65535
 
-const int MAX_CLIENTS = 10;
+const int MAX_CLIENTS = FD_SETSIZE;
 const int BUFFER_SIZE = 1024;
 
 class Server
