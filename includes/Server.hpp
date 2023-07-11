@@ -17,7 +17,6 @@
 
 const int MAX_CLIENTS = 10;
 const int BUFFER_SIZE = 1024;
-const int PORT = 6667;
 
 class Server
 {
