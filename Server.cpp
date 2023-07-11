@@ -148,7 +148,6 @@ void Server::run(void) {
 
     int i = 0;
     memset(clientSockets, 0, sizeof(clientSockets)); // fixes segfault in linux
-    memset(clientSockets, 0, sizeof(clientSockets)); // client sockets init
     // struct timeval tv = {0, 0}; // timeout for select
     
     for (;;) {
@@ -166,10 +165,13 @@ void Server::run(void) {
             if (sd > max_sd)
                 max_sd = sd;
         }
-        // for (size_t i = 0; i < MAX_CLIENTS; i++)
-        // {
-        //     std::cout << "client socket -- > " << clientSockets[i] << std::endl;
-        // }
+
+        for(std::vector<int>::iterator it = _fds.begin(); it != _fds.end(); ++it) {
+            std::cout << "vector fds: " << *it << std::endl;
+        }
+        for(std::vector<User>::iterator it = _users.begin(); it != _users.end(); ++it) {
+            std::cout << "User FD: " << (*it)._fd << " User ID: " << (*it)._id << std::endl;
+        }
         
         // Wait for activity on any of the sockets
         int activity = select(max_sd + 1, &readfds, NULL, NULL, NULL);
@@ -194,6 +196,8 @@ void Server::run(void) {
             for (i = 0; i < MAX_CLIENTS; i++) {
                 if (clientSockets[i] == 0) {
                     clientSockets[i] = newSocket;
+                    _fds.push_back(newSocket);
+                    _users.push_back(User(_fds.at(i), _fds.at(i) - serverSocket));
                     break;
                 }
             }

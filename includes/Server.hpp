@@ -1,6 +1,7 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
+#include "User.hpp"
 #include <iostream>
 #include <string>
 #include <cstring>
@@ -51,7 +52,8 @@ public:
 			virtual ~ServerException() throw() {}
 			virtual const char *what() const throw() { return _msg.c_str(); }
 	};
-	
+	std::vector<int> _fds;
+	std::vector<User> _users;
 	void openSocket(void);
 	void run(void);
 	void acceptConnection(void);
