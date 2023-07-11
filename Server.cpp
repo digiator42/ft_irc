@@ -147,13 +147,15 @@ void Server::run(void) {
 
     int i = 0;
     memset(clientSockets, 0, sizeof(clientSockets)); // fixes segfault in linux
+    memset(clientSockets, 0, sizeof(clientSockets)); // client sockets init
     // struct timeval tv = {0, 0}; // timeout for select
     
     for (;;) {
-		for(size_t j = 0; j < _cmd.size(); j++)
-			std::cout << _cmd[j] << "\n";
+		// for(size_t j = 0; j < _cmd.size(); j++)
+		// 	std::cout << _cmd[j] << "\n";
         FD_ZERO(&readfds); // clears a file descriptor set
         FD_SET(serverSocket, &readfds); // adds fd to the set
+        std::cout << "serverSocket: " << serverSocket << std::endl;
         max_sd = serverSocket;
 
         // Add client sockets to the set
@@ -164,6 +166,7 @@ void Server::run(void) {
             if (sd > max_sd)
                 max_sd = sd;
         }
+        std::cout << "max: " << max_sd << std::endl;
 
         // Wait for activity on any of the sockets
         int activity = select(max_sd + 1, &readfds, NULL, NULL, NULL);
@@ -176,7 +179,15 @@ void Server::run(void) {
 
             acceptConnection(); // accept new connection
             sendWlcmMsg(); // send welcome message to the client
-
+            try {
+                std::cout << clientSockets[MAX_CLIENTS - 1] << std::endl;
+                std::string maxError = "Max Client [" + std::to_string(MAX_CLIENTS) + "] reached";
+                clientSockets[MAX_CLIENTS - 1] ? throw std::invalid_argument(maxError.c_str()): (void)0;
+            } catch (std::exception &e) {
+                std::cerr << e.what() << std::endl;
+                close(newSocket);
+                return ;
+            }
             // Add new socket to the array of client sockets
             for (i = 0; i < MAX_CLIENTS; i++) {
                 if (clientSockets[i] == 0) {
