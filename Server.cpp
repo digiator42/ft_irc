@@ -5,7 +5,8 @@ Server::Server() : serverSocket(0), sd(0), valread(0) {
     run();
 }
 
-Server::Server(const int port) : serverSocket(0), sd(0), valread(0), _port(port) {
+Server::Server(const int port, const std::string password) : serverSocket(0), sd(0), valread(0), _port(port) {
+    (void)password;
     openSocket();
     run();
 }
@@ -130,7 +131,7 @@ void Server::handleClientMessages() {
             } else {
                 buffer[valread] = '\0';
                 bufferStr = buffer;
-                std::cout << "Received message from client: " << buffer << std::endl;
+                std::cout << "Received message from client: [NO:" << i + 1 << "] " << buffer << std::endl;
                 // validateMessage(buffer);
                 // Broadcast the message to other clients
                 // for (int j = 0; j < MAX_CLIENTS; j++) {
@@ -155,7 +156,6 @@ void Server::run(void) {
 		// 	std::cout << _cmd[j] << "\n";
         FD_ZERO(&readfds); // clears a file descriptor set
         FD_SET(serverSocket, &readfds); // adds fd to the set
-        std::cout << "serverSocket: " << serverSocket << std::endl;
         max_sd = serverSocket;
 
         // Add client sockets to the set

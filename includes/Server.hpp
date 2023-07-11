@@ -40,7 +40,7 @@ private:
 
 public:
 	Server(void);
-	Server(const int port);
+	Server(const int port, const std::string password);
 	~Server();
 	class ServerException : public std::exception
 	{
