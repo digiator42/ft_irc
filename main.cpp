@@ -1,6 +1,14 @@
 #include "./includes/Server.hpp"
 
-int main(int argc, char const *argv[])
+static int port_len(char *port)
+{
+	int j = 0;
+	while (*port++)
+		j++;
+	return (j);
+}
+
+int main(int argc, char *argv[])
 {
 	// if (argc != 3) {
 	// 	std::cerr << "Error: invalid number of arguments !" << std::endl;
@@ -10,15 +18,15 @@ int main(int argc, char const *argv[])
 		std::cerr << "Usage: ./ircserv [port]" << std::endl;
 		return 1;
 	}
-
+	int port_num = std::atoi(argv[1]);
 	std::string	port(argv[1]);//, password(argv[2]);
-	if (port.empty()/* || password.empty() */|| \
-		port.find_first_not_of("0123456789") != std::string::npos)
+	if (port.empty()/* || password.empty() */|| port_num > MAX_PORT \
+		|| port_len(argv[1]) > 5 || port.find_first_not_of("0123456789") != std::string::npos)
 	{
 		std::cerr << "Error: invalid arguments !" << std::endl;
 		return 1;
 	}
-	Server server(std::atoi(argv[1]));
+	Server server(port_num);
 
 	return 0;
 }
