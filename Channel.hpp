@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 21:29:02 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/05 22:01:55 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/12 20:21:55 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,17 @@ class Channel{
 	void setMaxUsers(int num); 
 	void setTopic(std::string str);
 	void setPass(std::string str);
+	
+	// MEMBER FUNCTIONS
+	void joinChannel();
+	void leaveChannel();
+	void sendMessage(std::string message, std::string sender);
+	void kickUser(std::string channel, std::string user, std::vector<std::string> messages);
+
+	void switchMode(std::string user, std::vector<std::string> messages);
+	void execTopic(std::string user, std::vector<std::string>);
+	void inviteUser(std::string user, std::vector<std::string>);
+	
 };
 
 # endif
