@@ -1,26 +1,5 @@
 #include "./includes/Server.hpp"
 
-
-// server.cpp
-
-// Initialize the static attributes
-std::string Server::_password = "";  
-int Server::serverSocket = -1;       
-int Server::max_sd = -1;             
-int Server::sd = -1;                 
-int Server::valread = -1;            
-int Server::_port = -1;              
-int Server::newSocket = -1;          
-int Server::addrlen = sizeof(struct sockaddr_in);
-int Server::clientSockets[MAX_CLIENTS] = {0};  
-struct sockaddr_in Server::address;
-char Server::buffer[BUFFER_SIZE]= {0};
-std::string Server::bufferStr = "";
-fd_set Server::readfds;
-std::vector<std::string> Server::_cmd;
-std::vector<int> Server::_fds;
-std::vector<User> Server::_users;
-
 Server::Server() {
     openSocket();
     run();
@@ -106,28 +85,26 @@ void Server::handleClientMessages() {
         if (FD_ISSET(Server::sd, &Server::readfds)) {
             if ((Server::valread = recv(Server::sd, Server::buffer, BUFFER_SIZE, 0)) == 0) {
                 getpeername(Server::sd, (struct sockaddr *)&Server::address, (socklen_t *)&Server::addrlen);
-                std::cout << RED << "Host disconnected, IP " << inet_ntoa(Server::address.sin_addr) << ", port " << ntohs(Server::address.sin_port) << RESET << std::endl;
+                std::cout << RED << "Host disconnected, IP " << inet_ntoa(Server::address.sin_addr) <<
+                     ", port " << ntohs(Server::address.sin_port) << RESET << std::endl;
                 close(Server::sd);
                 Server::clientSockets[i] = 0;
+                Server::_users.erase(Server::_users.begin() + i); // needs test
             } else {
                 Server::buffer[Server::valread] = '\0';
                 // std::cout << "Received message from client: [NO:" << i + 1 << "] " << buffer << std::endl;
-                for(std::vector<User>::iterator it = _users.begin(); it != _users.end(); ++it) {
-                    std::cout << "it->_fd: " << it->_fd << std::endl;
+                std::cout << "size -- >" << Server::_users.size() << std::endl;
+                for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
                     if (it->_fd == Server::sd) {
                         std::cout << YELLOW << "Received message from client: [NO:" << it->_id << "] " << Server::buffer << RESET << std::endl;
-                        it->input = Server::buffer;
-                        std::cout << "it->input: " << it->input << std::endl;
+                        it->input += Server::buffer;
                         std::string userInput(Server::buffer);
-
-
                         if (!userInput.empty()) {
-                            it->executeCommand(userInput, &(*it));
+                            it->execute(userInput, &(*it));
                             break ;
                         }
                     }
                 }
-                // validateMessage(buffer);
                 // Broadcast the message to other clients
                 // for (int j = 0; j < MAX_CLIENTS; j++) {
                 //     if (clientSockets[j] != 0 && clientSockets[j] != Server::sd) {
@@ -233,6 +210,23 @@ Server::~Server()
     // Close the server socket
 	close(Server::serverSocket);
 }
+
+std::string Server::_password = "";
+int Server::serverSocket = -1;
+int Server::max_sd = -1;
+int Server::sd = -1;
+int Server::valread = -1;
+int Server::_port = -1;
+int Server::newSocket = -1;
+int Server::addrlen = sizeof(struct sockaddr_in);
+int Server::clientSockets[MAX_CLIENTS] = {0};
+struct sockaddr_in Server::address;
+char Server::buffer[BUFFER_SIZE]= {0};
+std::string Server::bufferStr = "";
+fd_set Server::readfds;
+std::vector<std::string> Server::_cmd;
+std::vector<int> Server::_fds;
+std::vector<User> Server::_users;
 
 
 

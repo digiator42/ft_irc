@@ -4,8 +4,9 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <string>
+#include <cstring>
 
-#include "Server.hpp"
 class User {
    public:
     User(int fd, int id);
@@ -22,13 +23,13 @@ class User {
 	std::string pass;
     std::vector<std::string> _cmd;
 
-    void executeCommand(std::string cmd, User *it);
+    void execute(std::string cmd, User *it);
+    void userErase(User &user);
     bool	parse_cmds(std::string str);
+    friend std::ostream& operator<<(std::ostream& os, const User& user);
 
 };
 
 std::ostream& operator<<(std::ostream& out, const User& User);
 std::vector<std::string> split(std::string str);
-
-
 #endif // User_HPP

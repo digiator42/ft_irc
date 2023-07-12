@@ -30,7 +30,7 @@ const int BUFFER_SIZE = 1024;
 class User;
 class Server
 {
-private:
+public:
 	static std::string _password;
 	static int serverSocket;
 	static int max_sd;
@@ -46,7 +46,6 @@ private:
 	static fd_set readfds;
 	static std::vector<std::string> _cmd;
 
-public:
 	Server(void);
 	Server(const int port, const std::string password);
 	~Server();
