@@ -15,6 +15,7 @@
 #include <cerrno>
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 
 #define MAX_PORT 65535
 
@@ -58,7 +59,8 @@ public:
 	void run(void);
 	void acceptConnection(void);
 	void sendWlcmMsg(void);
-	void handleClientMessages(void);	
+	void handleClientMessages(void);
+	void showUsers(void);
 	// void validateMessage(char *msg);
 
 	// Getters

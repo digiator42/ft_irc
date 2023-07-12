@@ -120,6 +120,7 @@ void Server::sendWlcmMsg() {
 void Server::handleClientMessages() {
     // Handle client messages
     int i = 0;
+    memset(buffer, 0, BUFFER_SIZE);
     for (i = 0; i < MAX_CLIENTS; i++) {
         sd = clientSockets[i];
         if (FD_ISSET(sd, &readfds)) {
@@ -130,8 +131,21 @@ void Server::handleClientMessages() {
                 clientSockets[i] = 0;
             } else {
                 buffer[valread] = '\0';
-                bufferStr = buffer;
-                std::cout << "Received message from client: [NO:" << i + 1 << "] " << buffer << std::endl;
+                // std::cout << "Received message from client: [NO:" << i + 1 << "] " << buffer << std::endl;
+                for(std::vector<User>::iterator it = _users.begin(); it != _users.end(); ++it) {
+                    if (it->_fd == sd) {
+                        std::cout << "Received message from client: [NO:" << it->_id << "] " << buffer << std::endl;
+                        it->input += buffer;
+                        std::string whoami(buffer);
+                        if (whoami.erase(whoami.length() - 1, 1) == "whoami"){
+                            std::cout << *it << std::endl;
+                        }
+                        if (whoami == "show users"){
+                            showUsers();
+                        }
+                        break ;
+                    }
+                }
                 // validateMessage(buffer);
                 // Broadcast the message to other clients
                 // for (int j = 0; j < MAX_CLIENTS; j++) {
@@ -166,12 +180,9 @@ void Server::run(void) {
                 max_sd = sd;
         }
 
-        for(std::vector<int>::iterator it = _fds.begin(); it != _fds.end(); ++it) {
-            std::cout << "vector fds: " << *it << std::endl;
-        }
-        for(std::vector<User>::iterator it = _users.begin(); it != _users.end(); ++it) {
-            std::cout << "User FD: " << (*it)._fd << " User ID: " << (*it)._id << std::endl;
-        }
+        // for(std::vector<int>::iterator it = _fds.begin(); it != _fds.end(); ++it) {
+        //     std::cout << "vector fds: " << *it << std::endl;
+        // }
         
         // Wait for activity on any of the sockets
         int activity = select(max_sd + 1, &readfds, NULL, NULL, NULL);
@@ -213,6 +224,23 @@ void Server::run(void) {
             close(sd);
     }
 
+}
+
+void Server::showUsers(void) {
+        std::cout << "|──────────|──────────|──────────|──────────|" << std::endl;
+        std::cout << "│" << std::setw(10) << std::left << "ID";
+        std::cout << "│" << std::setw(10) << std::left << "name";
+        std::cout << "│" << std::setw(10) << std::left << "nickname";
+        std::cout << "│" << std::setw(10) << std::left << "fd" << "│" << std::endl;
+        std::cout << "├──────────┼──────────┼──────────┼──────────┤" << std::endl;
+        for(std::vector<User>::iterator it = _users.begin(); it != _users.end(); ++it) {
+            // std::cout << "User FD: " << (*it)._fd << " | User ID: " << (*it)._id << std::endl;
+            std::cout << "|" << std::setw(10) << (*it)._id;
+		    std::cout << "|" << std::setw(10) << (*it).userName;
+		    std::cout << "|" << std::setw(10) << (*it).nickName;
+		    std::cout << "|" << std::setw(10) << (*it)._fd << "|" << std::endl;
+        }
+        std::cout << "|──────────|──────────|──────────|──────────|" << std::endl;
 }
 
 Server::~Server()

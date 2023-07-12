@@ -17,10 +17,11 @@ class User {
     std::string userName;
     std::string realName;
 
-    int getFd() const;
-
 
 };
+
+std::ostream& operator<<(std::ostream& out, const User& User);
+
 
 
 #endif // User_HPP
