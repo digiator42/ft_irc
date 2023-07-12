@@ -27,24 +27,24 @@
 const int MAX_CLIENTS = FD_SETSIZE;
 const int BUFFER_SIZE = 1024;
 
+class User;
 class Server
 {
 private:
-	std::string _password;
-	int serverSocket;
-	int max_sd;
-	int sd;
-	int valread;
-	int _port;
-	int newSocket;
-	int addrlen;
-	int clientSockets[MAX_CLIENTS];
-	struct sockaddr_in address;
-	char buffer[BUFFER_SIZE];
-	std::string bufferStr;
-	fd_set readfds;
-
-	std::vector<std::string> _cmd;
+	static std::string _password;
+	static int serverSocket;
+	static int max_sd;
+	static int sd;
+	static int valread;
+	static int _port;
+	static int newSocket;
+	static int addrlen;
+	static int clientSockets[MAX_CLIENTS];
+	static struct sockaddr_in address;
+	static char buffer[BUFFER_SIZE];
+	static std::string bufferStr;
+	static fd_set readfds;
+	static std::vector<std::string> _cmd;
 
 public:
 	Server(void);
@@ -59,29 +59,20 @@ public:
 			virtual ~ServerException() throw() {}
 			virtual const char *what() const throw() { return _msg.c_str(); }
 	};
-	std::vector<int> _fds;
-	std::vector<User> _users;
-	void openSocket(void);
-	void run(void);
-	void acceptConnection(void);
-	void sendWlcmMsg(void);
-	void handleClientMessages(void);
-	void showUsers(void);
+	static std::vector<int> _fds;
+	static std::vector<User> _users;
+	static void openSocket(void);
+	static void run(void);
+	static void acceptConnection(void);
+	static void sendWlcmMsg(void);
+	static void handleClientMessages(void);
+	static void showUsers(void);
+	static std::string getPassword(void);
 	// void validateMessage(char *msg);
 
-	// Getters
-	std::string getBufferStr(void);
-	int getMax_sd(void);
-	int getServerSocket(void);
-	int getValread(void);
-	int getAddrlen(void);
-	int getSd(void);
-	int *getClientSockets(void);
-	fd_set getReadfds(void);
-	struct sockaddr_in getAddress(void);
-	int	parse_cmds(std::string str);
 };
 
-std::vector<std::string> split(std::string str);
+
+
 
 #endif
