@@ -18,17 +18,21 @@ void User::userErase(User &user) {
 void User::execute(std::string cmd, User *user) {
     if (!parse_cmds(cmd) && user->isAuth == false) {
         send(user->_fd, "Authentication required : ", strlen("Authentication required : "), 0);
-		close(user->_fd);
-		userErase(*user);
+		// close(user->_fd);
+		// std::cout << "User id: " << user->_id << " disconnected\n";
+		// Server::clientSockets[user->_id - 1] = 0;
+		// userErase(*user);
 		return ;
 	}
-	else {
+	else if (parse_cmds(cmd)){
 		user->pass = _cmd[5];
 		if(user->pass != Server::getPassword())
 		{
 			std::cout << "Wrong pass\n";
-			close(user->_fd);
-			userErase(*user);
+			// close(user->_fd);
+			// std::cout << "User id: " << user->_id << " disconnected\n";
+			// Server::clientSockets[user->_id - 1] = 0;
+			// userErase(*user);
 			return ;
 		}
 		user->nickName = _cmd[3];

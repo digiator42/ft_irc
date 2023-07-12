@@ -88,13 +88,16 @@ void Server::handleClientMessages() {
                 std::cout << RED << "Host disconnected, IP " << inet_ntoa(Server::address.sin_addr) <<
                      ", port " << ntohs(Server::address.sin_port) << RESET << std::endl;
                 close(Server::sd);
+                // std::cout << "i -- >" << i << std::endl;
                 Server::clientSockets[i] = 0;
-                Server::_users.erase(Server::_users.begin() + i); // needs test
+                // Server::_users.erase(Server::_users.begin() + i); // needs test
             } else {
                 Server::buffer[Server::valread] = '\0';
                 // std::cout << "Received message from client: [NO:" << i + 1 << "] " << buffer << std::endl;
                 std::cout << "size -- >" << Server::_users.size() << std::endl;
                 for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
+                    // std::cout << "it->_fd -- >" << it->_fd << std::endl;
+                    // std::cout << "Server::sd -- >" << Server::sd << std::endl;
                     if (it->_fd == Server::sd) {
                         std::cout << YELLOW << "Received message from client: [NO:" << it->_id << "] " << Server::buffer << RESET << std::endl;
                         it->input += Server::buffer;
@@ -143,6 +146,7 @@ void Server::run(void) {
         // }
         
         // Wait for activity on any of the sockets
+        std::cout << "max fd: " << Server::max_sd << std::endl;
         int activity = select(Server::max_sd + 1, &Server::readfds, NULL, NULL, NULL);
         if ((activity < 0) && (errno != EINTR)) {
             std::cerr << "Select error" << std::endl;
