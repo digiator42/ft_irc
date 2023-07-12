@@ -30,6 +30,7 @@ const int BUFFER_SIZE = 1024;
 class Server
 {
 private:
+	std::string _password;
 	int serverSocket;
 	int max_sd;
 	int sd;

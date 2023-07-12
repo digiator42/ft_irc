@@ -5,8 +5,7 @@ Server::Server() : serverSocket(0), sd(0), valread(0) {
     run();
 }
 
-Server::Server(const int port, const std::string password) : serverSocket(0), sd(0), valread(0), _port(port) {
-    (void)password;
+Server::Server(const int port, const std::string password) : _password(password), serverSocket(0), sd(0), valread(0), _port(port) {
     openSocket();
     run();
 }
@@ -143,7 +142,19 @@ void Server::handleClientMessages() {
                         if (userInput == "show users"){
                             showUsers();
                         }
-
+						if (parse_cmds(it->input))
+							{
+								it->pass = _cmd[5];
+								if(it->pass != _password)
+								{
+									std::cout << "errr\n";
+									close(sd);
+									return ;
+								}
+								it->nickName = _cmd[3];
+								it->userName = _cmd[1];
+								it->isAuth = true;
+							};
                         // start adding commands, validate them and execute
                         break ;
                     }

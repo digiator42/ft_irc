@@ -6,6 +6,8 @@ User::User(int fd, int id) : _fd(fd), _id(id), isAuth(false), nickName(""), user
 
 User::~User() {}
 
+
+
 std::ostream& operator<<(std::ostream& out, const User& User) {
 	std::string input = User.input;
     out << "UserName: " << "[" << User.userName << "]" << ", Nick: " << "[" << User.nickName << "]" << ", Auth: " 

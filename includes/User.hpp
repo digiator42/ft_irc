@@ -16,7 +16,7 @@ class User {
     std::string nickName;
     std::string userName;
     std::string realName;
-
+	std::string pass;
 
 };
 
