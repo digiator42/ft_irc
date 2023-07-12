@@ -143,6 +143,8 @@ void Server::handleClientMessages() {
                         if (userInput == "show users"){
                             showUsers();
                         }
+
+                        // start adding commands, validate them and execute
                         break ;
                     }
                 }
