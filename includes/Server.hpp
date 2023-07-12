@@ -18,6 +18,11 @@
 #include <iomanip>
 
 #define MAX_PORT 65535
+#define CYAN "\033[36m"
+#define YELLOW "\033[33m"
+#define RED "\033[31m"
+#define GREEN "\033[32m"
+#define RESET "\033[0m"
 
 const int MAX_CLIENTS = FD_SETSIZE;
 const int BUFFER_SIZE = 1024;

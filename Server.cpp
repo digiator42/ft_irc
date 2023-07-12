@@ -96,8 +96,8 @@ void Server::acceptConnection() {
         std::cerr << "Accept failed" << std::endl;
         return ; //trhow exception here
     }
-    std::cout << "New connection, socket fd is " << newSocket << ", IP is : " << inet_ntoa(address.sin_addr) << 
-        ", port : " << ntohs(address.sin_port) << std::endl;
+    std::cout << GREEN << "New connection, socket fd is " << newSocket << ", IP is : " << inet_ntoa(address.sin_addr) << 
+        ", port : " << ntohs(address.sin_port) << RESET << std::endl;
 
     // Set the new client socket to non-blocking mode using fcntl
     // flags = fcntl(newSocket, F_GETFL, 0);
@@ -126,7 +126,7 @@ void Server::handleClientMessages() {
         if (FD_ISSET(sd, &readfds)) {
             if ((valread = recv(sd, buffer, BUFFER_SIZE, 0)) == 0) {
                 getpeername(sd, (struct sockaddr *)&address, (socklen_t *)&addrlen);
-                std::cout << "Host disconnected, IP " << inet_ntoa(address.sin_addr) << ", port " << ntohs(address.sin_port) << std::endl;
+                std::cout << RED << "Host disconnected, IP " << inet_ntoa(address.sin_addr) << ", port " << ntohs(address.sin_port) << RESET << std::endl;
                 close(sd);
                 clientSockets[i] = 0;
             } else {
@@ -134,13 +134,13 @@ void Server::handleClientMessages() {
                 // std::cout << "Received message from client: [NO:" << i + 1 << "] " << buffer << std::endl;
                 for(std::vector<User>::iterator it = _users.begin(); it != _users.end(); ++it) {
                     if (it->_fd == sd) {
-                        std::cout << "Received message from client: [NO:" << it->_id << "] " << buffer << std::endl;
+                        std::cout << YELLOW << "Received message from client: [NO:" << it->_id << "] " << buffer << RESET << std::endl;
                         it->input += buffer;
-                        std::string whoami(buffer);
-                        if (whoami.erase(whoami.length() - 1, 1) == "whoami"){
-                            std::cout << *it << std::endl;
+                        std::string userInput(buffer);
+                        if (userInput.erase(userInput.length() - 1, 1) == "whoami"){
+                            std::cout << CYAN << *it << RESET <<std::endl;
                         }
-                        if (whoami == "show users"){
+                        if (userInput == "show users"){
                             showUsers();
                         }
                         break ;
