@@ -91,6 +91,20 @@ void Server::handleClientMessages() {
                 // std::cout << "i -- >" << i << std::endl;
                 Server::clientSockets[i] = 0;
                 // Server::_users.erase(Server::_users.begin() + i); // needs test
+                
+                std::vector<int>::iterator index = std::find(Server::_fds.begin(), Server::_fds.end(), Server::sd);
+                Server::_fds.erase(index);
+
+                for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
+                    if (it->_fd == Server::sd) {
+                        std::cout << "id -->" << it->_fd << std::endl;
+                        std::vector<User>::iterator it2 = std::find(Server::_users.begin(), Server::_users.end(), *it);
+
+                        std::cout << "found -->" << it2->_fd << std::endl;
+                        Server::_users.erase(it2);
+                        --it;
+                    }
+                }
             } else {
                 Server::buffer[Server::valread] = '\0';
                 // std::cout << "Received message from client: [NO:" << i + 1 << "] " << buffer << std::endl;
@@ -144,12 +158,18 @@ void Server::run(void) {
         // for(std::vector<int>::iterator it = _fds.begin(); it != _fds.end(); ++it) {
         //     std::cout << "vector fds: " << *it << std::endl;
         // }
+        for(std::vector<int>::iterator it = _fds.begin(); it != _fds.end(); ++it) {
+            std::cout << "vector fds: " << *it << std::endl;
+        }
+        for(std::vector<User>::iterator it = _users.begin(); it != _users.end(); ++it) {
+            std::cout << "User FD: " << (*it)._fd << " User ID: " << (*it)._id << std::endl;
+        }
         
         // Wait for activity on any of the sockets
-        std::cout << "max fd: " << Server::max_sd << std::endl;
         int activity = select(Server::max_sd + 1, &Server::readfds, NULL, NULL, NULL);
         if ((activity < 0) && (errno != EINTR)) {
             std::cerr << "Select error" << std::endl;
+            return ;
         }
 
         // If activity on the server socket, it's a new connection
@@ -170,7 +190,7 @@ void Server::run(void) {
                 if (Server::clientSockets[i] == 0) {
                     Server::clientSockets[i] = Server::newSocket;
                     Server::_fds.push_back(Server::newSocket);
-                    Server::_users.push_back(User(Server::_fds.at(i), Server::_fds.at(i) - serverSocket));
+                    Server::_users.push_back(User(Server::newSocket, Server::_fds.at(i) - serverSocket));
                     break;
                 }
             }

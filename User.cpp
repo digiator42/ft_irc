@@ -20,7 +20,7 @@ void User::execute(std::string cmd, User *user) {
         send(user->_fd, "Authentication required : ", strlen("Authentication required : "), 0);
 		// close(user->_fd);
 		// std::cout << "User id: " << user->_id << " disconnected\n";
-		// Server::clientSockets[user->_id - 1] = 0;
+		// Server::clientSockets[user->_fd - Server::serverSocket - 1] = 0;
 		// userErase(*user);
 		return ;
 	}
@@ -28,16 +28,21 @@ void User::execute(std::string cmd, User *user) {
 		user->pass = _cmd[5];
 		if(user->pass != Server::getPassword())
 		{
-			std::cout << "Wrong pass\n";
+        	send(user->_fd, "Wrong Pass : ", strlen("Wrong Pass : "), 0);
 			// close(user->_fd);
 			// std::cout << "User id: " << user->_id << " disconnected\n";
-			// Server::clientSockets[user->_id - 1] = 0;
+			// Server::clientSockets[user->_fd - Server::serverSocket - 1] = 0;
 			// userErase(*user);
 			return ;
 		}
+		std::vector<User>::iterator it2 = std::find(Server::_users.begin(), Server::_users.end(), *user);
+        std::cout << "found -->" << it2->_fd << std::endl;
+        Server::_users.erase(it2);
+
 		user->nickName = _cmd[3];
 		user->userName = _cmd[1];
 		user->isAuth = true;
+        send(user->_fd, "Authenticated : ", strlen("Authenticated : "), 0);
 	}
 
 	cmd.erase(cmd.length() - 1, 1);

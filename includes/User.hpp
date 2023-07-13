@@ -28,6 +28,10 @@ class User {
     bool	parse_cmds(std::string str);
     friend std::ostream& operator<<(std::ostream& os, const User& user);
 
+    bool operator==(const User& other) const {
+        return (this->_fd == other._fd);
+    }
+
 };
 
 std::ostream& operator<<(std::ostream& out, const User& User);
