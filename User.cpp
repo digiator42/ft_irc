@@ -35,9 +35,21 @@ void User::execute(std::string cmd, User *user) {
 			// userErase(*user);
 			return ;
 		}
-		std::vector<User>::iterator it2 = std::find(Server::_users.begin(), Server::_users.end(), *user);
-        std::cout << "found -->" << it2->_fd << std::endl;
-        Server::_users.erase(it2);
+		// erase user
+		// std::vector<User>::iterator it2 = std::find(Server::_users.begin(), Server::_users.end(), *user);
+        // std::cout << "found -->" << it2->_fd << std::endl;
+        // Server::_users.erase(it2);
+		if (user->isAuth) {
+			send(user->_fd, "User exists! : ", strlen("User exists! : "), 0);
+			return ;
+		}
+
+		for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
+			if (_cmd[1] == it->userName || _cmd[3] == it->nickName) {
+				send(user->_fd, "User exists! : ", strlen("User exists! : "), 0);
+				return ;
+			}
+		}
 
 		user->nickName = _cmd[3];
 		user->userName = _cmd[1];
@@ -49,7 +61,7 @@ void User::execute(std::string cmd, User *user) {
     if (cmd == "whoami"){
         std::cout << CYAN << *user << RESET <<std::endl;
 		std::string userDetails = "UserName: [" + user->userName + "]" + ", Nick: " + "[" + user->nickName + "]" + ", Auth: " 
-			+ "[" + (user->isAuth ? "YES" : "NO") + "]" + ".";
+			+ "[" + (user->isAuth ? "YES" : "NO") + "]" + ".\n";
 		send(user->_fd, (YELLOW + userDetails + RESET).c_str(), userDetails.length() + strlen(YELLOW) + strlen(RESET) , 0);
     }
     if (cmd == "show users"){

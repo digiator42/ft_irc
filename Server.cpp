@@ -110,8 +110,8 @@ void Server::handleClientMessages() {
                 // std::cout << "Received message from client: [NO:" << i + 1 << "] " << buffer << std::endl;
                 std::cout << "size -- >" << Server::_users.size() << std::endl;
                 for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
-                    // std::cout << "it->_fd -- >" << it->_fd << std::endl;
-                    // std::cout << "Server::sd -- >" << Server::sd << std::endl;
+                    std::cout << "it->_fd -- >" << it->_fd << std::endl;
+                    std::cout << "Server::sd -- >" << Server::sd << std::endl;
                     if (it->_fd == Server::sd) {
                         std::cout << YELLOW << "Received message from client: [NO:" << it->_id << "] " << Server::buffer << RESET << std::endl;
                         it->input += Server::buffer;
