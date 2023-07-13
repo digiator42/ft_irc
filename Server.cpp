@@ -1,8 +1,7 @@
 #include "./includes/Server.hpp"
 
-Server::Server() {
-
-}
+Server::Server() {}
+Server::~Server() {}
 
 void Server::openSocket() {
 	// Create the server socket
@@ -68,9 +67,8 @@ void Server::sendWlcmMsg() {
 
 // handle client messages
 void Server::handleClientMessages() {
-    // Handle client messages
+
     int i = 0;
-    memset(Server::buffer, 0, BUFFER_SIZE);
     for (i = 0; i < MAX_CLIENTS; i++) {
         Server::sd = Server::clientSockets[i];
         if (FD_ISSET(Server::sd, &Server::readfds)) {
@@ -125,11 +123,31 @@ void Server::handleClientMessages() {
     }
 }
 
+void signalHandler(int signum) {
+    std::cout << "Interrupt signal (" << signum << ") received.\n";
+
+    for (int i = 0; i < MAX_CLIENTS; i++) {
+        if (Server::clientSockets[i] != 0) {
+            close(Server::clientSockets[i]);
+        }
+    }
+    close(Server::serverSocket);
+    try
+    {
+        throw Server::ServerException("Server closed !");
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    
+    exit(signum);
+}
+
 void Server::run(void) {
 
+    signal(SIGINT, signalHandler);
     int i = 0;
-    memset(Server::clientSockets, 0, sizeof(Server::clientSockets)); // fixes segfault in linux
-    // struct timeval tv = {0, 0}; // timeout for select
     
     for (;;) {
         FD_ZERO(&Server::readfds); // clears a file descriptor set
@@ -163,7 +181,7 @@ void Server::run(void) {
         if (FD_ISSET(Server::serverSocket, &Server::readfds)) { // returns true if fd is in the set
 
             try {
-                std::string maxClientError = "Max Client [" + std::to_string(MAX_CLIENTS) + "] reached";
+                std::string maxClientError = "Max Client reached !";
                 Server::clientSockets[MAX_CLIENTS - 1] ? throw ServerException(maxClientError): (void)0;
             } catch (std::exception &e) {
                 std::cerr << e.what() << std::endl;
@@ -216,7 +234,6 @@ void Server::showUsers(void) {
         std::cout << "|──────────|──────────|──────────|──────────|" << std::endl;
 }
 
-Server::~Server() {}
 
 std::string Server::_password = "";
 int Server::serverSocket = -1;

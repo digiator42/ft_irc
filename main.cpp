@@ -20,7 +20,5 @@ int main(int argc, char *argv[])
     Server::_password = password;
 	Server::openSocket();
     Server::run();
-	close(Server::serverSocket);
-
 	return 0;
 }

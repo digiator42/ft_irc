@@ -16,6 +16,7 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <signal.h>
 
 #define MAX_PORT 65535
 #define CYAN "\033[36m"
