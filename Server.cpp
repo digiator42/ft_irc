@@ -1,15 +1,6 @@
 #include "./includes/Server.hpp"
 
 Server::Server() {
-    openSocket();
-    run();
-}
-
-Server::Server(const int port, const std::string password) {
-    Server::_port = port;
-    Server::_password = password;
-    openSocket();
-    run();
 
 }
 
@@ -116,6 +107,7 @@ void Server::handleClientMessages() {
                         std::cout << YELLOW << "Received message from client: [NO:" << it->_id << "] " << Server::buffer << RESET << std::endl;
                         it->input += Server::buffer;
                         std::string userInput(Server::buffer);
+                        curIndex = i;
                         if (!userInput.empty()) {
                             it->execute(userInput, &(*it));
                             break ;
@@ -140,8 +132,6 @@ void Server::run(void) {
     // struct timeval tv = {0, 0}; // timeout for select
     
     for (;;) {
-		// for(size_t j = 0; j < _cmd.size(); j++)
-		// 	std::cout << _cmd[j] << "\n";
         FD_ZERO(&Server::readfds); // clears a file descriptor set
         FD_SET(Server::serverSocket, &Server::readfds); // adds fd to the set
         Server::max_sd = serverSocket;
@@ -155,9 +145,6 @@ void Server::run(void) {
                 Server::max_sd = Server::sd;
         }
 
-        // for(std::vector<int>::iterator it = _fds.begin(); it != _fds.end(); ++it) {
-        //     std::cout << "vector fds: " << *it << std::endl;
-        // }
         for(std::vector<int>::iterator it = _fds.begin(); it != _fds.end(); ++it) {
             std::cout << "vector fds: " << *it << std::endl;
         }
@@ -229,11 +216,7 @@ void Server::showUsers(void) {
         std::cout << "|──────────|──────────|──────────|──────────|" << std::endl;
 }
 
-Server::~Server()
-{
-    // Close the server socket
-	close(Server::serverSocket);
-}
+Server::~Server() {}
 
 std::string Server::_password = "";
 int Server::serverSocket = -1;
@@ -242,6 +225,7 @@ int Server::sd = -1;
 int Server::valread = -1;
 int Server::_port = -1;
 int Server::newSocket = -1;
+int Server::curIndex = -1;
 int Server::addrlen = sizeof(struct sockaddr_in);
 int Server::clientSockets[MAX_CLIENTS] = {0};
 struct sockaddr_in Server::address;

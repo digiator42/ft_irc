@@ -15,7 +15,12 @@ int main(int argc, char *argv[])
 		std::cerr << "Error: invalid arguments !" << std::endl;
 		return 1;
 	}
-	Server server(port_num, password);
+
+	Server::_port = port_num;
+    Server::_password = password;
+	Server::openSocket();
+    Server::run();
+	close(Server::serverSocket);
 
 	return 0;
 }

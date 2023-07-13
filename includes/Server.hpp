@@ -30,6 +30,10 @@ const int BUFFER_SIZE = 1024;
 class User;
 class Server
 {
+private:
+	Server(void);
+	~Server();
+
 public:
 	static std::string _password;
 	static int serverSocket;
@@ -38,6 +42,7 @@ public:
 	static int valread;
 	static int _port;
 	static int newSocket;
+	static int curIndex;
 	static int addrlen;
 	static int clientSockets[MAX_CLIENTS];
 	static struct sockaddr_in address;
@@ -46,9 +51,6 @@ public:
 	static fd_set readfds;
 	static std::vector<std::string> _cmd;
 
-	Server(void);
-	Server(const int port, const std::string password);
-	~Server();
 	class ServerException : public std::exception
 	{
 		private:

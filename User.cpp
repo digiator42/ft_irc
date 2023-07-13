@@ -15,13 +15,27 @@ void User::userErase(User &user) {
 	}
 }
 
+void closeMe() {
+	close(Server::sd);
+    Server::clientSockets[Server::curIndex] = 0;
+    
+    std::vector<int>::iterator index = std::find(Server::_fds.begin(), Server::_fds.end(), Server::sd);
+    Server::_fds.erase(index);
+    for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
+        if (it->_fd == Server::sd) {
+            std::cout << "id -->" << it->_fd << std::endl;
+            std::vector<User>::iterator it2 = std::find(Server::_users.begin(), Server::_users.end(), *it);
+            std::cout << "found -->" << it2->_fd << std::endl;
+            Server::_users.erase(it2);
+            --it;
+        }
+    }
+}
+
 void User::execute(std::string cmd, User *user) {
     if (!parse_cmds(cmd) && user->isAuth == false) {
         send(user->_fd, "Authentication required : ", strlen("Authentication required : "), 0);
-		// close(user->_fd);
-		// std::cout << "User id: " << user->_id << " disconnected\n";
-		// Server::clientSockets[user->_fd - Server::serverSocket - 1] = 0;
-		// userErase(*user);
+		closeMe();
 		return ;
 	}
 	else if (parse_cmds(cmd)){
@@ -29,16 +43,9 @@ void User::execute(std::string cmd, User *user) {
 		if(user->pass != Server::getPassword())
 		{
         	send(user->_fd, "Wrong Pass : ", strlen("Wrong Pass : "), 0);
-			// close(user->_fd);
-			// std::cout << "User id: " << user->_id << " disconnected\n";
-			// Server::clientSockets[user->_fd - Server::serverSocket - 1] = 0;
-			// userErase(*user);
+			closeMe();
 			return ;
 		}
-		// erase user
-		// std::vector<User>::iterator it2 = std::find(Server::_users.begin(), Server::_users.end(), *user);
-        // std::cout << "found -->" << it2->_fd << std::endl;
-        // Server::_users.erase(it2);
 		if (user->isAuth) {
 			send(user->_fd, "User exists! : ", strlen("User exists! : "), 0);
 			return ;
