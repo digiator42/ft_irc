@@ -78,6 +78,20 @@ void User::execute(std::string cmd, User *user) {
     else if (cmd == "show users"){
         Server::showUsers();
     }
+    else if (cmd == "show vectors"){
+        std::cout << "size in cmd --> " << Server::_fds.size() << std::endl;;
+        for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it) {
+            std::cout << "vector fds: " << *it << std::endl;
+        };
+    }
+    else if (cmd == "show clients"){
+        
+        for (int i = 0; i < Server::max_sd; i++)
+		{
+			std::cout << "client " << Server::clientSockets[i] << " " << std::endl;
+		}
+		
+    }
 	else {
 		return ;
 	}

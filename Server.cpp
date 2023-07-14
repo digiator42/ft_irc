@@ -169,7 +169,8 @@ void Server::run(void) {
         }
 
         for(std::vector<int>::iterator it = _fds.begin(); it != _fds.end(); ++it) {
-            std::cout << "vector fds: " << *it << std::endl;
+            if (*it != 0)
+                std::cout << "vector fds: " << *it << std::endl;
         }
         for(std::vector<User>::iterator it = _users.begin(); it != _users.end(); ++it) {
             std::cout << "User FD: " << (*it)._fd << " User ID: " << (*it)._id << std::endl;
