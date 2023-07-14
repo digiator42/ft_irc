@@ -269,3 +269,5 @@ std::vector<User> Server::_users;
 // /conn 10.11.2.13 6667 1
 
 // if same fd connected again user stll exist in the vector
+
+// irssi send all details of connection, user root, nick root, and so on, that will be authenticated accordingly.

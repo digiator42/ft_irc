@@ -16,6 +16,15 @@ $(NAME): $(OBJS)
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+irssi: rmirssi
+	docker run -it --name irssi-container -e TERM -u $(id -u):$(id -g) \
+	--log-driver=none \
+    -v ${HOME}/.irssi:/home/user/.irssi:ro \
+    irssi
+
+rmirssi:
+	docker rm -f irssi-container 2>/dev/null
+
 clean:
 	rm -f $(OBJS)
 
