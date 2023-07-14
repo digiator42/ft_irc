@@ -79,11 +79,16 @@ void Server::handleClientMessages() {
                 close(Server::sd);
                 // std::cout << "i -- >" << i << std::endl;
                 Server::clientSockets[i] = 0;
-                // Server::_users.erase(Server::_users.begin() + i); // needs test
-                
-                std::vector<int>::iterator index = std::find(Server::_fds.begin(), Server::_fds.end(), Server::sd);
-                Server::_fds.erase(index);
+                // remove from fd set
+                for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it) {
+                    if (*it == Server::sd) {
 
+                        std::cout << "found -->" << *it << std::endl;
+                        Server::_fds.erase(it);
+                        --it;
+                    }
+                }
+                // remove from users
                 for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
                     if (it->_fd == Server::sd) {
                         std::cout << "id -->" << it->_fd << std::endl;
@@ -195,7 +200,7 @@ void Server::run(void) {
                 if (Server::clientSockets[i] == 0) {
                     Server::clientSockets[i] = Server::newSocket;
                     Server::_fds.push_back(Server::newSocket);
-                    Server::_users.push_back(User(Server::newSocket, Server::_fds.at(i) - serverSocket));
+                    Server::_users.push_back(User(Server::newSocket, Server::newSocket - serverSocket));
                     break;
                 }
             }
@@ -250,7 +255,7 @@ char Server::buffer[BUFFER_SIZE]= {0};
 std::string Server::bufferStr = "";
 fd_set Server::readfds;
 std::vector<std::string> Server::_cmd;
-std::vector<int> Server::_fds;
+std::vector<int> Server::_fds(MAX_CLIENTS, 0);
 std::vector<User> Server::_users;
 
 

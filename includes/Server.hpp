@@ -26,7 +26,7 @@
 #define RESET "\033[0m"
 
 const int MAX_CLIENTS = FD_SETSIZE;
-const int BUFFER_SIZE = 1024;
+const int BUFFER_SIZE = MAX_CLIENTS;
 
 class User;
 class Server
