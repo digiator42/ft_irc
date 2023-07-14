@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ahassan <ahassan@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 21:29:02 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/14 18:46:46 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/14 19:51:39 by ahassan          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CHANNEL_HPP
 # define CHANNEL_HPP
 
+#include "Server.hpp"
 #include <iostream>
 #include <string>
 #include <vector>

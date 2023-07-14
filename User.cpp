@@ -1,6 +1,6 @@
 #include "./includes/Server.hpp"
 
-User::User(int fd, int id) : _fd(fd), _id(id), isAuth(false), nickName(""), userName(""), realName("") {
+User::User(int fd, int id) : _fd(fd), _id(id), isAuth(false), isOperator(false), nickName(""), userName("") {
 	input = "";
 }
 
@@ -72,7 +72,7 @@ void User::execute(std::string cmd, User *user) {
     else if (cmd.erase(cmd.length() - 1, 1) == "whoami"){
         std::cout << CYAN << *user << RESET <<std::endl;
 		std::string userDetails = "UserName: [" + user->userName + "]" + ", Nick: " + "[" + user->nickName + "]" + ", Auth: " 
-			+ "[" + (user->isAuth ? "YES" : "NO") + "]" + ".\n";
+			+ "[" + (user->isAuth ? "YES" : "NO") + "]" + ", [fd: " +  std::to_string(user->_fd) + "]" + ".\n";
 		send(user->_fd, (YELLOW + userDetails + RESET).c_str(), userDetails.length() + strlen(YELLOW) + strlen(RESET) , 0);
     }
     else if (cmd == "show users"){
@@ -91,6 +91,10 @@ void User::execute(std::string cmd, User *user) {
 			std::cout << "client " << Server::clientSockets[i] << " " << std::endl;
 		}
 		
+    }
+	else if (!strncmp(cmd.c_str(), "SEND", 4)) {
+		for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
+        	    send(it->_fd, "GOT MASSAGE FOR CHANNEL", 24, 0);            
     }
 	else {
 		return ;

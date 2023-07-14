@@ -1,6 +1,7 @@
 #ifndef USER_HPP
 #define USER_HPP
 
+#include <stdlib.h>
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -17,9 +18,9 @@ class User {
     int _fd;
     int _id;
     bool isAuth;
+    bool isOperator;
     std::string nickName;
     std::string userName;
-    std::string realName;
 	std::string pass;
     std::vector<std::string> _cmd;
 
