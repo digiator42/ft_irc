@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ahassan <ahassan@student.42.fr>            +#+  +:+       +#+        */
+/*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 21:29:02 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/14 19:51:39 by ahassan          ###   ########.fr       */
+/*   Updated: 2023/07/14 21:12:20 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define CHANNEL_HPP
 
 #include "Server.hpp"
+#include "User.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -32,7 +33,7 @@ class Channel{
 		std::string name; // passed as parameter in parameterized constructor??
 		std::string pass; // // passed as parameter in parameterized constructor??
 		std::string topic;
-		std::vector<std::string> users;
+		std::vector<User> users;
 		std::map<std::string, int> mode;
 	public:
 	Channel(void);
@@ -46,7 +47,7 @@ class Channel{
 	std::string getTopic(void);
 	std::string getPass(void);
 	std::string getMode(void);
-	std::vector<std::string> getUsers(void);
+	std::vector<User> getUsers(void);
 	std::string getName(void);
 
 	// SETTERS
@@ -56,16 +57,18 @@ class Channel{
 	// void setMode(std::string mode); // should set anything initially??
 	
 	// MEMBER FUNCTIONS
-	void joinChannel(std::string new_user);
-	void leaveChannel(std::string user);
-	void sendMessage(std::string message, std::string sender);
-	void inviteUser(std::string user); // can send message for inviting/kicking or add it asa parameter
-	void kickUser(std::string user);
+	void joinChannel(User new_user);
+	void leaveChannel(User user);
+	void sendMessage(User sender, std::string message);
+	void inviteUser(User user, std::string message); // can send message for inviting/kicking or add it asa parameter
+	void kickUser(User user, std::string message);
 
 	void switchMode(std::string mode);
 	// send privmessage
 	// send notice
 	
 };
+
+
 
 # endif
