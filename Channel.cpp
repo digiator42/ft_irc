@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 21:50:36 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/14 21:13:21 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/15 22:30:12 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,11 @@ std::string	Channel::getPass(void)
 	return (pass);
 }
 
+std::map<std::string, int> Channel::getMode(void)
+{
+	return (mode);
+}
+
 std::vector<User> Channel::getUsers(void)
 {
 	return (users);
@@ -77,50 +82,16 @@ void Channel::setPass(std::string str)
 
 // -- MEMEBR FUNCTIONS --
 
-void Channel::joinChannel(User new_user)
+void Channel::addUser(User new_user)
 {
+	if (operators.size() == 0)
+	{
+		operators.push_back(new_user);
+	}
 	users.push_back(new_user);
 }
 
-void Channel::leaveChannel(User user)
-{
-	std::vector<User>::iterator it;
-	for (it = users.begin(); it != users.end();)
-	{
-		if (*it == user)
-			users.erase(it);
-		else
-			++it;
-	}
-}
-
-void Channel::sendMessage(User sender, std::string message)
-{
-	// through server??
-	for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
-		{
-			send((*it)._fd, message.c_str(), strlen(message.c_str()), 0);
-		}
-}
-
-void Channel::inviteUser(User user, std::string message)
-{
-	// check mode
-	std::map<std::string, int>::const_iterator it = mode.find("i");
-	if (it == mode.end())
-	{
-		// error message if necessary
-		// return
-	}
-	else
-	{
-		// invite user
-		send(user._fd, message.c_str(), strlen(message.c_str()), 0);
-		// set flag??
-	}
-}
-
-void Channel::kickUser(User user, std::string message)
+void Channel::kickUser(User user)
 {
 	// check if user is operator
 	// if (/* one who sent the command to KICK is operator */)
@@ -133,7 +104,7 @@ void Channel::kickUser(User user, std::string message)
 			else
 				++it;
 		}
-		send(user._fd, message.c_str(), strlen(message.c_str()), 0);
+		// send(user._fd, message.c_str(), strlen(message.c_str()), 0);
 	// }
 	// else
 	// {
