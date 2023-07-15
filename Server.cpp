@@ -137,12 +137,9 @@ void signalHandler(int signum) {
         }
     }
     close(Server::serverSocket);
-    try
-    {
+    try {
         throw Server::ServerException("Server closed !");
-    }
-    catch(const std::exception& e)
-    {
+    } catch(const std::exception& e) {
         std::cerr << e.what() << '\n';
     }
     
@@ -152,6 +149,7 @@ void signalHandler(int signum) {
 void Server::run(void) {
 
     signal(SIGINT, signalHandler);
+    signal(SIGQUIT, signalHandler);
     int i = 0;
     
     for (;;) {
