@@ -50,7 +50,7 @@ public:
 	static char buffer[BUFFER_SIZE];
 	static std::string bufferStr;
 	static fd_set readfds;
-	static std::vector<std::string> _cmd;
+
 
 	class ServerException : public std::exception
 	{

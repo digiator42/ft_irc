@@ -255,7 +255,6 @@ struct sockaddr_in Server::address;
 char Server::buffer[BUFFER_SIZE]= {0};
 std::string Server::bufferStr = "";
 fd_set Server::readfds;
-std::vector<std::string> Server::_cmd;
 std::vector<int> Server::_fds(MAX_CLIENTS, 0);
 std::vector<User> Server::_users;
 
