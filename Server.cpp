@@ -115,6 +115,7 @@ void Server::handleClientMessages() {
                             it->execute(userInput, &(*it));
                             break ;
                         }
+                        return ;
                     }
                 }
                 // Broadcast the message to other clients

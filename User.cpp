@@ -44,24 +44,30 @@ void User::execute(std::string cmd, User *user)
 	{
         send(user->_fd, "Authentication required : ", strlen("Authentication required : "), 0);
 		// closeMe();
-		_cmd.clear();
+		if(_cmd.size() > 0)
+			_cmd.clear();
 		return ;
 	}
 	else
-		_cmd.clear();
+	{
+		if(_cmd.size() > 0)
+			_cmd.clear();
+	}
 	if (parse_cmds(cmd))
 	{
 		if (user->isAuth)
 		{
 			send(user->_fd, "User exists! : ", strlen("User exists! : "), 0);
-			_cmd.clear();
+			if(_cmd.size() > 0)
+				_cmd.clear();
 			return ;
 		}
 		user->pass = _cmd[5];
 		if(user->pass != Server::getPassword())
 		{
         	send(user->_fd, "Wrong Pass : ", strlen("Wrong Pass : "), 0);
-			_cmd.clear();
+			if(_cmd.size() > 0)
+				_cmd.clear();
 			// closeMe();
 			return ;
 		}
@@ -79,12 +85,14 @@ void User::execute(std::string cmd, User *user)
 		user->userName = _cmd[1];
 		user->isAuth = true;
         send(user->_fd, "Authenticated : ", strlen("Authenticated : "), 0);
-		_cmd.clear();
+		if(_cmd.size() > 0)
+			_cmd.clear();
 
 	}
 	else
 	{
-		_cmd.clear();
+		if(_cmd.size() > 0)
+			_cmd.clear();
 		// return ;
 	}
     if (cmd.erase(cmd.length() - 1, 1) == "whoami")
@@ -94,7 +102,7 @@ void User::execute(std::string cmd, User *user)
 			+ "[" + (user->isAuth ? "YES" : "NO") + "]" + ", [fd: " +  std::to_string(user->_fd) + "]" + ".\n";
 		send(user->_fd, (YELLOW + userDetails + RESET).c_str(), userDetails.length() + strlen(YELLOW) + strlen(RESET) , 0);
     }
-    else if (_cmd[0] == "show" && _cmd[1] ==  "users")
+    else if (_cmd.size() > 1 && _cmd[0] == "show" && _cmd[1] ==  "users")
         Server::showUsers();
     else if (cmd == "show vectors")
 	{
