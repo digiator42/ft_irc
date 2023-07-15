@@ -6,11 +6,11 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 21:50:36 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/14 18:55:07 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/14 21:13:21 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Channel.hpp"
+#include "./includes/Channel.hpp"
 
 Channel::Channel(void)
 {
@@ -48,7 +48,7 @@ std::string	Channel::getPass(void)
 	return (pass);
 }
 
-std::vector<std::string> Channel::getUsers(void)
+std::vector<User> Channel::getUsers(void)
 {
 	return (users);
 }
@@ -77,14 +77,14 @@ void Channel::setPass(std::string str)
 
 // -- MEMEBR FUNCTIONS --
 
-void Channel::joinChannel(std::string new_user)
+void Channel::joinChannel(User new_user)
 {
 	users.push_back(new_user);
 }
 
-void Channel::leaveChannel(std::string user)
+void Channel::leaveChannel(User user)
 {
-	std::vector<std::string>::iterator it;
+	std::vector<User>::iterator it;
 	for (it = users.begin(); it != users.end();)
 	{
 		if (*it == user)
@@ -94,32 +94,38 @@ void Channel::leaveChannel(std::string user)
 	}
 }
 
-void Channel::sendMessage(std::string message, std::string sender)
+void Channel::sendMessage(User sender, std::string message)
 {
 	// through server??
+	for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
+		{
+			send((*it)._fd, message.c_str(), strlen(message.c_str()), 0);
+		}
 }
 
-void Channel::inviteUser(std::string user)
+void Channel::inviteUser(User user, std::string message)
 {
 	// check mode
 	std::map<std::string, int>::const_iterator it = mode.find("i");
 	if (it == mode.end())
 	{
-		// error message
+		// error message if necessary
 		// return
 	}
 	else
 	{
 		// invite user
+		send(user._fd, message.c_str(), strlen(message.c_str()), 0);
+		// set flag??
 	}
 }
 
-void Channel::kickUser(std::string user)
+void Channel::kickUser(User user, std::string message)
 {
 	// check if user is operator
-	if (/* user is the operator */)
-	{
-		std::vector<std::string>::iterator it;
+	// if (/* one who sent the command to KICK is operator */)
+	// {
+		std::vector<User>::iterator it;
 		for (it = users.begin(); it != users.end();)
 		{
 			if (*it == user)
@@ -127,12 +133,13 @@ void Channel::kickUser(std::string user)
 			else
 				++it;
 		}
-	}
-	else
-	{
-		// error message
-		// return
-	}
+		send(user._fd, message.c_str(), strlen(message.c_str()), 0);
+	// }
+	// else
+	// {
+	// 	// error message if necessary
+	// 	// return
+	// }
 }
 
 void Channel::switchMode(std::string new_mode)
