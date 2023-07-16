@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 21:29:02 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/15 22:31:05 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/16 21:04:20 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,9 +58,9 @@ class Channel{
 	// void setMode(std::string mode); // should set anything initially??
 	
 	// MEMBER FUNCTIONS
+	void ft_split(std::string str, char delimiter);
 	void addUser(User new_user);
 	void kickUser(User user);
-	void switchMode(std::string mode); // or set mode??
 	
 };
 
