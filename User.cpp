@@ -1,14 +1,17 @@
 #include "./includes/Server.hpp"
 
-User::User(int fd, int id) : _fd(fd), _id(id), isAuth(false), isOperator(false), nickName(""), userName(""){
+User::User(int fd, int id) : _fd(fd), _id(id), isAuth(false), isOperator(false), nickName(""), userName("")
+{
 	std::cout << "User created" << std::endl;
 	input = "";
 }
 
 User::~User() {}
 
-void User::userErase(User &user) {
-	for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
+void User::userErase(User &user)
+{
+	for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
+	{
 		if (it->_fd == user._fd) {
 			Server::_users.erase(it);
 			--it;
@@ -16,7 +19,8 @@ void User::userErase(User &user) {
 	}
 }
 
-void User::whoAmI(User &user) {
+void User::whoAmI(User &user)
+{
 	std::cout << CYAN << user << RESET <<std::endl;
 	std::string userDetails = "UserName: [" + user.userName + "]" + ", Nick: " + "[" + user.nickName + "]" + ", Auth: " 
 			+ "[" + (user.isAuth ? "YES" : "NO") + "]" + ", [fd: " +  std::to_string(user._fd) + "]" + ".\n";
@@ -34,9 +38,8 @@ void User::showClients(User &user)
 void User::showUsers(User &user)
 {
 	(void)user;
-	for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
+	for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
 		std::cout << CYAN << *it << RESET <<std::endl;
-	}
 }
 
 void closeMe(User &user)
@@ -48,7 +51,8 @@ void closeMe(User &user)
 			Server::clientSockets[i] = 0;
 	}
 	    
-    for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it) {
+    for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it) 
+	{
         if (*it == Server::sd) 
             std::cout << "found -->" << *it << std::endl;
             Server::_fds.erase(it);
