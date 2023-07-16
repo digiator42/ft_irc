@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 21:29:02 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/14 21:12:20 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/15 22:31:05 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ class Channel{
 		std::string pass; // // passed as parameter in parameterized constructor??
 		std::string topic;
 		std::vector<User> users;
+		std::vector<User> operators;
 		std::map<std::string, int> mode;
 	public:
 	Channel(void);
@@ -46,7 +47,7 @@ class Channel{
 	int getMaxUsers(void); 
 	std::string getTopic(void);
 	std::string getPass(void);
-	std::string getMode(void);
+	std::map<std::string, int> getMode(void);
 	std::vector<User> getUsers(void);
 	std::string getName(void);
 
@@ -57,15 +58,9 @@ class Channel{
 	// void setMode(std::string mode); // should set anything initially??
 	
 	// MEMBER FUNCTIONS
-	void joinChannel(User new_user);
-	void leaveChannel(User user);
-	void sendMessage(User sender, std::string message);
-	void inviteUser(User user, std::string message); // can send message for inviting/kicking or add it asa parameter
-	void kickUser(User user, std::string message);
-
-	void switchMode(std::string mode);
-	// send privmessage
-	// send notice
+	void addUser(User new_user);
+	void kickUser(User user);
+	void switchMode(std::string mode); // or set mode??
 	
 };
 
