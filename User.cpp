@@ -37,11 +37,14 @@ void User::showUsers(User &user) {
 	}
 }
 
-void closeMe() {
-	close(Server::sd);
-    Server::clientSockets[Server::curIndex] = 0;
-    
-        // remove from fd set
+void closeMe(User &user) {
+	close(user._fd);
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (Server::clientSockets[i] == user._fd)
+			Server::clientSockets[i] = 0;
+	}
+	    
     for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it) {
         if (*it == Server::sd) 
             std::cout << "found -->" << *it << std::endl;
@@ -60,10 +63,22 @@ void closeMe() {
     }
 }
 
+
+void User::kick(std::string nick) {
+
+	for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
+		if (it->nickName == nick)
+		{
+			closeMe(*it);
+			return ;
+		}
+	}
+}
+
 void User::execute(std::string cmd, User *user)
 {
 	std::string levels[3] = {"whoami", "show clients", "show users"};
-	void (User::*f[3])(User &user) = {&User::whoAmI, &User::showClients, &User::showUsers};
+	void (User::*f[3])(User &user) = { &User::whoAmI, &User::showClients, &User::showUsers};
 	
     if (!parse_cmds(cmd) && user->isAuth == false)
 	{
@@ -93,7 +108,7 @@ void User::execute(std::string cmd, User *user)
         	send(user->_fd, "Wrong Pass : ", strlen("Wrong Pass : "), 0);
 			if(_cmd.size() > 0)
 				_cmd.clear();
-			// closeMe();
+			closeMe(*user);
 			return ;
 		}
 
@@ -113,6 +128,37 @@ void User::execute(std::string cmd, User *user)
 		if(_cmd.size() > 0)
 			_cmd.clear();
 
+	}
+	else if (!strcmp(cmd.c_str(), "quit"))
+	{
+		closeMe(*user);
+	}
+	else if (!strcmp(cmd.c_str(), "exit"))
+	{
+		closeMe(*user);
+	}
+	else if (!strcmp(cmd.c_str(), "close"))
+	{
+		closeMe(*user);
+	}
+	else if (_cmd.size() > 0 && _cmd[0] == "kick")
+	{
+		std::cout << "kick -- --- - --" << cmd << std::endl;
+		kick(_cmd[1]);
+		send(user->_fd, "kick <nick> : ", strlen("kick <nick> : "), 0);
+	}
+	else if (_cmd.size() > 0 && _cmd[0] == "help")
+	{
+		std::string help = "Available commands: \n"
+		"whoami - show user details\n"
+		"show clients - show all clients\n"
+		"show users - show all users\n"
+		"kick <nick> - kick user\n"
+		"exit - close connection\n"
+		"quit - close connection\n"
+		"close - close connection\n"
+		"help - show help\n";
+		send(user->_fd, help.c_str(), help.length(), 0);
 	}
 	else
 	{
