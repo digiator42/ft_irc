@@ -1,14 +1,17 @@
 #include "./includes/Server.hpp"
 
-User::User(int fd, int id) : _fd(fd), _id(id), isAuth(false), isOperator(false), nickName(""), userName(""){
+User::User(int fd, int id) : _fd(fd), _id(id), isAuth(false), isOperator(false), nickName(""), userName("")
+{
 	std::cout << "User created" << std::endl;
 	input = "";
 }
 
 User::~User() {}
 
-void User::userErase(User &user) {
-	for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
+void User::userErase(User &user)
+{
+	for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
+	{
 		if (it->_fd == user._fd) {
 			Server::_users.erase(it);
 			--it;
@@ -16,7 +19,8 @@ void User::userErase(User &user) {
 	}
 }
 
-void User::whoAmI(User &user) {
+void User::whoAmI(User &user)
+{
 	std::cout << CYAN << user << RESET <<std::endl;
 	std::string userDetails = "UserName: [" + user.userName + "]" + ", Nick: " + "[" + user.nickName + "]" + ", Auth: " 
 			+ "[" + (user.isAuth ? "YES" : "NO") + "]" + ", [fd: " +  std::to_string(user._fd) + "]" + ".\n";
@@ -24,20 +28,22 @@ void User::whoAmI(User &user) {
     
 }
 
-void User::showClients(User &user) {
+void User::showClients(User &user)
+{
 	(void)user;
 	for (int i = 0; i < Server::max_sd; i++)
 	std::cout << "client " << Server::clientSockets[i] << " " << std::endl;
 }
 
-void User::showUsers(User &user) {
+void User::showUsers(User &user)
+{
 	(void)user;
-	for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
+	for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
 		std::cout << CYAN << *it << RESET <<std::endl;
-	}
 }
 
-void closeMe(User &user) {
+void closeMe(User &user)
+{
 	close(user._fd);
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -45,7 +51,8 @@ void closeMe(User &user) {
 			Server::clientSockets[i] = 0;
 	}
 	    
-    for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it) {
+    for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it) 
+	{
         if (*it == Server::sd) 
             std::cout << "found -->" << *it << std::endl;
             Server::_fds.erase(it);
@@ -69,8 +76,14 @@ void User::kick(std::string nick)
 	for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
 		if (it->nickName == nick)
 		{
-			closeMe(*it);
-			--it;
+			std::cout << "Kicking " << it->_fd << std::endl;
+			close(it->_fd);
+			for (int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if (Server::clientSockets[i] == it->_fd)
+					Server::clientSockets[i] = 0;
+			}
+			Server::_fds.erase(std::find(Server::_fds.begin(), Server::_fds.end(), it->_fd));
 			return ;
 		}
 	}
@@ -120,6 +133,38 @@ void User::authorise(User *user, std::string cmd)
 	}
 }
 
+void	User::user_options(User *user, std::vector<std::string> splitmsg)
+{
+	if (splitmsg.size() > 0 && (splitmsg[0] == "quit" || splitmsg[0] == "exit" || splitmsg[0] == "close"))
+		closeMe(*user);
+	else if (splitmsg.size() == 2 && splitmsg[0] == "kick")
+	{
+		kick(splitmsg[1]);
+		int i = Server::_users.size();
+		std::cout << "size of users vector - > " <<  i << std::endl;
+		send(Server::sd, "has kicked " , strlen("has kicked "), 0);
+	}
+	else if (splitmsg.size() > 0 && splitmsg[0] == "help")
+	{
+		std::string help = "Available commands: \n"
+		"whoami - show user details\n"
+		"show clients - show all clients\n"
+		"show users - show all users\n"
+		"kick <nick> - kick user\n"
+		"exit - close connection\n"
+		"quit - close connection\n"
+		"close - close connection\n"
+		"help - show help\n";
+		send(user->_fd, help.c_str(), help.length(), 0);
+	}
+	else
+	{
+		if(_cmd.size() > 0)
+			_cmd.clear();
+		// return ;
+	}
+}
+
 void User::execute(std::string cmd, User *user)
 {
 	std::string levels[3] = {"whoami", "show clients", "show users"};
@@ -142,33 +187,8 @@ void User::execute(std::string cmd, User *user)
 	}
 	
 	authorise(user, cmd);
+	user_options(user, splitmsg);
 
-	if (splitmsg.size() > 0 && (splitmsg[0] == "quit" || splitmsg[0] == "exit" || splitmsg[0] == "close"))
-		closeMe(*user);
-	else if (splitmsg.size() == 2 && splitmsg[0] == "kick")
-	{
-		kick(splitmsg[1]);
-		send(Server::sd, "has kicked " , strlen("has kicked "), 0);
-	}
-	else if (splitmsg.size() > 0 && splitmsg[0] == "help")
-	{
-		std::string help = "Available commands: \n"
-		"whoami - show user details\n"
-		"show clients - show all clients\n"
-		"show users - show all users\n"
-		"kick <nick> - kick user\n"
-		"exit - close connection\n"
-		"quit - close connection\n"
-		"close - close connection\n"
-		"help - show help\n";
-		send(user->_fd, help.c_str(), help.length(), 0);
-	}
-	else
-	{
-		if(_cmd.size() > 0)
-			_cmd.clear();
-		// return ;
-	}
 	for (int i = 0; i < 3; i++)
 	{
 		std::cout << "---- >cmd: " << cmd << " levels: " << levels[i] << std::endl;
@@ -176,6 +196,7 @@ void User::execute(std::string cmd, User *user)
 			cmd.erase(cmd.length() - 1, 1);
 		cmd == levels[i] ? (this->*f[i])(*user) : (void)0;
 	}
+
 	return ;
 }
 
