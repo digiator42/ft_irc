@@ -38,8 +38,9 @@ void User::showClients(User &user)
 void User::showUsers(User &user)
 {
 	(void)user;
-	for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
-		std::cout << CYAN << *it << RESET <<std::endl;
+	// for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
+	// 	std::cout << CYAN << *it << RESET <<std::endl;
+	Server::showUsers();
 }
 
 void closeMe(User &user)
@@ -100,7 +101,10 @@ void User::authorise(User *user, std::string cmd)
 				_cmd.clear();
 			return ;
 		}
-		user->pass = _cmd[5];
+		if(_cmd.size() == 6)
+			user->pass = _cmd[5];
+		else if(_cmd.size() == 11)
+			user->pass = _cmd[3];
 		if(user->pass != Server::getPassword())
 		{
 			send(user->_fd, "Wrong Pass : ", strlen("Wrong Pass : "), 0);
@@ -117,8 +121,16 @@ void User::authorise(User *user, std::string cmd)
 				return ;
 			}
 		}
-		user->nickName = _cmd[3];
-		user->userName = _cmd[1];
+		if(_cmd.size() == 6)
+		{
+			user->nickName = _cmd[3];
+			user->userName = _cmd[1];
+		}
+		else if(_cmd.size() == 11)
+		{
+			user->nickName = _cmd[5];
+			user->userName = _cmd[7];
+		}
 		user->isAuth = true;
 		send(user->_fd, "Authenticated : ", strlen("Authenticated : "), 0);
 		if(_cmd.size() > 0)
@@ -190,8 +202,7 @@ void User::execute(std::string cmd, User *user)
 
 	for (int i = 0; i < 3; i++)
 	{
-		if (cmd.length() > 1)
-			cmd.erase(cmd.length() - 1, 1);
+		cmd = trim(cmd);	
 		cmd == levels[i] ? (this->*f[i])(*user) : (void)0;
 	}
 
@@ -212,23 +223,29 @@ bool	User::parse_cmds(std::string str)
 {
 	std::vector<std::string> vector = split(str);
 
-	for (std::vector<std::string>::iterator it = vector.begin(); it != vector.end(); ++it)
-	{
-		std::cout << "_cmd " << *it << std::endl;
-	}
+	// for (std::vector<std::string>::iterator it = vector.begin(); it != vector.end(); ++it)
+	// {
+	// 	std::cout << "_cmd " << *it << std::endl;
+	// }
 
-	std::cout << "_cmd size --> " << vector.size() << std::endl;
+	// std::cout << "_cmd size --> " << vector.size() << std::endl;
 
 	if(_cmd.size() > 0)
 		_cmd.clear();
-	if (vector.size() != 6)
+	if (vector.size() != 6 && vector.size() != 11)
 	{
 		_cmd = vector;
 		return false;
 	}
 	
-	if(vector[0] != "USER" || vector[2] != "NICK" || \
-		vector[4] != "PASS")
+	if(vector.size() == 6 && (vector[0] != "USER" || vector[2] != "NICK" || \
+		vector[4] != "PASS") )
+	{
+		_cmd = vector;
+		return false;
+	}
+	if(vector.size() == 11 && (vector[0] != "CAP" || vector[1] != "END" || \
+		vector[2] != "PASS" || vector[4] != "NICK" || vector[6] != "USER"))
 	{
 		_cmd = vector;
 		return false;
