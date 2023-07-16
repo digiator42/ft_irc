@@ -62,9 +62,7 @@ void closeMe(User &user)
     for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
         if (it->_fd == Server::sd) {
             std::cout << "id -->" << it->_fd << std::endl;
-            std::vector<User>::iterator it2 = std::find(Server::_users.begin(), Server::_users.end(), *it);
-            std::cout << "found -->" << it2->_fd << std::endl;
-            Server::_users.erase(it2);
+            Server::_users.erase(it);
             --it;
         }
     }
@@ -83,7 +81,8 @@ void User::kick(std::string nick)
 				if (Server::clientSockets[i] == it->_fd)
 					Server::clientSockets[i] = 0;
 			}
-			Server::_fds.erase(std::find(Server::_fds.begin(), Server::_fds.end(), it->_fd));
+			Server::_users.erase(it);
+			--it;
 			return ;
 		}
 	}
@@ -191,7 +190,6 @@ void User::execute(std::string cmd, User *user)
 
 	for (int i = 0; i < 3; i++)
 	{
-		std::cout << "---- >cmd: " << cmd << " levels: " << levels[i] << std::endl;
 		if (cmd.length() > 1)
 			cmd.erase(cmd.length() - 1, 1);
 		cmd == levels[i] ? (this->*f[i])(*user) : (void)0;
@@ -214,9 +212,12 @@ bool	User::parse_cmds(std::string str)
 {
 	std::vector<std::string> vector = split(str);
 
-	for(size_t i = 0; i < vector.size(); i++)
-		std::cout << vector[i] << std::endl;
-	std::cout << "size --> " << vector.size() << std::endl;
+	for (std::vector<std::string>::iterator it = vector.begin(); it != vector.end(); ++it)
+	{
+		std::cout << "_cmd " << *it << std::endl;
+	}
+
+	std::cout << "_cmd size --> " << vector.size() << std::endl;
 
 	if(_cmd.size() > 0)
 		_cmd.clear();
