@@ -69,8 +69,14 @@ void User::kick(std::string nick)
 	for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
 		if (it->nickName == nick)
 		{
-			closeMe(*it);
-			--it;
+			std::cout << "Kicking " << it->_fd << std::endl;
+			close(it->_fd);
+			for (int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if (Server::clientSockets[i] == it->_fd)
+					Server::clientSockets[i] = 0;
+			}
+			Server::_fds.erase(std::find(Server::_fds.begin(), Server::_fds.end(), it->_fd));
 			return ;
 		}
 	}
@@ -148,6 +154,8 @@ void User::execute(std::string cmd, User *user)
 	else if (splitmsg.size() == 2 && splitmsg[0] == "kick")
 	{
 		kick(splitmsg[1]);
+		int i = Server::_users.size();
+		std::cout << "size of users vector - > " <<  i << std::endl;
 		send(Server::sd, "has kicked " , strlen("has kicked "), 0);
 	}
 	else if (splitmsg.size() > 0 && splitmsg[0] == "help")
