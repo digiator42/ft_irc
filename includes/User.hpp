@@ -28,7 +28,9 @@ class User {
     void userErase(User &user);
     bool	parse_cmds(std::string str);
     friend std::ostream& operator<<(std::ostream& os, const User& user);
-
+    void whoAmI(User &user);
+    void showUsers(User &user);
+    void showClients(User &user);
     bool operator==(const User& other) const {
         return (this->_fd == other._fd);
     }

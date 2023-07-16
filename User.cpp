@@ -1,6 +1,7 @@
 #include "./includes/Server.hpp"
 
-User::User(int fd, int id) : _fd(fd), _id(id), isAuth(false), isOperator(false), nickName(""), userName("") {
+User::User(int fd, int id) : _fd(fd), _id(id), isAuth(false), isOperator(false), nickName(""), userName(""){
+	std::cout << "User created" << std::endl;
 	input = "";
 }
 
@@ -12,6 +13,27 @@ void User::userErase(User &user) {
 			Server::_users.erase(it);
 			--it;
 		}
+	}
+}
+
+void User::whoAmI(User &user) {
+	std::cout << CYAN << user << RESET <<std::endl;
+	std::string userDetails = "UserName: [" + user.userName + "]" + ", Nick: " + "[" + user.nickName + "]" + ", Auth: " 
+			+ "[" + (user.isAuth ? "YES" : "NO") + "]" + ", [fd: " +  std::to_string(user._fd) + "]" + ".\n";
+	send(user._fd, (YELLOW + userDetails + RESET).c_str(), userDetails.length() + strlen(YELLOW) + strlen(RESET) , 0);
+    
+}
+
+void User::showClients(User &user) {
+	(void)user;
+	for (int i = 0; i < Server::max_sd; i++)
+	std::cout << "client " << Server::clientSockets[i] << " " << std::endl;
+}
+
+void User::showUsers(User &user) {
+	(void)user;
+	for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
+		std::cout << CYAN << *it << RESET <<std::endl;
 	}
 }
 
@@ -40,12 +62,15 @@ void closeMe() {
 
 void User::execute(std::string cmd, User *user)
 {
+	std::string levels[3] = {"whoami", "show clients", "show users"};
+	void (User::*f[3])(User &user) = {&User::whoAmI, &User::showClients, &User::showUsers};
+	
     if (!parse_cmds(cmd) && user->isAuth == false)
 	{
         send(user->_fd, "Authentication required : ", strlen("Authentication required : "), 0);
 		// closeMe();
-		if(_cmd.size() > 0)
-			_cmd.clear();
+		// if(_cmd.size() > 0)
+		// 	_cmd.clear();
 		return ;
 	}
 	else
@@ -95,34 +120,14 @@ void User::execute(std::string cmd, User *user)
 			_cmd.clear();
 		// return ;
 	}
-    if (cmd.erase(cmd.length() - 1, 1) == "whoami")
+	for (int i = 0; i < 3; i++)
 	{
-        std::cout << CYAN << *user << RESET <<std::endl;
-		std::string userDetails = "UserName: [" + user->userName + "]" + ", Nick: " + "[" + user->nickName + "]" + ", Auth: " 
-			+ "[" + (user->isAuth ? "YES" : "NO") + "]" + ", [fd: " +  std::to_string(user->_fd) + "]" + ".\n";
-		send(user->_fd, (YELLOW + userDetails + RESET).c_str(), userDetails.length() + strlen(YELLOW) + strlen(RESET) , 0);
-    }
-    else if (_cmd.size() > 1 && _cmd[0] == "show" && _cmd[1] ==  "users")
-        Server::showUsers();
-    else if (cmd == "show vectors")
-	{
-        std::cout << "size in cmd --> " << Server::_fds.size() << std::endl;
-        for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it)
-            std::cout << "vector fds: " << *it << std::endl;
-    }
-    else if (cmd == "show clients"){
-        
-        for (int i = 0; i < Server::max_sd; i++)
-			std::cout << "client " << Server::clientSockets[i] << " " << std::endl;
-		
-    }
-	else if (!strncmp(cmd.c_str(), "SEND", 4))
-	{
-		for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
-        	    send(it->_fd, "GOT MASSAGE FOR CHANNEL", 24, 0);            
-    }
-	else
-		return ;
+		std::cout << "---- >cmd: " << cmd << " levels: " << levels[i] << std::endl;
+		if (cmd.length() > 1)
+			cmd.erase(cmd.length() - 1, 1);
+		cmd == levels[i] ? (this->*f[i])(*user) : (void)0;
+	}
+	return ;
 }
 
 
