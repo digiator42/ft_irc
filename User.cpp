@@ -1,14 +1,17 @@
 #include "./includes/Server.hpp"
 
-User::User(int fd, int id) : _fd(fd), _id(id), isAuth(false), isOperator(false), nickName(""), userName(""){
+User::User(int fd, int id) : _fd(fd), _id(id), isAuth(false), isOperator(false), nickName(""), userName("")
+{
 	std::cout << "User created" << std::endl;
 	input = "";
 }
 
 User::~User() {}
 
-void User::userErase(User &user) {
-	for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
+void User::userErase(User &user)
+{
+	for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
+	{
 		if (it->_fd == user._fd) {
 			Server::_users.erase(it);
 			--it;
@@ -16,7 +19,8 @@ void User::userErase(User &user) {
 	}
 }
 
-void User::whoAmI(User &user) {
+void User::whoAmI(User &user)
+{
 	std::cout << CYAN << user << RESET <<std::endl;
 	std::string userDetails = "UserName: [" + user.userName + "]" + ", Nick: " + "[" + user.nickName + "]" + ", Auth: " 
 			+ "[" + (user.isAuth ? "YES" : "NO") + "]" + ", [fd: " +  std::to_string(user._fd) + "]" + ".\n";
@@ -24,20 +28,22 @@ void User::whoAmI(User &user) {
     
 }
 
-void User::showClients(User &user) {
+void User::showClients(User &user)
+{
 	(void)user;
 	for (int i = 0; i < Server::max_sd; i++)
 	std::cout << "client " << Server::clientSockets[i] << " " << std::endl;
 }
 
-void User::showUsers(User &user) {
+void User::showUsers(User &user)
+{
 	(void)user;
-	for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
+	for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
 		std::cout << CYAN << *it << RESET <<std::endl;
-	}
 }
 
-void closeMe(User &user) {
+void closeMe(User &user)
+{
 	close(user._fd);
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -45,7 +51,8 @@ void closeMe(User &user) {
 			Server::clientSockets[i] = 0;
 	}
 	    
-    for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it) {
+    for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it) 
+	{
         if (*it == Server::sd) 
             std::cout << "found -->" << *it << std::endl;
             Server::_fds.erase(it);
@@ -126,29 +133,8 @@ void User::authorise(User *user, std::string cmd)
 	}
 }
 
-void User::execute(std::string cmd, User *user)
+void	User::user_options(User *user, std::vector<std::string> splitmsg)
 {
-	std::string levels[3] = {"whoami", "show clients", "show users"};
-	void (User::*f[3])(User &user) = { &User::whoAmI, &User::showClients, &User::showUsers};
-	std::vector<std::string> splitmsg = split(cmd);
-
-
-    if (!parse_cmds(cmd) && user->isAuth == false)
-	{
-        send(user->_fd, "Authentication required : ", strlen("Authentication required : "), 0);
-		// closeMe();
-		// if(_cmd.size() > 0)
-		// 	_cmd.clear();
-		return ;
-	}
-	else
-	{
-		if(_cmd.size() > 0)
-			_cmd.clear();
-	}
-	
-	authorise(user, cmd);
-
 	if (splitmsg.size() > 0 && (splitmsg[0] == "quit" || splitmsg[0] == "exit" || splitmsg[0] == "close"))
 		closeMe(*user);
 	else if (splitmsg.size() == 2 && splitmsg[0] == "kick")
@@ -177,6 +163,32 @@ void User::execute(std::string cmd, User *user)
 			_cmd.clear();
 		// return ;
 	}
+}
+
+void User::execute(std::string cmd, User *user)
+{
+	std::string levels[3] = {"whoami", "show clients", "show users"};
+	void (User::*f[3])(User &user) = { &User::whoAmI, &User::showClients, &User::showUsers};
+	std::vector<std::string> splitmsg = split(cmd);
+
+
+    if (!parse_cmds(cmd) && user->isAuth == false)
+	{
+        send(user->_fd, "Authentication required : ", strlen("Authentication required : "), 0);
+		// closeMe();
+		// if(_cmd.size() > 0)
+		// 	_cmd.clear();
+		return ;
+	}
+	else
+	{
+		if(_cmd.size() > 0)
+			_cmd.clear();
+	}
+	
+	authorise(user, cmd);
+	user_options(user, splitmsg);
+
 	for (int i = 0; i < 3; i++)
 	{
 		std::cout << "---- >cmd: " << cmd << " levels: " << levels[i] << std::endl;
@@ -184,6 +196,7 @@ void User::execute(std::string cmd, User *user)
 			cmd.erase(cmd.length() - 1, 1);
 		cmd == levels[i] ? (this->*f[i])(*user) : (void)0;
 	}
+
 	return ;
 }
 
