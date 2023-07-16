@@ -64,14 +64,59 @@ void closeMe(User &user) {
 }
 
 
-void User::kick(std::string nick) {
-
+void User::kick(std::string nick)
+{
 	for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
 		if (it->nickName == nick)
 		{
 			closeMe(*it);
+			--it;
 			return ;
 		}
+	}
+	send(Server::sd, "No such user", strlen("No such user"), 0);
+}
+
+void User::authorise(User *user, std::string cmd)
+{
+	if (parse_cmds(cmd))
+	{
+		if (user->isAuth)
+		{
+			send(user->_fd, "User exists! : ", strlen("User exists! : "), 0);
+			if(_cmd.size() > 0)
+				_cmd.clear();
+			return ;
+		}
+		user->pass = _cmd[5];
+		if(user->pass != Server::getPassword())
+		{
+			send(user->_fd, "Wrong Pass : ", strlen("Wrong Pass : "), 0);
+			if(_cmd.size() > 0)
+				_cmd.clear();
+			// closeMe(*user);
+			return ;
+		}
+		for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
+		{
+			if (_cmd[1] == it->userName || _cmd[3] == it->nickName)
+			{
+				send(user->_fd, "User exists! : ", strlen("User exists! : "), 0);
+				return ;
+			}
+		}
+		user->nickName = _cmd[3];
+		user->userName = _cmd[1];
+		user->isAuth = true;
+		send(user->_fd, "Authenticated : ", strlen("Authenticated : "), 0);
+		if(_cmd.size() > 0)
+			_cmd.clear();
+	}
+	else
+	{
+		if(_cmd.size() > 0)
+			_cmd.clear();
+		// return ;
 	}
 }
 
@@ -79,7 +124,9 @@ void User::execute(std::string cmd, User *user)
 {
 	std::string levels[3] = {"whoami", "show clients", "show users"};
 	void (User::*f[3])(User &user) = { &User::whoAmI, &User::showClients, &User::showUsers};
-	
+	std::vector<std::string> splitmsg = split(cmd);
+
+
     if (!parse_cmds(cmd) && user->isAuth == false)
 	{
         send(user->_fd, "Authentication required : ", strlen("Authentication required : "), 0);
@@ -93,61 +140,17 @@ void User::execute(std::string cmd, User *user)
 		if(_cmd.size() > 0)
 			_cmd.clear();
 	}
-	if (parse_cmds(cmd))
-	{
-		if (user->isAuth)
-		{
-			send(user->_fd, "User exists! : ", strlen("User exists! : "), 0);
-			if(_cmd.size() > 0)
-				_cmd.clear();
-			return ;
-		}
-		user->pass = _cmd[5];
-		if(user->pass != Server::getPassword())
-		{
-        	send(user->_fd, "Wrong Pass : ", strlen("Wrong Pass : "), 0);
-			if(_cmd.size() > 0)
-				_cmd.clear();
-			closeMe(*user);
-			return ;
-		}
+	
+	authorise(user, cmd);
 
-		for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
-		{
-			if (_cmd[1] == it->userName || _cmd[3] == it->nickName)
-			{
-				send(user->_fd, "User exists! : ", strlen("User exists! : "), 0);
-				return ;
-			}
-		}
-
-		user->nickName = _cmd[3];
-		user->userName = _cmd[1];
-		user->isAuth = true;
-        send(user->_fd, "Authenticated : ", strlen("Authenticated : "), 0);
-		if(_cmd.size() > 0)
-			_cmd.clear();
-
-	}
-	else if (!strcmp(cmd.c_str(), "quit"))
-	{
+	if (splitmsg.size() > 0 && (splitmsg[0] == "quit" || splitmsg[0] == "exit" || splitmsg[0] == "close"))
 		closeMe(*user);
-	}
-	else if (!strcmp(cmd.c_str(), "exit"))
+	else if (splitmsg.size() == 2 && splitmsg[0] == "kick")
 	{
-		closeMe(*user);
+		kick(splitmsg[1]);
+		send(Server::sd, "has kicked " , strlen("has kicked "), 0);
 	}
-	else if (!strcmp(cmd.c_str(), "close"))
-	{
-		closeMe(*user);
-	}
-	else if (_cmd.size() > 0 && _cmd[0] == "kick")
-	{
-		std::cout << "kick -- --- - --" << cmd << std::endl;
-		kick(_cmd[1]);
-		send(user->_fd, "kick <nick> : ", strlen("kick <nick> : "), 0);
-	}
-	else if (_cmd.size() > 0 && _cmd[0] == "help")
+	else if (splitmsg.size() > 0 && splitmsg[0] == "help")
 	{
 		std::string help = "Available commands: \n"
 		"whoami - show user details\n"

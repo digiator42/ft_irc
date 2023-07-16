@@ -36,6 +36,8 @@ class User {
         return (this->_fd == other._fd);
     }
 
+	void authorise(User *user, std::string cmd);
+
 };
 
 std::ostream& operator<<(std::ostream& out, const User& User);
