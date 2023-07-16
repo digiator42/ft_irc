@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 21:39:18 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/15 22:28:46 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/16 21:32:53 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,14 +23,82 @@ Command::~Command(void)
 }
 
 // - MEMBER FUNCTIONS -
-void Command::join(User user, Channel channel)
+
+std::vector Command::ft_split(std::string str, char delimiter)
 {
-	channel.addUser(user);
+	std::vector<std::string> substrings;
+	std::string substring = "";
+	for (size_t i = 0; i < str.length(); i++)
+	{
+		if (str[i] != delimiter)
+		{
+			substring += str[i];
+		}
+		else
+		{
+			substrings.push_back(substring);
+			while (str[i] == delimiter)
+				i++;
+			i--;
+			substring = "";
+		}
+	}
+	substrings.push_back(substring);
+	return (substrings);
 }
 
-void Command::kick(User user, Channel channel)
+void Command::join(std::string channel_s, std::string key_s)
 {
-	channel.kickUser(user);
+	// have to put conditions for invite only channel
+	std::vector<std::string> channel_split = ft_split(channel_s, ',');
+	std::vector<std::string> key_split = ft_split(key_s, ',');
+	std::vector<std::string>::iterator it_s;
+	std::vector<std::string>::iterator it_k = key_split.begin();
+	int channelSize = channel_split.size();
+	int keySize = key_split.size();
+
+	for (std::vector<Channel>::iterator it = Server::Channels.begin(); it != Server::Channels.end(); it++) // will add later
+	{
+		for (std::vector<std::string>::iterator it_s = channel_split.begin(); it_s != channel_split.end(); it_s++)
+		{
+			if (it->getName() == *it_s)
+			{
+				if (key != "" && it_k != key_split.end())
+				{
+					if (it->getPass() == ey)
+						it.addUser(user);
+					it_k++;
+				}
+				else
+					it.addUser(user);
+			}
+		}
+	}
+}
+
+void Command::kick(std::string channel, std::string user, std::string reason)
+{
+	std::vector<Channel> temp_channels = Server::getChannels();
+	std::vector<User> temp_users = Server::_users;
+
+	for(std::vector<Channel>::iterator it_c = temp_channels.begin(); it_c != temp_channels.end(); ++it_c)
+	{
+		if (it_c->getName == channel)
+			break ;
+	}
+	if (it_c == temp_users.end())
+	{
+		// error message
+		return ;
+	}
+	for(std::vector<User>::iterator it_s = temp_users.begin(); it_s != temp_users.end(); ++it_s)
+	{
+		if (it->nickName == user)
+		{
+			channel.kickUser(user);
+			return ;
+		}
+	}
 }
 
 void Command::invite(User user, Channel channel)
@@ -66,7 +134,7 @@ void Command::privmsg(User reciever, Channel channel)
 	}
 	else if (arg_amt == 1) // message only
 	{
-		// send to everyone
+		// send to everyone // change it to users only from the channel
 		for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
 		{
 			send((*it)._fd, message.c_str(), strlen(message.c_str()), 0);
