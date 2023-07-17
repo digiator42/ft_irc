@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 21:50:36 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/17 15:56:22 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/17 17:24:52 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 
 Channel::Channel(std::string str_n, std::string str_p)
 {
-	std::cout << GREEN_OLIVE;
-	std::cout << "Default Constructor for Channel called" << std::endl;
-	std::cout << RESET;
+	// std::cout << GREEN_OLIVE;
+	// std::cout << "Default Constructor for Channel called" << std::endl;
+	// std::cout << RESET;
 	this->name = str_n;
 	this->pass = str_p;
 	this->topic = "";
@@ -29,9 +29,9 @@ Channel::Channel(std::string str_n, std::string str_p)
 
 Channel::~Channel(void)
 {
-	std::cout << RED_LIGHT;
-	std::cout << "Destructor for Channel called" << std::endl;
-	std::cout << RESET;
+	// std::cout << RED_LIGHT;
+	// std::cout << "Destructor for Channel called" << std::endl;
+	// std::cout << RESET;
 }
 
 // -- GETTERS --
@@ -92,12 +92,12 @@ void Channel::addUser(User new_user)
 		operators.push_back(new_user);
 	}
 	users.push_back(new_user);
-	std::string message = "Welcome to the Channel " + this->name + ".\n" + "List of Commands                                             Usage\n" +
+	std::string message = "\nWelcome to the Channel " + this->name + ".\n" + "List of Commands                                             Usage\n" +
 	"PRIVMSG - To message user(s) in the channel           PRIVMSG <receiver>{,<receiver>} <text to be sent>\n" + 
-	"MODE (o) - To change the mode of the channel         MODE <channel> <mode>\n" + "TOPIC (o) - To change the topic of the channel      TOPIC <channel> <topic>\n" +
+	"MODE (o) - To change the mode of the channel         MODE <channel> <mode>\n" + "TOPIC (o) - To change the topic of the channel        TOPIC <channel> <topic>\n" +
 	"INVITE (o) - To invite another user to the channel   INVITE <nickname> <channel>\n" + "INVITE (o) - To invite another user to the channel   INVITE <nickname> <channel>\n" +
 	"KICK (o) - To eject a client from a channel          KICK <channel> <user> [<comment>]\n";
-	send(new_user._fd, message.c_str(), strlen(message.c_str()), 0);
+	send(new_user._fd, (MUSTARD + message +  RESET).c_str(), strlen(message.c_str()), 0);
 	
 }
 

@@ -1,4 +1,5 @@
 #include "./includes/Server.hpp"
+#include "./includes/Command.hpp"
 
 User::User(int fd, int id) : _fd(fd), _id(id), isAuth(false), isOperator(false), nickName(""), userName("")
 {
@@ -148,13 +149,13 @@ void	User::user_options(User *user, std::vector<std::string> splitmsg)
 {
 	if (splitmsg.size() > 0 && (splitmsg[0] == "quit" || splitmsg[0] == "exit" || splitmsg[0] == "close"))
 		closeMe(*user);
-	else if (splitmsg.size() == 2 && splitmsg[0] == "kick")
-	{
-		kick(splitmsg[1]);
-		int i = Server::_users.size();
-		std::cout << "size of users vector - > " <<  i << std::endl;
-		send(Server::sd, "has kicked " , strlen("has kicked "), 0);
-	}
+	// else if (splitmsg.size() == 2 && splitmsg[0] == "kick")
+	// {
+	// 	kick(splitmsg[1]);
+	// 	int i = Server::_users.size();
+	// 	std::cout << "size of users vector - > " <<  i << std::endl;
+	// 	send(Server::sd, "has kicked " , strlen("has kicked "), 0);
+	// }
 	else if (splitmsg.size() > 0 && splitmsg[0] == "help")
 	{
 		std::string help = "Available commands: \n"
@@ -173,6 +174,19 @@ void	User::user_options(User *user, std::vector<std::string> splitmsg)
 		if(_cmd.size() > 0)
 			_cmd.clear();
 		// return ;
+	}
+}
+
+void User::user_cmds(User *user, std::vector<std::string> splitmsg)
+{
+	Command cmd;
+	if (splitmsg.size() == 2 && splitmsg[0] == "JOIN")
+	{
+		cmd.join(splitmsg[1], "", *user);
+		std::cout << "Channel " << splitmsg[0] << " created" << std::endl; 
+		std::cout << "User " << user->nickName << " added to channel " << splitmsg[0] << std::endl; 
+		std::vector<Channel>::iterator it = Server::_channels.begin();
+		std::cout << "channel name in server vector = " << it->getName() << std::endl;
 	}
 }
 
@@ -199,6 +213,7 @@ void User::execute(std::string cmd, User *user)
 	
 	authorise(user, cmd);
 	user_options(user, splitmsg);
+	user_cmds(user, splitmsg);
 
 	for (int i = 0; i < 3; i++)
 	{
