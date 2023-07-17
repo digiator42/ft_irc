@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 21:29:02 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/17 14:10:21 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/17 15:04:06 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ class Channel{
 		std::string topic;
 		std::vector<User> users;
 		std::vector<User> operators;
+		// std::vector<User> invites; ??
 		std::map<std::string, int> mode;
 		Channel(void); //default
 	public:

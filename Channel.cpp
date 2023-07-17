@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 21:50:36 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/17 14:45:57 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/17 15:19:41 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,14 +92,20 @@ void Channel::addUser(User new_user)
 		operators.push_back(new_user);
 	}
 	users.push_back(new_user);
+	std::string message = "Welcome to the Channel " + this->name + ".\n" + "List of Commands                                             Usage\n" +
+	"PRIVMSG - To message user(s) in the channel           PRIVMSG <receiver>{,<receiver>} <text to be sent>\n" + 
+	"MODE (o) - To change the mode of the channel         MODE <channel> <mode>\n" + "TOPIC (o) - To change the topic of the channel      TOPIC <channel> <topic>\n" +
+	"INVITE (o) - To invite another user to the channel   INVITE <nickname> <channel>\n" + "INVITE (o) - To invite another user to the channel   INVITE <nickname> <channel>\n" +
+	"KICK (o) - To eject a client from a channel          KICK <channel> <user> [<comment>]\n";
 	// Send to the user
 	// "Welcome to the Channel (name)"
-	// "List of Commands "                                            "Usage"
-	// "PRIVMSG - To message user(s) in the channel"          // PRIVMSG <receiver>{,<receiver>} <text to be sent>
-	// "MODE (o) - To change the mode of the channel"         // MODE <channel> <mode>
-	// "TOPIC (o)" - To change the topic of the channel"      // TOPIC <channel> <topic>
-	// "INVITE (o) - To invite another user to the channel"   // INVITE <nickname> <channel>
-	// "KICK (o) - To eject a client from a channel"          // KICK <channel> <user> [<comment>]
+	// "List of Commands                                             Usage"
+	// "PRIVMSG - To message user(s) in the channel           PRIVMSG <receiver>{,<receiver>} <text to be sent>
+	// "MODE (o) - To change the mode of the channel         MODE <channel> <mode>
+	// "TOPIC (o) - To change the topic of the channel      TOPIC <channel> <topic>
+	// "INVITE (o) - To invite another user to the channel   INVITE <nickname> <channel>
+	// "KICK (o) - To eject a client from a channel          KICK <channel> <user> [<comment>]
+	send(new_user._fd, message.c_str(), strlen(message.c_str()), 0);
 	
 }
 

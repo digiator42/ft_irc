@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 21:39:18 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/17 14:32:48 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/17 15:24:42 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,30 +53,46 @@ std::vector<std::string> Command::ft_split(std::string str, char delimiter)
 
 void Command::join(std::string channel_s, std::string key_s, User user)
 {
-	// have to put conditions for invite only channel
+	//  ------  have to put conditions for invite only channel -------
 	std::vector<std::string> channel_split = ft_split(channel_s, ',');
 	std::vector<std::string> key_split = ft_split(key_s, ',');
 	std::vector<Channel>::iterator it;
 	std::vector<std::string>::iterator it_s;
+	std::vector<User>::iterator it_u;
 	std::vector<std::string>::iterator it_k = key_split.begin();
 	
-
+	// check if channel exists
 	for (it_s = channel_split.begin(); it_s != channel_split.end(); it_s++)
 	{
-		for (it = Server::_channels.begin(); it != Server::_channels.end(); it++) // will add later
+		for (it = Server::_channels.begin(); it != Server::_channels.end(); it++)
 		{
 			if (*it_s == it->getName())
 			{
-				if (it_k != key_split.end())
+				// check if user exists alread
+				std::vector<User> temp_users = it->getUsers();
+				for (it_u = temp_users.begin(); it_u != temp_users.end(); it_u++)
 				{
-					if (*it_k == it->getPass())
-						it->addUser(user);
-					it_k++;
+					if (it_u->nickName == user.nickName)
+					{
+						// should send tho the client or server??
+						std::cout << RED_LIGHT << "Error: User already exists in the channel" << std::endl;
+						return ;
+					}
 				}
-				else
-					it->addUser(user);
+				if (it_u == temp_users.end())
+				{
+					if (it_k != key_split.end())
+					{
+						if (*it_k == it->getPass())
+							it->addUser(user);
+						it_k++;
+					}
+					else
+						it->addUser(user);
+				}
 			}
 		}
+		// if channel doesnot exist
 		if (it == Server::_channels.end())
 		{
 			if (it_k != key_split.end())
