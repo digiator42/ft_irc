@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 21:29:02 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/17 20:03:46 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/17 21:41:25 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,5 +68,7 @@ class Channel{
 
 // USER azra NICK azra PASS 4
 // USER nouf NICK nouf PASS 4
+// USER aisha NICK aisha PASS 4
+// USER nijah NICK nijah PASS 4
 
 # endif

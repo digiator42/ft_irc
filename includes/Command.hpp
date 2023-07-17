@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 21:31:55 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/17 19:51:44 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/17 21:29:32 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,9 +50,9 @@ class Command{
 		// INVITE
 		// void invite(User user, Channel channel);
 		// TOPIC
-		// void topic(Channel channel, std::string topic);
+		void topic(std::string channel, std::string topic, User user);
 		// PRIVMSG
-		// void privmsg(User user, Channel channel);
+		void privmsg(std::string reciever, std::string message, User user);
 
 		std::vector<std::string> ft_split(std::string str, char delimiter);
 };

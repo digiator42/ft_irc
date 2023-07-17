@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 21:39:18 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/17 20:10:13 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/17 21:52:05 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -179,28 +179,71 @@ void Command::kick(std::string channel, std::string user, std::string reason)
 // 	}
 // }
 
-// void Command::topic(Channel channel, std::string topic)
-// {
-// 	channel.setTopic(topic);
-// }
+void Command::topic(std::string channel, std::string topic, User user)
+{
+	// checks / conditions for t mode in channel
+	std::vector<Channel>::iterator it_c;
 
-// void Command::privmsg(User reciever, Channel channel)
-// {
-// 	std::string message = "privmsg"; // make it better
-// 	if (arg_amt == 2) // the receiver and the message
-// 	{
-// 		// send to reciever only
-// 		send(reciever._fd, message.c_str(), strlen(message.c_str()), 0);
-// 	}
-// 	else if (arg_amt == 1) // message only
-// 	{
-// 		// send to everyone // change it to users only from the channel
-// 		for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
-// 		{
-// 			send((*it)._fd, message.c_str(), strlen(message.c_str()), 0);
-// 		}
-// 	}
-// }
+	for(it_c = Server::_channels.begin(); it_c != Server::_channels.end(); ++it_c)
+	{
+		if (it_c->getName() == channel)
+			break ;
+	}
+	if (it_c != Server::_channels.end())
+	{
+		if (topic != "")
+			it_c->setTopic(topic);
+		else
+		{
+			std::string message = "Channel " + channel + "'s topic: " + it_c->getTopic() + "\n";
+			send(user._fd, message.c_str(), strlen(message.c_str()), 0);
+		}
+	}
+	else
+	{
+		std::cout << RED_LIGHT << "Error: Channel " << channel << " doesnot exist!" << RESET << std::endl;
+	}
+}
+
+void Command::privmsg(std::string reciever, std::string message, User user)
+{
+	std::vector<Channel>::iterator it_c;
+	std::vector<User>::iterator it_u;
+
+	for(it_u = Server::_users.begin(); it_u != Server::_users.end(); ++it_u)
+	{
+		if (it_u->nickName == reciever)
+			break ;
+	}
+	if (it_u == Server::_users.end())
+	{
+		for(it_c = Server::_channels.begin(); it_c != Server::_channels.end(); ++it_c)
+		{
+			if (it_c->getName() == reciever)
+				break ;
+		}
+		if (it_c != Server::_channels.end())
+		{
+			// send to everyone // change it to users only from the channel
+			std::vector<User> temp_users = it_c->getUsers();
+			for(std::vector<User>::iterator it = temp_users.begin(); it != temp_users.end(); ++it)
+			{
+				send((*it)._fd, (message + "\n").c_str(), strlen((message + "\n").c_str()), 0);
+			}
+		}
+	}
+	else // the receiver and the message
+	{
+		// any message to server??
+		send(it_u->_fd, (message + "\n").c_str(), strlen((message + "\n").c_str()), 0);
+	}
+	if (it_u == Server::_users.end() && it_c == Server::_channels.end())
+	{
+		std::string err_msg = "Error: Couldn't find User or Channel\n";
+		send(user._fd, (RED_LIGHT + err_msg + RESET).c_str(),
+			 strlen((err_msg ).c_str()) + strlen(RED_LIGHT) + strlen(RESET), 0);
+	}
+}
 
 // - GETTERS -
 

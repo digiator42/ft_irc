@@ -180,17 +180,26 @@ void	User::user_options(User *user, std::vector<std::string> splitmsg)
 void User::user_cmds(User *user, std::vector<std::string> splitmsg)
 {
 	Command cmd;
+	std::vector<Channel>::iterator it = Server::_channels.begin();
 	int i = 1;
 	int j;
+
 	if ((splitmsg.size() == 2  || splitmsg.size() == 3) && splitmsg[0] == "JOIN")
 	{
 		cmd.join(splitmsg[1], "", *user);
 		// std::cout << "User " << user->nickName << " added to channel " << splitmsg[0] << std::endl; 
-		std::vector<Channel>::iterator it = Server::_channels.begin();
 	}
 	else if ((splitmsg.size() == 3  || splitmsg.size() == 4) && splitmsg[0] == "KICK")
 	{
 		cmd.kick(splitmsg[1], splitmsg[2], "");
+	}
+	else if ((splitmsg.size() == 2 || splitmsg.size() == 3) && splitmsg[0] == "TOPIC")
+	{
+		cmd.topic(splitmsg[1], splitmsg[2], *user);
+	}
+	else if (splitmsg.size() == 3 && splitmsg[0] == "PRIVMSG")
+	{
+		cmd.privmsg(splitmsg[1], splitmsg[2], *user);
 	}
 	for (std::vector<Channel>::iterator it = Server::_channels.begin(); it != Server::_channels.end(); it++)
 	{
