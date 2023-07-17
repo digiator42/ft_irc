@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 21:31:55 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/17 14:32:53 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/17 19:51:44 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ class Command{
 		// JOIN
 		void join(std::string channel_s, std::string key_s, User user); // probably references of these
 		// KICK
-		// void kick(std::string channel, std::string user, std::string reason);
+		void kick(std::string channel, std::string user, std::string reason);
 		// INVITE
 		// void invite(User user, Channel channel);
 		// TOPIC

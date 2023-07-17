@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 21:50:36 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/17 17:24:52 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/17 20:05:21 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,15 +89,18 @@ void Channel::addUser(User new_user)
 {
 	if (operators.size() == 0)
 	{
-		operators.push_back(new_user);
+		operators.push_back(User(new_user));
 	}
-	users.push_back(new_user);
-	std::string message = "\nWelcome to the Channel " + this->name + ".\n" + "List of Commands                                             Usage\n" +
-	"PRIVMSG - To message user(s) in the channel           PRIVMSG <receiver>{,<receiver>} <text to be sent>\n" + 
-	"MODE (o) - To change the mode of the channel         MODE <channel> <mode>\n" + "TOPIC (o) - To change the topic of the channel        TOPIC <channel> <topic>\n" +
-	"INVITE (o) - To invite another user to the channel   INVITE <nickname> <channel>\n" + "INVITE (o) - To invite another user to the channel   INVITE <nickname> <channel>\n" +
-	"KICK (o) - To eject a client from a channel          KICK <channel> <user> [<comment>]\n";
-	send(new_user._fd, (MUSTARD + message +  RESET).c_str(), strlen(message.c_str()), 0);
+	users.push_back(User(new_user));
+	std::string chan_message = "\n - WELCOME TO THE CHANNEL " + this->name + "! - \n";
+	std::string message = "List of Commands                                             Usage\n"
+		"PRIVMSG - message user(s) in the channel           PRIVMSG <receiver>{,<receiver>} <text to be sent>\n"
+		"MODE (o) - change the mode of the channel         MODE <channel> <mode>\n"
+		"TOPIC (o) - change the topic of the channel        TOPIC <channel> <topic>\n"
+		"INVITE (o) - invite another user to the channel   INVITE <nickname> <channel>\n"
+		"KICK (o) - eject a client from a channel          KICK <channel> <user> [<comment>] \n\n";
+	send(new_user._fd, (B_MUSTARD + chan_message + MUSTARD + message +  RESET).c_str(), strlen(message.c_str()) + strlen(chan_message.c_str())
+		+ strlen(B_MUSTARD) + strlen(MUSTARD) + strlen(RESET), 0);
 	
 }
 
@@ -141,7 +144,8 @@ int Channel::isMode(std::string str)
 	for (it = this->mode.begin(); it != this->mode.end(); it++)
 	{
 		if (it->first == str)
-			return (1);
+			if (it->second)
+				return (1);
 	}
 	return (0);
 }

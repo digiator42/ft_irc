@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 21:39:18 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/17 17:05:59 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/17 20:10:13 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,11 +75,11 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 					if (it_u->nickName == user.nickName)
 					{
 						// should send tho the client or server??
-						std::cout << RED_LIGHT << "Error: User already exists in the channel" << std::endl;
+						std::cout << RED_LIGHT << "Error: User already exists in the channel" << RESET << std::endl;
 						return ;
 					}
 				}
-				if (it_k != key_split.end())
+				if (it_k != key_split.end() && *it_k != "")
 				{
 					if (*it_k == it->getPass())
 					{
@@ -96,13 +96,16 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 				else
 				{
 					if (it->isMode("i"))
+					{
+						if (it->isInvited(user))
 						{
-							if (it->isInvited(user))
-								it->addUser(user);
-						}
-						else
 							it->addUser(user);
+						}
+					}
+					else
+						it->addUser(user);
 				}
+				break ;
 			}
 		}
 		// if channel doesnot exist
@@ -121,40 +124,42 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 				new_channel.addUser(user);
 				Server::_channels.push_back(new_channel);
 			}
+			std::cout << "Channel " << *it_s << " created!" << std::endl;
 		}
 	}
 }
 
-// void Command::kick(std::string channel, std::string user, std::string reason)
-// {
-// 	std::vector<Channel>::iterator it_c;
-// 	std::vector<User>::iterator it_s;
+void Command::kick(std::string channel, std::string user, std::string reason)
+{
+	std::vector<Channel>::iterator it_c;
+	std::vector<User>::iterator it_s;
 
-// 	for(it_c = Server::_channels.begin(); it_c != Server::_channels.end(); ++it_c)
-// 	{
-// 		if (it_c->getName() == channel)
-// 			break ;
-// 	}
-// 	if (it_c == Server::_channels.end())
-// 	{
-// 		std::cout << "Error: Channel Not found" << std::endl;
-// 		return ;
-// 	}
-// 	for(it_s = Server::_users.begin(); it_s != Server::_users.end(); ++it_s)
-// 	{
-// 		if (it_s->nickName == user)
-// 		{
-// 			std::cout << "Reasong for Kicking User: " << reason << std::endl;
-// 			it_c->kickUser(*it_s);
-// 			return ;
-// 		}
-// 	}
-// 	if (it_s == Server::_users.end())
-// 	{
-// 		std::cout << "Error: User Not found" << std::endl;
-// 		return ;
-// 	}
-// }
+	for(it_c = Server::_channels.begin(); it_c != Server::_channels.end(); ++it_c)
+	{
+		if (it_c->getName() == channel)
+			break ;
+	}
+	if (it_c == Server::_channels.end())
+	{
+		std::cout << "Error: Channel Not found" << std::endl;
+		return ;
+	}
+	for(it_s = Server::_users.begin(); it_s != Server::_users.end(); ++it_s)
+	{
+		if (it_s->nickName == user)
+		{
+			std::cout << "Reason for Kicking User: " << reason << std::endl;
+			it_c->kickUser(*it_s);
+			std::cout << "User " << user << " kicked from channel" << std::endl;
+			return ;
+		}
+	}
+	if (it_s == Server::_users.end())
+	{
+		std::cout << "Error: User Not found" << std::endl;
+		return ;
+	}
+}
 
 // void Command::invite(User user, Channel channel)
 // {
