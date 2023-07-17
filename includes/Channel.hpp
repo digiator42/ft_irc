@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 21:29:02 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/17 15:04:06 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/17 15:44:27 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ class Channel{
 		std::string topic;
 		std::vector<User> users;
 		std::vector<User> operators;
-		// std::vector<User> invites; ??
+		std::vector<User> invites;
 		std::map<std::string, int> mode;
 		Channel(void); //default
 	public:
@@ -47,7 +47,7 @@ class Channel{
 	int getMaxUsers(void); 
 	std::string getTopic(void);
 	std::string getPass(void);
-	std::map<std::string, int> getMode(void);
+	std::map<std::string, int> getMode(void); // will be string only or vector of strings
 	std::vector<User> getUsers(void);
 	std::string getName(void);
 
@@ -60,6 +60,8 @@ class Channel{
 	// MEMBER FUNCTIONS
 	void addUser(User new_user);
 	void kickUser(User user);
+	int isInvited(User user);
+	int isMode(std::string str);
 	
 };
 

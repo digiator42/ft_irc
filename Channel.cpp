@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 21:50:36 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/17 15:19:41 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/17 15:56:22 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,14 +97,6 @@ void Channel::addUser(User new_user)
 	"MODE (o) - To change the mode of the channel         MODE <channel> <mode>\n" + "TOPIC (o) - To change the topic of the channel      TOPIC <channel> <topic>\n" +
 	"INVITE (o) - To invite another user to the channel   INVITE <nickname> <channel>\n" + "INVITE (o) - To invite another user to the channel   INVITE <nickname> <channel>\n" +
 	"KICK (o) - To eject a client from a channel          KICK <channel> <user> [<comment>]\n";
-	// Send to the user
-	// "Welcome to the Channel (name)"
-	// "List of Commands                                             Usage"
-	// "PRIVMSG - To message user(s) in the channel           PRIVMSG <receiver>{,<receiver>} <text to be sent>
-	// "MODE (o) - To change the mode of the channel         MODE <channel> <mode>
-	// "TOPIC (o) - To change the topic of the channel      TOPIC <channel> <topic>
-	// "INVITE (o) - To invite another user to the channel   INVITE <nickname> <channel>
-	// "KICK (o) - To eject a client from a channel          KICK <channel> <user> [<comment>]
 	send(new_user._fd, message.c_str(), strlen(message.c_str()), 0);
 	
 }
@@ -129,4 +121,27 @@ void Channel::kickUser(User user)
 	// 	// error message if necessary
 	// 	// return
 	// }
+}
+
+int Channel::isInvited(User user)
+{
+	std::vector<User>::iterator it;
+	for (it = this->invites.begin(); it != this->invites.end(); it++)
+	{
+		if (it->nickName == user.nickName)
+			return (1);
+	}
+	return (0);
+}
+
+int Channel::isMode(std::string str)
+{
+	std::map<std::string, int> temp_mode = this->getMode();
+	std::map<std::string, int>::const_iterator it;
+	for (it = this->mode.begin(); it != this->mode.end(); it++)
+	{
+		if (it->first == str)
+			return (1);
+	}
+	return (0);
 }

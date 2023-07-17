@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 21:39:18 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/17 15:24:42 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/17 15:52:18 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 		{
 			if (*it_s == it->getName())
 			{
-				// check if user exists alread
+				// check if user exists already
 				std::vector<User> temp_users = it->getUsers();
 				for (it_u = temp_users.begin(); it_u != temp_users.end(); it_u++)
 				{
@@ -79,16 +79,29 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 						return ;
 					}
 				}
-				if (it_u == temp_users.end())
+				if (it_k != key_split.end())
 				{
-					if (it_k != key_split.end())
+					if (*it_k == it->getPass())
 					{
-						if (*it_k == it->getPass())
+						if (it->isMode("i"))
+						{
+							if (it->isInvited(user))
+								it->addUser(user);
+						}
+						else
 							it->addUser(user);
-						it_k++;
 					}
-					else
-						it->addUser(user);
+					it_k++;
+				}
+				else
+				{
+					if (it->isMode("i"))
+						{
+							if (it->isInvited(user))
+								it->addUser(user);
+						}
+						else
+							it->addUser(user);
 				}
 			}
 		}
