@@ -1,12 +1,12 @@
 NAME = ircserv
 
-SRCS = Server.cpp main.cpp User.cpp split.cpp
+SRCS = Server.cpp main.cpp User.cpp split.cpp Channel.cpp Command.cpp
 
 CXX = c++
 
 OBJS = $(SRCS:.cpp=.o)
 
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -g3 -fsanitize=address
+CXXFLAGS = -std=c++98 -g3 -fsanitize=address
 
 all: $(NAME)
 

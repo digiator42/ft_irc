@@ -2,6 +2,7 @@
 #define SERVER_HPP
 
 #include "User.hpp"
+#include "Channel.hpp"
 #include <iostream>
 #include <string>
 #include <cstring>
@@ -29,13 +30,15 @@ const int MAX_CLIENTS = FD_SETSIZE;
 const int BUFFER_SIZE = MAX_CLIENTS + 1;
 
 class User;
+class Channel;
+
 class Server
 {
 private:
-	Server(void);
-	~Server();
 
 public:
+	Server(void);
+	~Server();
 	static std::string _password;
 	static int serverSocket;
 	static int max_sd;
@@ -63,6 +66,7 @@ public:
 	};
 	static std::vector<int> _fds;
 	static std::vector<User> _users;
+	static std::vector<Channel> _channels;
 	static void openSocket(void);
 	static void run(void);
 	static void acceptConnection(void);

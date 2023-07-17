@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 21:31:55 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/15 22:20:37 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/17 14:32:53 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <User.hpp>
-#include <Channel.hpp>
 
 class User;
-class Channel;
 
 class Command{
 	private:
@@ -33,17 +30,7 @@ class Command{
 		// copy contsructor
 		//assignent operator overlaod
 		~Command(void);
-		// JOIN
-		void join(User user, Channel channel); // probably references of these
-		// KICK
-		void kick(User user, Channel channel);
-		// INVITE
-		void invite(User, Channel channel);
-		// TOPIC
-		void topic(Channel channel, std::string topic);
-		// PRIVMSG
-		void privmsg(User user, Channel channel);
-	
+
 	// - GETTERS -
 		User* getSender(void);
 		int getArgAmt(void);
@@ -54,6 +41,20 @@ class Command{
 		void setArgAmt(int a);
 		void setCommand(std::string c);
 		void setArgs(std::vector<std::string> ar);
+		
+		// - MEMEBER FUNCTIONS - 
+		// JOIN
+		void join(std::string channel_s, std::string key_s, User user); // probably references of these
+		// KICK
+		// void kick(std::string channel, std::string user, std::string reason);
+		// INVITE
+		// void invite(User user, Channel channel);
+		// TOPIC
+		// void topic(Channel channel, std::string topic);
+		// PRIVMSG
+		// void privmsg(User user, Channel channel);
+
+		std::vector<std::string> ft_split(std::string str, char delimiter);
 };
 
 #endif

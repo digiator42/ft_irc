@@ -256,6 +256,7 @@ std::string Server::bufferStr = "";
 fd_set Server::readfds;
 std::vector<int> Server::_fds(MAX_CLIENTS, 0);
 std::vector<User> Server::_users;
+std::vector<Channel> Server::_channels;
 
 
 

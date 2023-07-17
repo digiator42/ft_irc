@@ -6,27 +6,25 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 21:29:02 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/16 21:04:20 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/17 14:10:21 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CHANNEL_HPP
 # define CHANNEL_HPP
 
-#include "Server.hpp"
-#include "User.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
 #include <map>
 
 # define RED_LIGHT "\033[1;38:5:131m"
-# define RED "\033[0;31m"
+// # define RED "\033[0;31m"
 # define GREEN_OLIVE "\033[1;38:5:107m"
 # define GREEN_LIGHT "\033[1;38:5:150m"
 # define MUSTARD "\033[38:5:136m"
 # define RESET "\033[0m"
-
+class User;
 class Channel{
 	private:
 		int max_users;
@@ -36,8 +34,9 @@ class Channel{
 		std::vector<User> users;
 		std::vector<User> operators;
 		std::map<std::string, int> mode;
+		Channel(void); //default
 	public:
-	Channel(void);
+	Channel(std::string str_n, std::string str_p);
 	// copy constructor
 	// assignment operator overload
 	~Channel(void);
@@ -58,7 +57,6 @@ class Channel{
 	// void setMode(std::string mode); // should set anything initially??
 	
 	// MEMBER FUNCTIONS
-	void ft_split(std::string str, char delimiter);
 	void addUser(User new_user);
 	void kickUser(User user);
 	

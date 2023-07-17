@@ -6,17 +6,20 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 21:50:36 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/15 22:30:12 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/17 14:45:57 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "./includes/Channel.hpp"
+#include "./includes/Server.hpp"
 
-Channel::Channel(void)
+Channel::Channel(std::string str_n, std::string str_p)
 {
 	std::cout << GREEN_OLIVE;
 	std::cout << "Default Constructor for Channel called" << std::endl;
 	std::cout << RESET;
+	this->name = str_n;
+	this->pass = str_p;
+	this->topic = "";
 	this->mode["i"] = 0;
 	this->mode["t"] = 0;
 	this->mode["k"] = 0;
@@ -89,6 +92,15 @@ void Channel::addUser(User new_user)
 		operators.push_back(new_user);
 	}
 	users.push_back(new_user);
+	// Send to the user
+	// "Welcome to the Channel (name)"
+	// "List of Commands "                                            "Usage"
+	// "PRIVMSG - To message user(s) in the channel"          // PRIVMSG <receiver>{,<receiver>} <text to be sent>
+	// "MODE (o) - To change the mode of the channel"         // MODE <channel> <mode>
+	// "TOPIC (o)" - To change the topic of the channel"      // TOPIC <channel> <topic>
+	// "INVITE (o) - To invite another user to the channel"   // INVITE <nickname> <channel>
+	// "KICK (o) - To eject a client from a channel"          // KICK <channel> <user> [<comment>]
+	
 }
 
 void Channel::kickUser(User user)
@@ -111,19 +123,4 @@ void Channel::kickUser(User user)
 	// 	// error message if necessary
 	// 	// return
 	// }
-}
-
-void Channel::switchMode(std::string new_mode)
-{
-	// find if any mode is 1    
-	// if yes make it 0 ??
-	// set the mode from the parameter 1
-	std::map<std::string, int>::iterator it;
-	for (it = mode.begin(); it != mode.end(); it++)
-	{
-		if (it->second == 1)
-			it->second == 0;
-		if (it->first == new_mode)
-			it->second = 1;
-	}
 }
