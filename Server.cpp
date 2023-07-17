@@ -101,6 +101,15 @@ void Server::handleClientMessages() {
                     }
                 }
             } else {
+                std::cout << "valread = " << Server::valread << std::endl;
+                try {
+                    if (Server::valread <= 0)
+                        throw std::runtime_error("valread <= 0") ;
+                }
+                catch (std::exception& e) {
+                    std::cerr << e.what() << std::endl;
+                    exit(1);
+                }
                 Server::buffer[Server::valread] = '\0';
                 for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
                     if (it->_fd == Server::sd) {

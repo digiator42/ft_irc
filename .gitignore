@@ -6,3 +6,5 @@ server
 client.cpp
 ircserv
 .DS_Store
+ft_irc-tester
+oldServer.cpp
