@@ -180,13 +180,29 @@ void	User::user_options(User *user, std::vector<std::string> splitmsg)
 void User::user_cmds(User *user, std::vector<std::string> splitmsg)
 {
 	Command cmd;
-	if (splitmsg.size() == 2 && splitmsg[0] == "JOIN")
+	int i = 1;
+	int j;
+	if ((splitmsg.size() == 2  || splitmsg.size() == 3) && splitmsg[0] == "JOIN")
 	{
 		cmd.join(splitmsg[1], "", *user);
-		std::cout << "Channel " << splitmsg[0] << " created" << std::endl; 
-		std::cout << "User " << user->nickName << " added to channel " << splitmsg[0] << std::endl; 
+		// std::cout << "User " << user->nickName << " added to channel " << splitmsg[0] << std::endl; 
 		std::vector<Channel>::iterator it = Server::_channels.begin();
-		std::cout << "channel name in server vector = " << it->getName() << std::endl;
+	}
+	else if ((splitmsg.size() == 3  || splitmsg.size() == 4) && splitmsg[0] == "KICK")
+	{
+		cmd.kick(splitmsg[1], splitmsg[2], "");
+	}
+	for (std::vector<Channel>::iterator it = Server::_channels.begin(); it != Server::_channels.end(); it++)
+	{
+		std::cout << "Channel " << i << "'s name in server vector -> " << it->getName() << std::endl;
+		std::vector<User> temp_users = it->getUsers();
+		j = 1;
+		for (std::vector<User>::iterator it_u = temp_users.begin(); it_u != temp_users.end(); it_u++)
+		{
+			std::cout << "User " << j << " - " << it_u->nickName << std::endl;
+			j++;
+		}
+		i++;
 	}
 }
 

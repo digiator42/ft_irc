@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 21:29:02 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/17 15:44:27 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/17 20:03:46 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 # define GREEN_OLIVE "\033[1;38:5:107m"
 # define GREEN_LIGHT "\033[1;38:5:150m"
 # define MUSTARD "\033[38:5:136m"
+# define B_MUSTARD "\033[38:5:136m"
 # define RESET "\033[0m"
 class User;
 class Channel{
@@ -65,6 +66,7 @@ class Channel{
 	
 };
 
-
+// USER azra NICK azra PASS 4
+// USER nouf NICK nouf PASS 4
 
 # endif
