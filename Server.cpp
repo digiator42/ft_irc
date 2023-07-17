@@ -77,13 +77,11 @@ void Server::handleClientMessages() {
                 std::cout << RED << "Host disconnected, IP " << inet_ntoa(Server::address.sin_addr) <<
                      ", port " << ntohs(Server::address.sin_port) << RESET << std::endl;
                 close(Server::sd);
-                // std::cout << "i -- >" << i << std::endl;
                 Server::clientSockets[i] = 0;
                 // remove from fd set
                 for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it) {
                     if (*it == Server::sd) {
 
-                        std::cout << "found -->" << *it << std::endl;
                         Server::_fds.erase(it);
                         --it;
                     }
@@ -91,21 +89,15 @@ void Server::handleClientMessages() {
                 // remove from users
                 for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
                     if (it->_fd == Server::sd) {
-                        std::cout << "id -->" << it->_fd << std::endl;
-                        std::vector<User>::iterator it2 = std::find(Server::_users.begin(), Server::_users.end(), *it);
-
-                        std::cout << "found -->" << it2->_fd << std::endl;
-                        Server::_users.erase(it2);
+                        std::cout << "erased user FD : " << it->_fd << std::endl;
+                        // std::vector<User>::iterator it2 = std::find(Server::_users.begin(), Server::_users.end(), *it);
+                        Server::_users.erase(it);
                         --it;
                     }
                 }
             } else {
                 Server::buffer[Server::valread] = '\0';
-                // std::cout << "Received message from client: [NO:" << i + 1 << "] " << buffer << std::endl;
-                std::cout << "size -- >" << Server::_users.size() << std::endl;
                 for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
-                    std::cout << "it->_fd -- >" << it->_fd << std::endl;
-                    std::cout << "Server::sd -- >" << Server::sd << std::endl;
                     if (it->_fd == Server::sd) {
                         std::cout << YELLOW << "Received message from client: [NO:" << it->_id << "] " << Server::buffer << RESET << std::endl;
                         it->input += Server::buffer;
@@ -115,6 +107,7 @@ void Server::handleClientMessages() {
                             it->execute(userInput, &(*it));
                             break ;
                         }
+                        std::cout << "user input is empty" << std::endl;
                         return ;
                     }
                 }
@@ -132,18 +125,18 @@ void Server::handleClientMessages() {
 void signalHandler(int signum) {
     std::cout << "Interrupt signal (" << signum << ") received.\n";
 
-    for (int i = 0; i < MAX_CLIENTS; i++) {
-        if (Server::clientSockets[i] != 0) {
-            close(Server::clientSockets[i]);
-        }
-    }
-    close(Server::serverSocket);
     try {
+        for (int i = 0; i < MAX_CLIENTS; i++) {
+            if (Server::clientSockets[i] != 0) {
+                close(Server::clientSockets[i]);
+            }
+        }
+        close(Server::serverSocket);
         throw Server::ServerException("Server closed !");
     } catch(const std::exception& e) {
         std::cerr << e.what() << '\n';
     }
-    
+
     exit(signum);
 }
 

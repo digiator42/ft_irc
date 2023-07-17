@@ -43,4 +43,6 @@ class User {
 
 std::ostream& operator<<(std::ostream& out, const User& User);
 std::vector<std::string> split(std::string str);
-#endif // User_HPP
+std::string trim(std::string &str);
+
+#endif
