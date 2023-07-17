@@ -72,6 +72,11 @@ void Server::handleClientMessages() {
     for (i = 0; i < MAX_CLIENTS; i++) {
         Server::sd = Server::clientSockets[i];
         if (FD_ISSET(Server::sd, &Server::readfds)) {
+			if(Server::sd >= MAX_CLIENTS - 1)
+			{
+				std::cout << "Max clients reached" << std::endl;
+				return ;
+			}
             if ((Server::valread = recv(Server::sd, Server::buffer, BUFFER_SIZE, 0)) == 0) {
                 getpeername(Server::sd, (struct sockaddr *)&Server::address, (socklen_t *)&Server::addrlen);
                 std::cout << RED << "Host disconnected, IP " << inet_ntoa(Server::address.sin_addr) <<
@@ -155,7 +160,14 @@ void Server::run(void) {
         for (i = 0; i < MAX_CLIENTS; i++) {
             Server::sd = Server::clientSockets[i];
             if (Server::sd > 0)
+			{
+				if(Server::sd >= MAX_CLIENTS - 1)
+				{
+					std::cout << "Max clients reached" << std::endl;
+					return ;
+				}
                 FD_SET(Server::sd, &Server::readfds);
+			}
             if (Server::sd > Server::max_sd)
                 Server::max_sd = Server::sd;
         }
