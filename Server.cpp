@@ -77,7 +77,7 @@ void Server::handleClientMessages() {
 				std::cout << "Max clients reached" << std::endl;
 				return ;
 			}
-            if ((Server::valread = recv(Server::sd, Server::buffer, BUFFER_SIZE, 0)) == 0) {
+            if ((Server::valread = recv(Server::sd, Server::buffer, BUFFER_SIZE, 0)) <= 0) {
                 getpeername(Server::sd, (struct sockaddr *)&Server::address, (socklen_t *)&Server::addrlen);
                 std::cout << RED << "Host disconnected, IP " << inet_ntoa(Server::address.sin_addr) <<
                      ", port " << ntohs(Server::address.sin_port) << RESET << std::endl;
@@ -101,19 +101,11 @@ void Server::handleClientMessages() {
                     }
                 }
             } else {
-                std::cout << "valread = " << Server::valread << std::endl;
-                try {
-                    if (Server::valread <= 0)
-                        throw std::runtime_error("valread <= 0") ;
-                }
-                catch (std::exception& e) {
-                    std::cerr << e.what() << std::endl;
-                    exit(1);
-                }
+                // std::cout << "valread = " << Server::valread << std::endl;
                 Server::buffer[Server::valread] = '\0';
                 for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
                     if (it->_fd == Server::sd) {
-                        std::cout << YELLOW << "Received message from client: [NO:" << it->_id << "] " << Server::buffer << RESET << std::endl;
+                        // std::cout << YELLOW << "Received message from client: [NO:" << it->_id << "] " << Server::buffer << RESET << std::endl;
                         it->input += Server::buffer;
                         std::string userInput(Server::buffer);
                         curIndex = i;
@@ -181,13 +173,13 @@ void Server::run(void) {
                 Server::max_sd = Server::sd;
         }
 
-        for(std::vector<int>::iterator it = _fds.begin(); it != _fds.end(); ++it) {
-            if (*it != 0)
-                std::cout << "vector fds: " << *it << std::endl;
-        }
-        for(std::vector<User>::iterator it = _users.begin(); it != _users.end(); ++it) {
-            std::cout << "User FD: " << (*it)._fd << " User ID: " << (*it)._id << std::endl;
-        }
+        // for(std::vector<int>::iterator it = _fds.begin(); it != _fds.end(); ++it) {
+        //     if (*it != 0)
+        //         std::cout << "vector fds: " << *it << std::endl;
+        // }
+        // for(std::vector<User>::iterator it = _users.begin(); it != _users.end(); ++it) {
+        //     std::cout << "User FD: " << (*it)._fd << " User ID: " << (*it)._id << std::endl;
+        // }
         
         // Wait for activity on any of the sockets
         int activity = select(Server::max_sd + 1, &Server::readfds, NULL, NULL, NULL);
