@@ -39,8 +39,6 @@ void User::showClients(User &user)
 void User::showUsers(User &user)
 {
 	(void)user;
-	// for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
-	// 	std::cout << CYAN << *it << RESET <<std::endl;
 	Server::showUsers();
 }
 
@@ -61,34 +59,14 @@ void closeMe(User &user)
             --it;
     }
 	
-    for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
+    for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
+	{
         if (it->_fd == Server::sd) {
             std::cout << "id -->" << it->_fd << std::endl;
             Server::_users.erase(it);
             --it;
         }
     }
-}
-
-
-void User::kick(std::string nick)
-{
-	for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
-		if (it->nickName == nick)
-		{
-			std::cout << "Kicking " << it->_fd << std::endl;
-			close(it->_fd);
-			for (int i = 0; i < MAX_CLIENTS; i++)
-			{
-				if (Server::clientSockets[i] == it->_fd)
-					Server::clientSockets[i] = 0;
-			}
-			Server::_users.erase(it);
-			--it;
-			return ;
-		}
-	}
-	send(Server::sd, "No such user", strlen("No such user"), 0);
 }
 
 void User::authorise(User *user, std::string cmd)
@@ -102,9 +80,9 @@ void User::authorise(User *user, std::string cmd)
 				_cmd.clear();
 			return ;
 		}
-		if(_cmd.size() == 6)
+		if(_cmd.size() == NC_LEN)
 			user->pass = _cmd[5];
-		else if(_cmd.size() == 11)
+		else if(_cmd.size() == IRSSI_LEN)
 			user->pass = _cmd[3];
 		if(user->pass != Server::getPassword())
 		{
@@ -122,12 +100,12 @@ void User::authorise(User *user, std::string cmd)
 				return ;
 			}
 		}
-		if(_cmd.size() == 6)
+		if(_cmd.size() == NC_LEN)
 		{
 			user->nickName = _cmd[3];
 			user->userName = _cmd[1];
 		}
-		else if(_cmd.size() == 11)
+		else if(_cmd.size() == IRSSI_LEN)
 		{
 			user->nickName = _cmd[5];
 			user->userName = _cmd[7];
@@ -149,13 +127,6 @@ void	User::user_options(User *user, std::vector<std::string> splitmsg)
 {
 	if (splitmsg.size() > 0 && (splitmsg[0] == "quit" || splitmsg[0] == "exit" || splitmsg[0] == "close"))
 		closeMe(*user);
-	// else if (splitmsg.size() == 2 && splitmsg[0] == "kick")
-	// {
-	// 	kick(splitmsg[1]);
-	// 	int i = Server::_users.size();
-	// 	std::cout << "size of users vector - > " <<  i << std::endl;
-	// 	send(Server::sd, "has kicked " , strlen("has kicked "), 0);
-	// }
 	else if (splitmsg.size() > 0 && splitmsg[0] == "help")
 	{
 		std::string help = "Available commands: \n"
@@ -180,7 +151,6 @@ void	User::user_options(User *user, std::vector<std::string> splitmsg)
 void User::user_cmds(User *user, std::vector<std::string> splitmsg)
 {
 	Command cmd;
-	std::vector<Channel>::iterator it = Server::_channels.begin();
 	int i = 1;
 	int j;
 
@@ -250,7 +220,8 @@ void User::execute(std::string cmd, User *user)
 }
 
 
-std::ostream& operator<<(std::ostream& out, const User& User) {
+std::ostream& operator<<(std::ostream& out, const User& User)
+{
 	std::string input = User.input;
 	std::string userDetails = "UserName: [" + User.userName + "]" + ", Nick: " + "[" + User.nickName + "]" + ", Auth: " 
 		+ "[" + (User.isAuth ? "YES" : "NO") + "]" + ", last inputs: " + "[" + input.erase(input.length() - 1, 1) + "]" + ".";
@@ -263,28 +234,21 @@ bool	User::parse_cmds(std::string str)
 {
 	std::vector<std::string> vector = split(str);
 
-	// for (std::vector<std::string>::iterator it = vector.begin(); it != vector.end(); ++it)
-	// {
-	// 	std::cout << "_cmd " << *it << std::endl;
-	// }
-
-	// std::cout << "_cmd size --> " << vector.size() << std::endl;
-
 	if(_cmd.size() > 0)
 		_cmd.clear();
-	if (vector.size() != 6 && vector.size() != 11)
+	if (vector.size() != NC_LEN && vector.size() != IRSSI_LEN)
 	{
 		_cmd = vector;
 		return false;
 	}
 	
-	if(vector.size() == 6 && (vector[0] != "USER" || vector[2] != "NICK" || \
+	if(vector.size() == NC_LEN && (vector[0] != "USER" || vector[2] != "NICK" || \
 		vector[4] != "PASS") )
 	{
 		_cmd = vector;
 		return false;
 	}
-	if(vector.size() == 11 && (vector[0] != "CAP" || vector[1] != "END" || \
+	if(vector.size() == IRSSI_LEN && (vector[0] != "CAP" || vector[1] != "END" || \
 		vector[2] != "PASS" || vector[4] != "NICK" || vector[6] != "USER"))
 	{
 		_cmd = vector;
@@ -293,7 +257,6 @@ bool	User::parse_cmds(std::string str)
 	if(_cmd.size() > 0)
 		_cmd.clear();
 	_cmd = vector;
-
 
 	return true;
 }

@@ -8,6 +8,9 @@
 #include <string>
 #include <cstring>
 
+#define IRSSI_LEN 11
+#define NC_LEN 6
+
 class User {
    public:
     User(int fd, int id);
@@ -47,3 +50,4 @@ std::vector<std::string> split(std::string str);
 std::string trim(std::string &str);
 
 #endif
+
