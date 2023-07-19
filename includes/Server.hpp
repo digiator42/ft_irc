@@ -20,6 +20,7 @@
 #include <signal.h>
 
 #define MAX_PORT 65535
+#define MAX_BUFFER 1024
 #define CYAN "\033[36m"
 #define YELLOW "\033[33m"
 #define RED "\033[31m"
@@ -27,7 +28,7 @@
 #define RESET "\033[0m"
 
 const int MAX_CLIENTS = FD_SETSIZE;
-const int BUFFER_SIZE = MAX_CLIENTS * 2; // max terminal buffer 1024
+const int BUFFER_SIZE = MAX_BUFFER + 1; // max terminal buffer 1024
 
 class User;
 class Channel;

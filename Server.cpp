@@ -78,7 +78,8 @@ void Server::handleClientMessages() {
 				return ;
 			}
             if ((Server::valread = recv(Server::sd, Server::buffer, BUFFER_SIZE, 0)) <= 0) {
-                getpeername(Server::sd, (struct sockaddr *)&Server::address, (socklen_t *)&Server::addrlen);
+                if (getpeername(Server::sd, (struct sockaddr *)&Server::address, (socklen_t *)&Server::addrlen) == -1)
+                    perror("getpeername:");
                 std::cout << RED << "Host disconnected, IP " << inet_ntoa(Server::address.sin_addr) <<
                      ", port " << ntohs(Server::address.sin_port) << RESET << std::endl;
                 close(Server::sd);
@@ -94,18 +95,19 @@ void Server::handleClientMessages() {
                 // remove from users
                 for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
                     if (it->_fd == Server::sd) {
-                        std::cout << "erased user FD : " << it->_fd << std::endl;
+                        std::cout << "Erased user FD : " << it->_fd << std::endl;
                         // std::vector<User>::iterator it2 = std::find(Server::_users.begin(), Server::_users.end(), *it);
                         Server::_users.erase(it);
                         --it;
                     }
                 }
             } else {
-                // std::cout << "valread = " << Server::valread << std::endl;
-                Server::buffer[Server::valread] = '\0';
+                std::cout << "valread = " << Server::valread << std::endl;
+                
+                Server::valread < BUFFER_SIZE ? Server::buffer[Server::valread] = '\0' : Server::buffer[BUFFER_SIZE - 1] = '\0';
                 for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
                     if (it->_fd == Server::sd) {
-                        // std::cout << YELLOW << "Received message from client: [NO:" << it->_id << "] " << Server::buffer << RESET << std::endl;
+                        std::cout << YELLOW << "Received message from client: [NO:" << it->_id << "] " << Server::buffer << RESET << std::endl;
                         it->input += Server::buffer;
                         std::string userInput(Server::buffer);
                         curIndex = i;
