@@ -77,7 +77,7 @@ void Server::handleClientMessages() {
 				std::cout << "Max clients reached" << std::endl;
 				return ;
 			}
-            if ((Server::valread = recv(Server::sd, Server::buffer, BUFFER_SIZE - 1, 0)) <= 0) {
+            if ((Server::valread = recv(Server::sd, Server::buffer, BUFFER_SIZE, 0)) <= 0) {
                 if (getpeername(Server::sd, (struct sockaddr *)&Server::address, (socklen_t *)&Server::addrlen) == -1)
                     perror("getpeername:");
                 std::cout << RED << "Host disconnected, IP " << inet_ntoa(Server::address.sin_addr) <<
