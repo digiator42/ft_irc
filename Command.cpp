@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Command.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mradwan <mradwan@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 21:39:18 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/17 21:52:05 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/19 20:15:49 by mradwan          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -235,6 +235,11 @@ void Command::privmsg(std::string reciever, std::string message, User user)
 	else // the receiver and the message
 	{
 		// any message to server??
+		if(user._fd == it_u->_fd)
+		{
+			send(it_u->_fd, "can't send message to same user\n", strlen("can't send message to same user\n"), 0);
+			return ;
+		}
 		send(it_u->_fd, (message + "\n").c_str(), strlen((message + "\n").c_str()), 0);
 	}
 	if (it_u == Server::_users.end() && it_c == Server::_channels.end())
