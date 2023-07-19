@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 21:29:02 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/17 21:41:25 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/19 20:31:02 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,6 @@ class Channel{
 		std::string topic;
 		std::vector<User> users;
 		std::vector<User> operators;
-		std::vector<User> invites;
 		std::map<std::string, int> mode;
 		Channel(void); //default
 	public:
@@ -64,6 +63,8 @@ class Channel{
 	int isInvited(User user);
 	int isMode(std::string str);
 	
+	// PUBLIC MEMBER VARIABLES
+	std::vector<User> invites;
 };
 
 // USER azra NICK azra PASS 4

@@ -171,6 +171,10 @@ void User::user_cmds(User *user, std::vector<std::string> splitmsg)
 	{
 		cmd.privmsg(splitmsg[1], splitmsg[2], *user);
 	}
+	else if (splitmsg.size() == 3 && splitmsg[0] == "INVITE")
+	{
+		cmd.invite(splitmsg[1], splitmsg[2]);
+	}
 	for (std::vector<Channel>::iterator it = Server::_channels.begin(); it != Server::_channels.end(); it++)
 	{
 		std::cout << "Channel " << i << "'s name in server vector -> " << it->getName() << std::endl;
@@ -179,6 +183,12 @@ void User::user_cmds(User *user, std::vector<std::string> splitmsg)
 		for (std::vector<User>::iterator it_u = temp_users.begin(); it_u != temp_users.end(); it_u++)
 		{
 			std::cout << "User " << j << " - " << it_u->nickName << std::endl;
+			j++;
+		}
+		j = 1;
+		for (std::vector<User>::iterator it_i = it->invites.begin(); it_i != it->invites.end(); it_i++)
+		{
+			std::cout << "Invite " << j << " - " << it_i->nickName << std::endl;
 			j++;
 		}
 		i++;

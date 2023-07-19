@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 21:31:55 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/17 21:29:32 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/19 20:34:57 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ class Command{
 		// KICK
 		void kick(std::string channel, std::string user, std::string reason);
 		// INVITE
-		// void invite(User user, Channel channel);
+		void invite(std::string user, std::string channel);
 		// TOPIC
 		void topic(std::string channel, std::string topic, User user);
 		// PRIVMSG
