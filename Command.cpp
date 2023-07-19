@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/07/15 21:39:18 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/17 21:52:05 by arafeeq          ###   ########.fr       */
+/*   Created: 2023/07/19 20:41:17 by arafeeq           #+#    #+#             */
+/*   Updated: 2023/07/19 20:41:19 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,23 +161,39 @@ void Command::kick(std::string channel, std::string user, std::string reason)
 	}
 }
 
-// void Command::invite(User user, Channel channel)
-// {
-// 	std::map<std::string, int> temp_mode = channel.getMode();
-// 	std::map<std::string, int>::const_iterator it = temp_mode.find("i"); // use getters
-// 	if (it == temp_mode.end()) // use getter somehow
-// 	{
-// 		// error message if necessary
-// 		// return
-// 	}
-// 	else
-// 	{
-// 		// invite user
-// 		std::string message = "invited"; // change to good invitation message
-// 		send(user._fd, message.c_str(), strlen(message.c_str()), 0);
-// 		// set flag??
-// 	}
-// }
+void Command::invite(std::string user, std::string channel)
+{
+	std::vector<Channel>::iterator it_c;
+	std::vector<User>::iterator it_s;
+
+	for(it_c = Server::_channels.begin(); it_c != Server::_channels.end(); ++it_c)
+	{
+		if (it_c->getName() == channel)
+			break ;
+	}
+	if (it_c == Server::_channels.end())
+	{
+		std::cout << "Error: Channel Not found" << std::endl;
+		return ;
+	}
+	for(it_s = Server::_users.begin(); it_s != Server::_users.end(); ++it_s)
+	{
+		if (it_s->nickName == user)
+		{
+			std::string message = "You're invited to the Channel " + channel + " \n";
+			send(it_s->_fd, message.c_str(), strlen(message.c_str()), 0);
+			
+			it_c->invites.push_back(*it_s);
+			
+		}
+	}
+	if (it_s == Server::_users.end())
+	{
+		std::cout << "Error: User Not found" << std::endl;
+		return ;
+	}
+	
+}
 
 void Command::topic(std::string channel, std::string topic, User user)
 {
@@ -235,6 +251,11 @@ void Command::privmsg(std::string reciever, std::string message, User user)
 	else // the receiver and the message
 	{
 		// any message to server??
+		if(user._fd == it_u->_fd)
+		{
+			send(it_u->_fd, "can't send message to same user\n", strlen("can't send message to same user\n"), 0);
+			return ;
+		}
 		send(it_u->_fd, (message + "\n").c_str(), strlen((message + "\n").c_str()), 0);
 	}
 	if (it_u == Server::_users.end() && it_c == Server::_channels.end())
