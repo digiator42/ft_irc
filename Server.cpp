@@ -82,6 +82,7 @@ void Server::handleClientMessages() {
                     perror("getpeername:");
                 std::cout << RED << "Host disconnected, IP " << inet_ntoa(Server::address.sin_addr) <<
                      ", port " << ntohs(Server::address.sin_port) << RESET << std::endl;
+                FD_CLR(Server::sd, &Server::readfds);
                 close(Server::sd);
                 Server::clientSockets[i] = 0;
                 // remove from fd set
@@ -102,12 +103,11 @@ void Server::handleClientMessages() {
                     }
                 }
             } else {
-                std::cout << "valread = " << Server::valread << std::endl;
                 
                 Server::valread < BUFFER_SIZE ? Server::buffer[Server::valread] = '\0' : Server::buffer[BUFFER_SIZE - 1] = '\0';
                 for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
                     if (it->_fd == Server::sd) {
-                        std::cout << YELLOW << "Received message from client: [NO:" << it->_id << "] " << Server::buffer << RESET << std::endl;
+                        // std::cout << YELLOW << "Received message from client: [NO:" << it->_id << "] " << Server::buffer << RESET << std::endl;
                         it->input += Server::buffer;
                         std::string userInput(Server::buffer);
                         curIndex = i;
