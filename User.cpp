@@ -75,7 +75,8 @@ void User::authorise(User *user, std::string cmd)
 	{
 		if (user->isAuth)
 		{
-			send(user->_fd, "User exists! : ", strlen("User exists! : "), 0);
+			std::string S = ERR_NICKCOLLISION;
+			send(user->_fd, (S + " User exists! : ").c_str(), strlen((S + " User exists! : ").c_str()), 0);
 			if(_cmd.size() > 0)
 				_cmd.clear();
 			return ;
@@ -86,7 +87,8 @@ void User::authorise(User *user, std::string cmd)
 			user->pass = _cmd[3];
 		if(user->pass != Server::getPassword())
 		{
-			send(user->_fd, "Wrong Pass : ", strlen("Wrong Pass : "), 0);
+			std::string S = WRONG_PASS_CODE;
+			send(user->_fd, (S + " Wrong Pass : ").c_str(), strlen((S + " Wrong Pass : ").c_str()), 0);
 			if(_cmd.size() > 0)
 				_cmd.clear();
 			// closeMe(*user);
@@ -96,7 +98,10 @@ void User::authorise(User *user, std::string cmd)
 		{
 			if (_cmd[1] == it->userName || _cmd[3] == it->nickName)
 			{
-				send(user->_fd, "User exists! : ", strlen("User exists! : "), 0);
+				std::string S = ERR_NICKCOLLISION;
+				send(user->_fd, (S + " User exists! : ").c_str(), strlen((S + " User exists! : ").c_str()), 0);
+				if(_cmd.size() > 0)
+					_cmd.clear();
 				return ;
 			}
 		}
@@ -167,9 +172,28 @@ void User::user_cmds(User *user, std::vector<std::string> splitmsg)
 	{
 		cmd.topic(splitmsg[1], splitmsg[2], *user);
 	}
-	else if (splitmsg.size() == 3 && splitmsg[0] == "PRIVMSG")
+	else if (splitmsg.size() > 0 && splitmsg[0] == "PRIVMSG")
 	{
-		cmd.privmsg(splitmsg[1], splitmsg[2], *user);
+		if(splitmsg.size() == 3)
+			cmd.privmsg(splitmsg[1], splitmsg[2], *user);
+		if(splitmsg.size() == 2)
+		{
+			std::string S = PRIVMSG_EMPTY;
+			send(user->_fd, (S + " the MSG is empty").c_str(), strlen((S + " the MSG is empty").c_str()), 0);
+			return ;
+		}
+		if(splitmsg.size() == 1)
+		{
+			std::string S = PRIVMSG_NO_USER;
+			send(user->_fd, (S + " No such user").c_str(), strlen((S + " No such user").c_str()), 0);
+			return ;
+		}
+		else
+		{
+			std::string S = TOO_MANY_ARGS;
+			send(user->_fd, (S + " Too many arguments").c_str(), strlen((S + " Too many arguments").c_str()), 0);
+			return ;
+		}
 	}
 	else if (splitmsg.size() == 3 && splitmsg[0] == "INVITE")
 	{
