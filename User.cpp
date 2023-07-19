@@ -76,7 +76,8 @@ void User::authorise(User *user, std::string cmd)
 		if (user->isAuth)
 		{
 			std::string S = ERR_NICKCOLLISION;
-			send(user->_fd, (S + " User exists! : ").c_str(), strlen((S + " User exists! : ").c_str()), 0);
+			S.append(" User already registered");
+			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
 			if(_cmd.size() > 0)
 				_cmd.clear();
 			return ;
@@ -88,7 +89,8 @@ void User::authorise(User *user, std::string cmd)
 		if(user->pass != Server::getPassword())
 		{
 			std::string S = WRONG_PASS_CODE;
-			send(user->_fd, (S + " Wrong Pass : ").c_str(), strlen((S + " Wrong Pass : ").c_str()), 0);
+			S.append(" Wrong password");
+			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
 			if(_cmd.size() > 0)
 				_cmd.clear();
 			// closeMe(*user);
@@ -98,8 +100,9 @@ void User::authorise(User *user, std::string cmd)
 		{
 			if (_cmd[1] == it->userName || _cmd[3] == it->nickName)
 			{
-				std::string S = ERR_NICKCOLLISION;
-				send(user->_fd, (S + " User exists! : ").c_str(), strlen((S + " User exists! : ").c_str()), 0);
+				std::string S(ERR_NICKCOLLISION);
+				S.append(" User exists! : ");
+				send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
 				if(_cmd.size() > 0)
 					_cmd.clear();
 				return ;
@@ -179,19 +182,22 @@ void User::user_cmds(User *user, std::vector<std::string> splitmsg)
 		if(splitmsg.size() == 2)
 		{
 			std::string S = PRIVMSG_EMPTY;
-			send(user->_fd, (S + " the MSG is empty").c_str(), strlen((S + " the MSG is empty").c_str()), 0);
+			S.append(" No text to send");
+			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
 			return ;
 		}
 		if(splitmsg.size() == 1)
 		{
 			std::string S = PRIVMSG_NO_USER;
-			send(user->_fd, (S + " No such user").c_str(), strlen((S + " No such user").c_str()), 0);
+			S.append(" No such user");
+			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
 			return ;
 		}
 		else
 		{
 			std::string S = TOO_MANY_ARGS;
-			send(user->_fd, (S + " Too many arguments").c_str(), strlen((S + " Too many arguments").c_str()), 0);
+			S.append(" Too many arguments");
+			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
 			return ;
 		}
 	}
