@@ -181,9 +181,9 @@ void User::user_cmds(User *user, std::vector<std::string> splitmsg)
 	else if ((splitmsg.size() > 0 && splitmsg[0] == "KICK"))
 	{
 		if(splitmsg.size() == 4)
-			cmd.kick(splitmsg[1], splitmsg[2], splitmsg[3]);
+			cmd.kick(splitmsg[1], splitmsg[2], splitmsg[3], *user);
 		else if(splitmsg.size() == 3)
-			cmd.kick(splitmsg[1], splitmsg[2], "");
+			cmd.kick(splitmsg[1], splitmsg[2], "", *user);
 		else
 		{
 			std::string S = TOO_MANY_ARGS;
@@ -225,7 +225,7 @@ void User::user_cmds(User *user, std::vector<std::string> splitmsg)
 	else if (splitmsg.size() > 0 && splitmsg[0] == "INVITE")
 	{
 		if(splitmsg.size() == 3)
-			cmd.invite(splitmsg[1], splitmsg[2]);
+			cmd.invite(splitmsg[1], splitmsg[2], *user);
 		else
 		{
 			std::string S = TOO_MANY_ARGS;
