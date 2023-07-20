@@ -162,14 +162,35 @@ void User::user_cmds(User *user, std::vector<std::string> splitmsg)
 	int i = 1;
 	int j;
 
-	if ((splitmsg.size() == 2  || splitmsg.size() == 3) && splitmsg[0] == "JOIN")
+	if (splitmsg.size() > 0  && splitmsg[0] == "JOIN")
 	{
-		cmd.join(splitmsg[1], "", *user);
+		// if(splitmsg.size() == 3) join with key
+		// 	cmd.join(splitmsg[1], splitmsg[2], *user);
+		// else
+		if(splitmsg.size() == 2 || splitmsg.size() == 3)
+			cmd.join(splitmsg[1], "", *user);
+		else
+		{
+			std::string S = TOO_MANY_ARGS;
+			S.append(" invalid arguments number");
+			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
+			return ;
+		}
 		// std::cout << "User " << user->nickName << " added to channel " << splitmsg[0] << std::endl; 
 	}
-	else if ((splitmsg.size() == 3  || splitmsg.size() == 4) && splitmsg[0] == "KICK")
+	else if ((splitmsg.size() > 0 && splitmsg[0] == "KICK"))
 	{
-		cmd.kick(splitmsg[1], splitmsg[2], "");
+		if(splitmsg.size() == 4)
+			cmd.kick(splitmsg[1], splitmsg[2], splitmsg[3]);
+		else if(splitmsg.size() == 3)
+			cmd.kick(splitmsg[1], splitmsg[2], "");
+		else
+		{
+			std::string S = TOO_MANY_ARGS;
+			S.append(" invalid arguments number");
+			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
+			return ;
+		}
 	}
 	else if ((splitmsg.size() == 2 || splitmsg.size() == 3) && splitmsg[0] == "TOPIC")
 	{
