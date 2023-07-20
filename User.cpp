@@ -201,9 +201,17 @@ void User::user_cmds(User *user, std::vector<std::string> splitmsg)
 			return ;
 		}
 	}
-	else if (splitmsg.size() == 3 && splitmsg[0] == "INVITE")
+	else if (splitmsg.size() > 0 && splitmsg[0] == "INVITE")
 	{
-		cmd.invite(splitmsg[1], splitmsg[2]);
+		if(splitmsg.size() == 3)
+			cmd.invite(splitmsg[1], splitmsg[2]);
+		else
+		{
+			std::string S = TOO_MANY_ARGS;
+			S.append(" invalid arguments number");
+			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
+			return ;
+		}
 	}
 	for (std::vector<Channel>::iterator it = Server::_channels.begin(); it != Server::_channels.end(); it++)
 	{
@@ -234,7 +242,9 @@ void User::execute(std::string cmd, User *user)
 
     if (!parse_cmds(cmd) && user->isAuth == false)
 	{
-        send(user->_fd, "Authentication required : ", strlen("Authentication required : "), 0);
+		std::string S = ERR_NOTREGISTERED;
+		S.append(" You have not registered");
+		send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
 		// closeMe();
 		// if(_cmd.size() > 0)
 		// 	_cmd.clear();

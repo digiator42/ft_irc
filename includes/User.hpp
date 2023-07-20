@@ -16,7 +16,7 @@
 #define PRIVMSG_EMPTY "412"
 #define PRIVMSG_NO_USER "401"
 #define TOO_MANY_ARGS "461"
-
+#define ERR_NOTREGISTERED "451"
 /*
 # define ERR_NOSUCHNICK "401"
 # define ERR_NOSUCHSERVER "402"
