@@ -156,85 +156,27 @@ void	User::user_options(User *user, std::vector<std::string> splitmsg)
 	}
 }
 
+void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
+    if (splitmsg.empty()) {
+        return; // No command provided, nothing to do
+    }
 
-void User::user_cmds(User *user, std::vector<std::string> splitmsg)
-{
-	Command cmd;
+    Command cmd;
+    std::string cmdType = splitmsg[0];
+    if (cmdType == "JOIN") {
+        handleJoinCommand(splitmsg, cmd, user);
+    } else if (cmdType == "KICK") {
+        handleKickCommand(splitmsg, cmd, user);
+    } else if ((splitmsg.size() == 2 || splitmsg.size() == 3) && splitmsg[0] == "TOPIC") { // not yet
+        cmd.topic(splitmsg[1], splitmsg[2], *user);
+    } else if (cmdType == "PRIVMSG") {
+        handlePrivMsgCommand(splitmsg, cmd, user);
+    } else if (cmdType == "INVITE") {
+        handleInviteCommand(splitmsg, cmd, user);
+    }
+
 	int i = 1;
 	int j;
-
-	if (splitmsg.size() > 0  && splitmsg[0] == "JOIN")
-	{
-		// if(splitmsg.size() == 3) join with key
-		// 	cmd.join(splitmsg[1], splitmsg[2], *user);
-		// else
-		if(splitmsg.size() == 2 || splitmsg.size() == 3)
-			cmd.join(splitmsg[1], "", *user);
-		else
-		{
-			std::string S = TOO_MANY_ARGS;
-			S.append(" invalid arguments number");
-			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
-			return ;
-		}
-		// std::cout << "User " << user->nickName << " added to channel " << splitmsg[0] << std::endl; 
-	}
-	else if ((splitmsg.size() > 0 && splitmsg[0] == "KICK"))
-	{
-		if(splitmsg.size() == 4)
-			cmd.kick(splitmsg[1], splitmsg[2], splitmsg[3], *user);
-		else if(splitmsg.size() == 3)
-			cmd.kick(splitmsg[1], splitmsg[2], "", *user);
-		else
-		{
-			std::string S = TOO_MANY_ARGS;
-			S.append(" invalid arguments number");
-			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
-			return ;
-		}
-	}
-	else if ((splitmsg.size() == 2 || splitmsg.size() == 3) && splitmsg[0] == "TOPIC")
-	{
-		cmd.topic(splitmsg[1], splitmsg[2], *user);
-	}
-	else if (splitmsg.size() > 0 && splitmsg[0] == "PRIVMSG")
-	{
-		if(splitmsg.size() == 3)
-			cmd.privmsg(splitmsg[1], splitmsg[2], *user);
-		if(splitmsg.size() == 2)
-		{
-			std::string S = PRIVMSG_EMPTY;
-			S.append(" No text to send");
-			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
-			return ;
-		}
-		if(splitmsg.size() == 1)
-		{
-			std::string S = PRIVMSG_NO_USER;
-			S.append(" No such user");
-			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
-			return ;
-		}
-		else
-		{
-			std::string S = TOO_MANY_ARGS;
-			S.append(" Too many arguments");
-			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
-			return ;
-		}
-	}
-	else if (splitmsg.size() > 0 && splitmsg[0] == "INVITE")
-	{
-		if(splitmsg.size() == 3)
-			cmd.invite(splitmsg[1], splitmsg[2], *user);
-		else
-		{
-			std::string S = TOO_MANY_ARGS;
-			S.append(" invalid arguments number");
-			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
-			return ;
-		}
-	}
 	for (std::vector<Channel>::iterator it = Server::_channels.begin(); it != Server::_channels.end(); it++)
 	{
 		std::cout << "Channel " << i << "'s name in server vector -> " << it->getName() << std::endl;
@@ -265,11 +207,8 @@ void User::execute(std::string cmd, User *user)
     if (!parse_cmds(cmd) && user->isAuth == false)
 	{
 		std::string S = ERR_NOTREGISTERED;
-		S.append(" You have not registered");
+		S.append(" You have not registered\n");
 		send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
-		// closeMe();
-		// if(_cmd.size() > 0)
-		// 	_cmd.clear();
 		return ;
 	}
 	else

@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include "includes/Server.hpp"
+#include "includes/Command.hpp"
 
 std::vector<std::string> split(const std::string str)
 {
@@ -20,4 +21,50 @@ std::string trim(std::string &str)
     if (left == std::string::npos || right == std::string::npos)
         return "";
     return str.substr(left, right - left + 1);
+}
+
+void sendErrorMessage(int fd, const std::string& message, const std::string& key) {
+    std::string errorMsg = key + " ERROR: " + message;
+    send(fd, errorMsg.c_str(), strlen(errorMsg.c_str()), 0);
+}
+
+void handleJoinCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user) {
+    if (splitmsg.size() == 2 || splitmsg.size() == 3) {
+        cmd.join(splitmsg[1], "", *user);
+    } else {
+        // Invalid arguments
+        sendErrorMessage(user->_fd, "JOIN command requires 2 or 3 arguments\n", TOO_MANY_ARGS);
+    }
+}
+
+void handleKickCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user) {
+    if (splitmsg.size() == 4) {
+        cmd.kick(splitmsg[1], splitmsg[2], splitmsg[3], *user);
+    } else if (splitmsg.size() == 3) {
+        cmd.kick(splitmsg[1], splitmsg[2], "", *user);
+    } else {
+        // Invalid arguments
+        sendErrorMessage(user->_fd, "KICK command requires 3 or 4 arguments\n", TOO_MANY_ARGS);
+    }
+}
+
+void handlePrivMsgCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user) {
+	if (splitmsg.size() == 3) {
+		cmd.privmsg(splitmsg[1], splitmsg[2], *user);
+	} else if (splitmsg.size() == 2) {
+		sendErrorMessage(user->_fd, "PRIVMSG command requires 3 arguments\n", PRIVMSG_EMPTY);
+	} else if(splitmsg.size() == 1) {
+		sendErrorMessage(user->_fd, "PRIVMSG command requires 3 arguments\n", PRIVMSG_NO_USER);
+	} else {
+		sendErrorMessage(user->_fd, "PRIVMSG command requires 3 arguments\n", TOO_MANY_ARGS);
+	}
+}
+
+void	handleInviteCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user)
+{
+	if (splitmsg.size() == 3) {
+		cmd.invite(splitmsg[1], splitmsg[2], *user);
+	} else {
+		sendErrorMessage(user->_fd, "INVITE command requires 3 arguments\n", TOO_MANY_ARGS);
+	}
 }

@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <string>
 #include <cstring>
+#include "Command.hpp"
 
 #define IRSSI_LEN 11
 #define NC_LEN 6
@@ -99,6 +100,11 @@ class User {
 std::ostream& operator<<(std::ostream& out, const User& User);
 std::vector<std::string> split(std::string str);
 std::string trim(std::string &str);
+void sendErrorMessage(int fd, const std::string& message, const std::string& key);
+void handleJoinCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
+void handleKickCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
+void handlePrivMsgCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
+void handleInviteCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
 
 #endif
 
