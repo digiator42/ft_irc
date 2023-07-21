@@ -9,7 +9,7 @@
 #include <cstring>
 #include "Command.hpp"
 
-#define IRSSI_LEN 11
+#define IRSSI_LEN 9
 #define NC_LEN 6
 
 #define ERR_NICKCOLLISION "436"

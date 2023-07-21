@@ -84,8 +84,10 @@ void User::authorise(User *user, std::string cmd)
 		}
 		if(_cmd.size() == NC_LEN)
 			user->pass = _cmd[5];
-		else if(_cmd.size() == IRSSI_LEN)
+		else if(_cmd.size() == 11)
 			user->pass = _cmd[3];
+		else if(_cmd.size() == IRSSI_LEN)
+			user->pass = _cmd[1];
 		if(user->pass != Server::getPassword())
 		{
 			std::string S = WRONG_PASS_CODE;
@@ -119,7 +121,11 @@ void User::authorise(User *user, std::string cmd)
 			user->userName = _cmd[7];
 		}
 		user->isAuth = true;
-		send(user->_fd, "Authenticated : ", strlen("Authenticated : "), 0);
+		const char *msg = ":irc 001 user :Welcome to the perfect Chat system user\n"
+					":irc 002 user :Host are none\n"
+					":irc 003 user :Created on july->2023\n";
+		std::cout << "->>>>>>>>>" << _cmd.size() << std::endl;
+		send(user->_fd, msg, strlen(msg), 0);
 		if(_cmd.size() > 0)
 			_cmd.clear();
 	}
@@ -174,6 +180,7 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
 
     Command cmd;
     std::string cmdType = splitmsg[0];
+	std::cout << "cmdType -> {" << cmdType << "}" << std::endl;
     if (cmdType == "JOIN") {
         handleJoinCommand(splitmsg, cmd, user);
     } else if (cmdType == "KICK") {
@@ -184,11 +191,51 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
         handlePrivMsgCommand(splitmsg, cmd, user);
     } else if (cmdType == "INVITE") {
         handleInviteCommand(splitmsg, cmd, user);
-    } else if (cmdType == "PING") {
+    } else if (cmdType == "PING") { usleep (1000000);
 		send(user->_fd, "PONG\n", strlen("PONG\n"), 0);
 	} else if (cmdType == "WHOIS") {
 		handleWhoisCommand(splitmsg, cmd, user);
 	}
+	//else if (cmdType == "LIST") {
+	// 	if (splitmsg.size() == 1)
+	// 		cmd.list(*user);
+	// 	else
+	// 		sendErrorMessage(user->_fd, "LIST command requires 1 argument\n", TOO_MANY_ARGS);
+	// } else if (cmdType == "NAMES") {
+	// 	if (splitmsg.size() == 1)
+	// 		cmd.names(*user);
+	// 	else
+	// 		sendErrorMessage(user->_fd, "NAMES command requires 1 argument\n", TOO_MANY_ARGS);
+	// } else if (cmdType == "AWAY") {
+	// 	if (splitmsg.size() == 1)
+	// 		cmd.away("", *user);
+	// 	else if (splitmsg.size() == 2)
+	// 		cmd.away(splitmsg[1], *user);
+	// 	else
+	// 		sendErrorMessage(user->_fd, "AWAY command requires 1 argument\n", TOO_MANY_ARGS);
+	// } else if (cmdType == "MODE") {
+	// 	if (splitmsg.size() == 1)
+	// 		cmd.mode("", "", *user);
+	// 	else if (splitmsg.size() == 2)
+	// 		cmd.mode(splitmsg[1], "", *user);
+	// 	else if (splitmsg.size() == 3)
+	// 		cmd.mode(splitmsg[1], splitmsg[2], *user);
+	// 	else
+	// 		sendErrorMessage(user->_fd, "MODE command requires 1 or 2 arguments\n", TOO_MANY_ARGS);
+	// } else if (cmdType == "OPER") {
+	// 	if (splitmsg.size() == 3)
+	// 		cmd.oper(splitmsg[1], splitmsg[2], *user);
+	// 	else
+	// 		sendErrorMessage(user->_fd, "OPER command requires 2 arguments\n", TOO_MANY_ARGS);
+	// } else if (cmdType == "PASS") {
+	// 	if (splitmsg.size() == 2)
+	// 		cmd.pass(splitmsg[1], *user);
+	// 	else
+	// 		sendErrorMessage(user->_fd, "PASS command requires 1 argument\n", TOO_MANY_ARGS);
+	// } else if (cmdType == "USER") {
+	// 	if (splitmsg.size() == 5)
+	// 		cmd.user(splitmsg[1], splitmsg[2], split
+
 	int i = 1;
 	int j;
 	for (std::vector<Channel>::iterator it = Server::_channels.begin(); it != Server::_channels.end(); it++)
@@ -217,11 +264,16 @@ void User::execute(std::string cmd, User *user)
 	void (User::*f[3])(User &user) = { &User::whoAmI, &User::showClients, &User::showUsers};
 	std::vector<std::string> splitmsg = split(cmd);
 
+	if ((splitmsg.size() > 0 && splitmsg.size() < 5 && splitmsg[0] == "CAP"))
+	{
+		return ;
+	}
 
     if (!parse_cmds(cmd) && user->isAuth == false)
 	{
 		std::string S = ERR_NOTREGISTERED;
 		S.append(" You have not registered\n");
+		std::cout << "->>>>>>>>>" << _cmd.size() << std::endl;
 		send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
 		return ;
 	}
@@ -261,7 +313,8 @@ bool	User::parse_cmds(std::string str)
 
 	if(_cmd.size() > 0)
 		_cmd.clear();
-	if (vector.size() != NC_LEN && vector.size() != IRSSI_LEN)
+	
+	if (vector.size() < NC_LEN)
 	{
 		_cmd = vector;
 		return false;
@@ -273,8 +326,9 @@ bool	User::parse_cmds(std::string str)
 		_cmd = vector;
 		return false;
 	}
-	if(vector.size() == IRSSI_LEN && (vector[0] != "CAP" || vector[1] != "END" || \
-		vector[2] != "PASS" || vector[4] != "NICK" || vector[6] != "USER"))
+	if((vector.size() == IRSSI_LEN && (vector[0] != "CAP" || vector[1] != "END" || \
+		vector[2] != "PASS" || vector[4] != "NICK" || vector[6] != "USER")) && \
+			(vector.size() == 11 && (vector[0] != "PASS" || vector[2] != "NICK" || vector[4] != "USER")))
 	{
 		_cmd = vector;
 		return false;

@@ -58,10 +58,7 @@ void Server::acceptConnection() {
 
 // Send welcome message to the client
 void Server::sendWlcmMsg() { 
-    const char *welcomeMessage = "CAP * ACK :multi-prefix\r\n"
-    "001 ops :Welcome to the IRC Network!\r\n"
-    "002 ops acknowldge\r\n"
-    "003 ops acknowldge\r\n";
+    const char *welcomeMessage = "CAP * ACK :multi-prefix\r\n";
     send(Server::newSocket, welcomeMessage, strlen(welcomeMessage), 0);
 }
 
