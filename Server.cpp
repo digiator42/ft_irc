@@ -107,7 +107,7 @@ void Server::handleClientMessages() {
                 Server::valread < BUFFER_SIZE ? Server::buffer[Server::valread] = '\0' : Server::buffer[BUFFER_SIZE - 1] = '\0';
                 for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
                     if (it->_fd == Server::sd) {
-                        // std::cout << YELLOW << "Received message from client: [NO:" << it->_id << "] " << Server::buffer << RESET << std::endl;
+                        std::cout << YELLOW << "Received message from client: [NO:" << it->_id << "] " << Server::buffer << RESET << std::endl;
                         it->input += Server::buffer;
                         std::string userInput(Server::buffer);
                         curIndex = i;
@@ -271,7 +271,7 @@ std::vector<Channel> Server::_channels;
 // FD_CLR(int fd, fd_set *set) - removes fd from the set // might be useful for removing clients
 // FD_ISSET(int fd, fd_set *set) - returns true if fd is in the set
 
-// CMDS
+// CMDS    10.13.1.1
 //  USER yoni NICK yoni PASS 123
 // /conn 10.11.2.13 6667 1
 

@@ -156,6 +156,17 @@ void	User::user_options(User *user, std::vector<std::string> splitmsg)
 	}
 }
 
+void handleWhoisCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user) {
+	(void)cmd;
+	if (splitmsg.size() == 2) {
+		std::string nick = "\nname : " + splitmsg[1] + "\n";
+		send(user->_fd, nick.c_str(), strlen(nick.c_str()), 0);
+	} else {
+		// Invalid arguments
+		sendErrorMessage(user->_fd, "WHOIS command requires 2 arguments\n", TOO_MANY_ARGS);
+	}
+}
+
 void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
     if (splitmsg.empty()) {
         return; // No command provided, nothing to do
@@ -173,8 +184,11 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
         handlePrivMsgCommand(splitmsg, cmd, user);
     } else if (cmdType == "INVITE") {
         handleInviteCommand(splitmsg, cmd, user);
-    }
-
+    } else if (cmdType == "PING") {
+		send(user->_fd, "PONG\n", strlen("PONG\n"), 0);
+	} else if (cmdType == "WHOIS") {
+		handleWhoisCommand(splitmsg, cmd, user);
+	}
 	int i = 1;
 	int j;
 	for (std::vector<Channel>::iterator it = Server::_channels.begin(); it != Server::_channels.end(); it++)
