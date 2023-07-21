@@ -156,6 +156,7 @@ void	User::user_options(User *user, std::vector<std::string> splitmsg)
 	}
 }
 
+
 void User::user_cmds(User *user, std::vector<std::string> splitmsg)
 {
 	Command cmd;
