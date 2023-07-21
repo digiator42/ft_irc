@@ -115,10 +115,15 @@ void User::authorise(User *user, std::string cmd)
 			user->nickName = _cmd[3];
 			user->userName = _cmd[1];
 		}
-		else if(_cmd.size() == IRSSI_LEN)
+		else if(_cmd.size() == 11)
 		{
 			user->nickName = _cmd[5];
 			user->userName = _cmd[7];
+		}
+		else if (_cmd.size() == 9)
+		{
+			user->nickName = _cmd[3];
+			user->userName = _cmd[5];
 		}
 		user->isAuth = true;
 		const char *msg = ":irc 001 user :Welcome to the perfect Chat system user\n"
@@ -326,9 +331,9 @@ bool	User::parse_cmds(std::string str)
 		_cmd = vector;
 		return false;
 	}
-	if((vector.size() == IRSSI_LEN && (vector[0] != "CAP" || vector[1] != "END" || \
+	if((vector.size() == 11 && (vector[0] != "CAP" || vector[1] != "END" || \
 		vector[2] != "PASS" || vector[4] != "NICK" || vector[6] != "USER")) && \
-			(vector.size() == 11 && (vector[0] != "PASS" || vector[2] != "NICK" || vector[4] != "USER")))
+			(vector.size() == 9 && (vector[0] != "PASS" || vector[2] != "NICK" || vector[4] != "USER")))
 	{
 		_cmd = vector;
 		return false;
