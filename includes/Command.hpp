@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 21:31:55 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/19 20:34:57 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/20 23:04:59 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ class Command{
 		int arg_amt;
 		std::string command;
 		std::vector<std::string> args;
+		std::string message;
 	public:
 		Command(void);
 		// copy contsructor
@@ -46,13 +47,15 @@ class Command{
 		// JOIN
 		void join(std::string channel_s, std::string key_s, User user); // probably references of these
 		// KICK
-		void kick(std::string channel, std::string user, std::string reason);
+		void kick(std::string channel, std::string user_kick, std::string reason, User user);
 		// INVITE
-		void invite(std::string user, std::string channel);
+		void invite(std::string user, std::string channel, User user_o);
 		// TOPIC
 		void topic(std::string channel, std::string topic, User user);
 		// PRIVMSG
 		void privmsg(std::string reciever, std::string message, User user);
+		// MODE
+		void mode(std::string channel, std::string mode, User user);
 
 		std::vector<std::string> ft_split(std::string str, char delimiter);
 };

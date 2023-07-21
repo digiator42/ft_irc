@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <string>
 #include <cstring>
+#include "Command.hpp"
 
 #define IRSSI_LEN 11
 #define NC_LEN 6
@@ -16,7 +17,8 @@
 #define PRIVMSG_EMPTY "412"
 #define PRIVMSG_NO_USER "401"
 #define TOO_MANY_ARGS "461"
-
+#define ERR_NOTREGISTERED "451"
+#define ERR_TOOMANYCHANNELS "405"
 /*
 # define ERR_NOSUCHNICK "401"
 # define ERR_NOSUCHSERVER "402"
@@ -40,7 +42,7 @@
 # define ERR_INVITEONLYCHAN "473"
 # define ERR_BADCHANNELKEY "475"
 # define ERR_BADCHANMASK "476"
-# define ERR_NOPRIVILEGES "481"
+# define ERR_NOPRIVILEGES "481" 
 # define ERR_CHANOPRIVSNEEDED "482"
 # define ERR_NOOPERHOST "491"
 # define ERR_UMODEUNKNOWNFLAG "501"
@@ -98,6 +100,11 @@ class User {
 std::ostream& operator<<(std::ostream& out, const User& User);
 std::vector<std::string> split(std::string str);
 std::string trim(std::string &str);
+void sendErrorMessage(int fd, const std::string& message, const std::string& key);
+void handleJoinCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
+void handleKickCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
+void handlePrivMsgCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
+void handleInviteCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
 
 #endif
 

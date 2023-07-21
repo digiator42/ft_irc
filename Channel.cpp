@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 21:50:36 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/17 20:05:21 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/20 23:31:21 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,12 @@ Channel::Channel(std::string str_n, std::string str_p)
 	this->name = str_n;
 	this->pass = str_p;
 	this->topic = "";
-	this->mode["i"] = 0;
-	this->mode["t"] = 0;
-	this->mode["k"] = 0;
-	this->mode["o"] = 0;
-	this->mode["l"] = 0;
+	this->message = "";
+	this->mode['i'] = 0;
+	this->mode['t'] = 0;
+	this->mode['k'] = 0;
+	this->mode['o'] = 0;
+	this->mode['l'] = 0;
 }
 
 Channel::~Channel(void)
@@ -51,7 +52,7 @@ std::string	Channel::getPass(void)
 	return (pass);
 }
 
-std::map<std::string, int> Channel::getMode(void)
+std::map<char, int> Channel::getMode(void)
 {
 	return (mode);
 }
@@ -83,6 +84,26 @@ void Channel::setPass(std::string str)
 	pass = str;
 }
 
+void Channel::setMode(char m, char sign)
+{
+	std::map<char, int>::iterator it;
+	for (it = this->mode.begin(); it != this->mode.end(); it++)
+	{
+		if (it->first == m)
+		{
+			if (sign == '+')
+				it->second = 1;
+			else
+				it->second = 0;
+		}
+	}
+	if (it == this->mode.end())
+	{
+		// error message // send to the user/ operator??
+		
+	}
+}
+
 // -- MEMEBR FUNCTIONS --
 
 void Channel::addUser(User new_user)
@@ -93,7 +114,7 @@ void Channel::addUser(User new_user)
 	}
 	users.push_back(User(new_user));
 	std::string chan_message = "\n - WELCOME TO THE CHANNEL " + this->name + "! - \n";
-	std::string message = "List of Commands                                             Usage\n"
+	message = "List of Commands                                             Usage\n"
 		"PRIVMSG - message user(s) in the channel           PRIVMSG <receiver>{,<receiver>} <text to be sent>\n"
 		"MODE (o) - change the mode of the channel         MODE <channel> <mode>\n"
 		"TOPIC (o) - change the topic of the channel        TOPIC <channel> <topic>\n"
@@ -104,26 +125,37 @@ void Channel::addUser(User new_user)
 	
 }
 
-void Channel::kickUser(User user)
+void Channel::kickUser(std::string user_kick, std::string reason, User user)
 {
-	// check if user is operator
-	// if (/* one who sent the command to KICK is operator */)
-	// {
-		std::vector<User>::iterator it;
-		for (it = users.begin(); it != users.end();)
+	std::vector<User>::iterator it;
+	std::vector<User>::iterator it_s;
+
+	for(it_s = this->users.begin(); it_s != this->users.end(); ++it_s)
+	{
+		if (it_s->nickName == user_kick)
 		{
-			if (*it == user)
-				users.erase(it);
+			if (this->isOperator(user) != 1)
+			{
+				message = ERR_NOPRIVILEGES;
+				message.append(OP_ERR_M + this->name + "\n");
+				send(user._fd, message.c_str(), strlen(message.c_str()), 0);
+			}
 			else
-				++it;
+			{
+				this->users.erase(it);
+				// send(user._fd, message.c_str(), strlen(message.c_str()), 0); // message to user about kicking
+				std::cout << "Reason for Kicking User: " << reason << std::endl;
+				std::cout << "User " << user << " kicked from channel" << std::endl;
+				return ;
+			}
 		}
-		// send(user._fd, message.c_str(), strlen(message.c_str()), 0);
-	// }
-	// else
-	// {
-	// 	// error message if necessary
-	// 	// return
-	// }
+	}
+	if (it_s == this->users.end())
+	{
+		// send message to the operator (not server)
+		std::cout << RED << "Error: User Not found in Channel" << RESET << std::endl;
+		return ;
+	}
 }
 
 int Channel::isInvited(User user)
@@ -137,15 +169,30 @@ int Channel::isInvited(User user)
 	return (0);
 }
 
-int Channel::isMode(std::string str)
+int Channel::isMode(char m)
 {
-	std::map<std::string, int> temp_mode = this->getMode();
-	std::map<std::string, int>::const_iterator it;
+	std::map<char, int>::iterator it;
 	for (it = this->mode.begin(); it != this->mode.end(); it++)
 	{
-		if (it->first == str)
+		if (it->first == m)
 			if (it->second)
 				return (1);
+	}
+	if (it == this->mode.end())
+	{
+		// error message
+		// to user / operator??
+	}
+	return (0);
+}
+
+int Channel::isOperator(User user)
+{
+	std::vector<User>::const_iterator it;
+	for (it = this->operators.begin(); it != this->operators.end(); it++)
+	{
+		if (it->nickName == user.nickName)
+			return (1);
 	}
 	return (0);
 }
