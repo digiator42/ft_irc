@@ -44,6 +44,8 @@ void User::showUsers(User &user)
 
 void closeMe(User &user)
 {
+	std::cout << YELLOW << user.input << RESET << std::endl;
+	std::cout << RED << "User " << user._fd << " closed" << RESET << std::endl;
 	close(user._fd);
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -73,19 +75,6 @@ void User::authorise(User *user, std::string cmd)
 {
 	if (parse_cmds(cmd))
 	{
-		// for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
-		// {
-		// 	if(it->userName == _cmd[1] && it->isAuth)
-		// 	{
-		// 		std::string S = ERR_ALREADYREGISTRED;
-		// 		S.append(" User already registered");
-		// 		send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
-		// 		if(_cmd.size() > 0)
-		// 			_cmd.clear();
-		// 		closeMe(*user);
-		// 		return ;
-		// 	}
-		// }
 		if (user->isAuth)
 		{
 			std::string S = ERR_NICKCOLLISION;
