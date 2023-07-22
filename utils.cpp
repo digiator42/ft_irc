@@ -32,7 +32,6 @@ void handleJoinCommand(const std::vector<std::string>& splitmsg, Command& cmd, U
     if (splitmsg.size() == 2 || splitmsg.size() == 3) {
         cmd.join(splitmsg[1], "", *user);
     } else {
-        // Invalid arguments
         sendErrorMessage(user->_fd, "JOIN command requires 2 or 3 arguments\n", TOO_MANY_ARGS);
     }
 }
@@ -43,7 +42,6 @@ void handleKickCommand(const std::vector<std::string>& splitmsg, Command& cmd, U
     } else if (splitmsg.size() == 3) {
         cmd.kick(splitmsg[1], splitmsg[2], "", *user);
     } else {
-        // Invalid arguments
         sendErrorMessage(user->_fd, "KICK command requires 3 or 4 arguments\n", TOO_MANY_ARGS);
     }
 }
@@ -66,5 +64,15 @@ void	handleInviteCommand(const std::vector<std::string>& splitmsg, Command& cmd,
 		cmd.invite(splitmsg[1], splitmsg[2], *user);
 	} else {
 		sendErrorMessage(user->_fd, "INVITE command requires 3 arguments\n", TOO_MANY_ARGS);
+	}
+}
+
+void handleWhoisCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user) {
+	(void)cmd;
+	if (splitmsg.size() == 2) {
+		std::string nick = "\nname : " + splitmsg[1] + "\n";
+		send(user->_fd, nick.c_str(), strlen(nick.c_str()), 0);
+	} else {
+		sendErrorMessage(user->_fd, "WHOIS command requires 2 arguments\n", TOO_MANY_ARGS);
 	}
 }

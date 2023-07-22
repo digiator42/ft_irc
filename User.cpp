@@ -73,6 +73,18 @@ void User::authorise(User *user, std::string cmd)
 {
 	if (parse_cmds(cmd))
 	{
+		for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
+		{
+			if(it->userName == _cmd[1] && it->isAuth)
+			{
+				std::string S = ERR_ALREADYREGISTRED;
+				S.append(" User already registered");
+				send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
+				if(_cmd.size() > 0)
+					_cmd.clear();
+				return ;
+			}
+		}
 		if (user->isAuth)
 		{
 			std::string S = ERR_NICKCOLLISION;
@@ -84,7 +96,7 @@ void User::authorise(User *user, std::string cmd)
 		}
 		if(_cmd.size() == NC_LEN)
 			user->pass = _cmd[5];
-		else if(_cmd.size() == 11)
+		else if(_cmd.size() == LONG_IRSSI_LEN)
 			user->pass = _cmd[3];
 		else if(_cmd.size() == IRSSI_LEN)
 			user->pass = _cmd[1];
@@ -95,7 +107,7 @@ void User::authorise(User *user, std::string cmd)
 			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
 			if(_cmd.size() > 0)
 				_cmd.clear();
-			// closeMe(*user);
+			closeMe(*user);
 			return ;
 		}
 		for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
@@ -114,13 +126,13 @@ void User::authorise(User *user, std::string cmd)
 		{
 			user->nickName = _cmd[3];
 			user->userName = _cmd[1];
-		}
-		else if(_cmd.size() == 11)
+		}	
+		else if(_cmd.size() == LONG_IRSSI_LEN)
 		{
 			user->nickName = _cmd[5];
 			user->userName = _cmd[7];
 		}
-		else if (_cmd.size() == 9)
+		else if (_cmd.size() == IRSSI_LEN)
 		{
 			user->nickName = _cmd[3];
 			user->userName = _cmd[5];
@@ -163,24 +175,12 @@ void	User::user_options(User *user, std::vector<std::string> splitmsg)
 	{
 		if(_cmd.size() > 0)
 			_cmd.clear();
-		// return ;
-	}
-}
-
-void handleWhoisCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user) {
-	(void)cmd;
-	if (splitmsg.size() == 2) {
-		std::string nick = "\nname : " + splitmsg[1] + "\n";
-		send(user->_fd, nick.c_str(), strlen(nick.c_str()), 0);
-	} else {
-		// Invalid arguments
-		sendErrorMessage(user->_fd, "WHOIS command requires 2 arguments\n", TOO_MANY_ARGS);
 	}
 }
 
 void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
     if (splitmsg.empty()) {
-        return; // No command provided, nothing to do
+        return;
     }
 
     Command cmd;
@@ -196,50 +196,11 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
         handlePrivMsgCommand(splitmsg, cmd, user);
     } else if (cmdType == "INVITE") {
         handleInviteCommand(splitmsg, cmd, user);
-    } else if (cmdType == "PING") { usleep (1000000);
+    } else if (cmdType == "PING") {
 		send(user->_fd, "PONG\n", strlen("PONG\n"), 0);
 	} else if (cmdType == "WHOIS") {
 		handleWhoisCommand(splitmsg, cmd, user);
 	}
-	//else if (cmdType == "LIST") {
-	// 	if (splitmsg.size() == 1)
-	// 		cmd.list(*user);
-	// 	else
-	// 		sendErrorMessage(user->_fd, "LIST command requires 1 argument\n", TOO_MANY_ARGS);
-	// } else if (cmdType == "NAMES") {
-	// 	if (splitmsg.size() == 1)
-	// 		cmd.names(*user);
-	// 	else
-	// 		sendErrorMessage(user->_fd, "NAMES command requires 1 argument\n", TOO_MANY_ARGS);
-	// } else if (cmdType == "AWAY") {
-	// 	if (splitmsg.size() == 1)
-	// 		cmd.away("", *user);
-	// 	else if (splitmsg.size() == 2)
-	// 		cmd.away(splitmsg[1], *user);
-	// 	else
-	// 		sendErrorMessage(user->_fd, "AWAY command requires 1 argument\n", TOO_MANY_ARGS);
-	// } else if (cmdType == "MODE") {
-	// 	if (splitmsg.size() == 1)
-	// 		cmd.mode("", "", *user);
-	// 	else if (splitmsg.size() == 2)
-	// 		cmd.mode(splitmsg[1], "", *user);
-	// 	else if (splitmsg.size() == 3)
-	// 		cmd.mode(splitmsg[1], splitmsg[2], *user);
-	// 	else
-	// 		sendErrorMessage(user->_fd, "MODE command requires 1 or 2 arguments\n", TOO_MANY_ARGS);
-	// } else if (cmdType == "OPER") {
-	// 	if (splitmsg.size() == 3)
-	// 		cmd.oper(splitmsg[1], splitmsg[2], *user);
-	// 	else
-	// 		sendErrorMessage(user->_fd, "OPER command requires 2 arguments\n", TOO_MANY_ARGS);
-	// } else if (cmdType == "PASS") {
-	// 	if (splitmsg.size() == 2)
-	// 		cmd.pass(splitmsg[1], *user);
-	// 	else
-	// 		sendErrorMessage(user->_fd, "PASS command requires 1 argument\n", TOO_MANY_ARGS);
-	// } else if (cmdType == "USER") {
-	// 	if (splitmsg.size() == 5)
-	// 		cmd.user(splitmsg[1], splitmsg[2], split
 
 	int i = 1;
 	int j;
@@ -331,9 +292,9 @@ bool	User::parse_cmds(std::string str)
 		_cmd = vector;
 		return false;
 	}
-	if((vector.size() == 11 && (vector[0] != "CAP" || vector[1] != "END" || \
+	if((vector.size() == LONG_IRSSI_LEN && (vector[0] != "CAP" || vector[1] != "END" || \
 		vector[2] != "PASS" || vector[4] != "NICK" || vector[6] != "USER")) && \
-			(vector.size() == 9 && (vector[0] != "PASS" || vector[2] != "NICK" || vector[4] != "USER")))
+			(vector.size() == IRSSI_LEN && (vector[0] != "PASS" || vector[2] != "NICK" || vector[4] != "USER")))
 	{
 		_cmd = vector;
 		return false;

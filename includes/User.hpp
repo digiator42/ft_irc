@@ -10,6 +10,7 @@
 #include "Command.hpp"
 
 #define IRSSI_LEN 9
+#define LONG_IRSSI_LEN 11
 #define NC_LEN 6
 
 #define ERR_NICKCOLLISION "436"
@@ -19,6 +20,7 @@
 #define TOO_MANY_ARGS "461"
 #define ERR_NOTREGISTERED "451"
 #define ERR_TOOMANYCHANNELS "405"
+#define ERR_ALREADYREGISTRED "462"
 /*
 # define ERR_NOSUCHNICK "401"
 # define ERR_NOSUCHSERVER "402"
@@ -105,6 +107,7 @@ void handleJoinCommand(const std::vector<std::string>& splitmsg, Command& cmd, U
 void handleKickCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
 void handlePrivMsgCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
 void handleInviteCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
+void handleWhoisCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
 
 #endif
 
