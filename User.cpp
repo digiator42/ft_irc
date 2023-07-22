@@ -1,7 +1,7 @@
 #include "./includes/Server.hpp"
 #include "./includes/Command.hpp"
 
-User::User(int fd, int id) : _cmd(1, ""), _fd(fd), _id(id), isAuth(false), isOperator(false), nickName(""), userName("")
+User::User(int fd, int id) : _fd(fd), _id(id), isAuth(false), isOperator(false), nickName(""), userName("")
 {
 	std::cout << "User created" << std::endl;
 	input = "";
@@ -73,76 +73,76 @@ void closeMe(User &user)
 
 void User::authorise(User *user, std::string cmd)
 {
-	if (parse_cmds(cmd))
+	if (parse_cmd(cmd))
 	{
 		if (user->isAuth)
 		{
 			std::string S = ERR_NICKCOLLISION;
 			S.append(" User already registered");
 			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
-			if(_cmd.size() > 0)
-				_cmd.clear();
+			if(Server::_cmd.size() > 0)
+				Server::_cmd.clear();
 			return ;
 		}
-		if(_cmd.size() == NC_LEN)
-			user->pass = _cmd[5];
-		else if(_cmd.size() == LONG_IRSSI_LEN)
-			user->pass = _cmd[3];
-		else if(_cmd.size() == IRSSI_LEN)
-			user->pass = _cmd[1];
+		if(Server::_cmd.size() == NC_LEN)
+			user->pass = Server::_cmd[5];
+		else if(Server::_cmd.size() == LONG_IRSSI_LEN)
+			user->pass = Server::_cmd[3];
+		else if(Server::_cmd.size() == IRSSI_LEN)
+			user->pass = Server::_cmd[1];
 		if(user->pass != Server::getPassword())
 		{
 			std::string S = WRONG_PASS_CODE;
 			S.append(" Wrong password");
 			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
-			if(_cmd.size() > 0)
-				_cmd.clear();
+			if(Server::_cmd.size() > 0)
+				Server::_cmd.clear();
 			closeMe(*user);
 			return ;
 		}
 		for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
 		{
-			if ((_cmd.size() == NC_LEN && (_cmd[1] == it->userName || _cmd[3] == it->nickName)) \
-				|| (_cmd.size() == LONG_IRSSI_LEN && (_cmd[7] == it->userName || _cmd[5] == it->nickName)) \
-					|| (_cmd.size() == IRSSI_LEN && (_cmd[5] == it->userName || _cmd[3] == it->nickName)))
+			if ((Server::_cmd.size() == NC_LEN && (Server::_cmd[1] == it->userName || Server::_cmd[3] == it->nickName)) \
+				|| (Server::_cmd.size() == LONG_IRSSI_LEN && (Server::_cmd[7] == it->userName || Server::_cmd[5] == it->nickName)) \
+					|| (Server::_cmd.size() == IRSSI_LEN && (Server::_cmd[5] == it->userName || Server::_cmd[3] == it->nickName)))
 			{
 				std::string S = ERR_ALREADYREGISTRED;
 				S.append(" User already registered");
 				send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
-				if(_cmd.size() > 0)
-					_cmd.clear();
+				if(Server::_cmd.size() > 0)
+					Server::_cmd.clear();
 				closeMe(*user);
 				return ;
 			}
 		}
-		if(_cmd.size() == NC_LEN)
+		if(Server::_cmd.size() == NC_LEN)
 		{
-			user->nickName = _cmd[3];
-			user->userName = _cmd[1];
+			user->nickName = Server::_cmd[3];
+			user->userName = Server::_cmd[1];
 		}	
-		else if(_cmd.size() == LONG_IRSSI_LEN)
+		else if(Server::_cmd.size() == LONG_IRSSI_LEN)
 		{
-			user->nickName = _cmd[5];
-			user->userName = _cmd[7];
+			user->nickName = Server::_cmd[5];
+			user->userName = Server::_cmd[7];
 		}
-		else if (_cmd.size() == IRSSI_LEN)
+		else if (Server::_cmd.size() == IRSSI_LEN)
 		{
-			user->nickName = _cmd[3];
-			user->userName = _cmd[5];
+			user->nickName = Server::_cmd[3];
+			user->userName = Server::_cmd[5];
 		}
 		user->isAuth = true;
 		const char *msg = ":irc 001 user :Welcome to the perfect Chat system user\n"
 					":irc 002 user :Host are none\n"
 					":irc 003 user :Created on july->2023\n";
-		std::cout << "->>>>>>>>>" << _cmd.size() << std::endl;
+		std::cout << "->>>>>>>>>" << Server::_cmd.size() << std::endl;
 		send(user->_fd, msg, strlen(msg), 0);
-		if(_cmd.size() > 0)
-			_cmd.clear();
+		if(Server::_cmd.size() > 0)
+			Server::_cmd.clear();
 	}
 	else
 	{
-		if(_cmd.size() > 0)
-			_cmd.clear();
+		if(Server::_cmd.size() > 0)
+			Server::_cmd.clear();
 		// return ;
 	}
 }
@@ -164,6 +164,11 @@ void	User::user_options(User *user, std::vector<std::string> splitmsg)
 		"help - show help\n";
 		send(user->_fd, help.c_str(), help.length(), 0);
 	}
+	else
+	{
+		if(Server::_cmd.size() > 0)
+			Server::_cmd.clear();
+	}
 }
 
 void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
@@ -174,19 +179,19 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
     Command cmd;
     std::string cmdType = splitmsg[0];
 	std::cout << "cmdType -> {" << cmdType << "}" << std::endl;
-    if (cmdType == "JOIN") {
+    if (cmdType == JOIN) {
         handleJoinCommand(splitmsg, cmd, user);
-    } else if (cmdType == "KICK") {
+    } else if (cmdType == KICK) {
         handleKickCommand(splitmsg, cmd, user);
     } else if ((splitmsg.size() == 2 || splitmsg.size() == 3) && splitmsg[0] == "TOPIC") { // not yet
         cmd.topic(splitmsg[1], splitmsg[2], *user);
-    } else if (cmdType == "PRIVMSG") {
+    } else if (cmdType == PRIVMSG) {
         handlePrivMsgCommand(splitmsg, cmd, user);
-    } else if (cmdType == "INVITE") {
+    } else if (cmdType == INVITE) {
         handleInviteCommand(splitmsg, cmd, user);
-    } else if (cmdType == "PING") {
+    } else if (cmdType == PING) {
 		send(user->_fd, "PONG\n", strlen("PONG\n"), 0);
-	} else if (cmdType == "WHOIS") {
+	} else if (cmdType == WHOIS) {
 		handleWhoisCommand(splitmsg, cmd, user);
 	}
 
@@ -223,18 +228,18 @@ void User::execute(std::string cmd, User *user)
 		return ;
 	}
 
-    if (!parse_cmds(cmd) && user->isAuth == false)
+    if (!parse_cmd(cmd) && user->isAuth == false)
 	{
 		std::string S = ERR_NOTREGISTERED;
 		S.append(" You have not registered\n");
-		std::cout << "->>>>>>>>>" << _cmd.size() << std::endl;
+		std::cout << "->>>>>>>>>" << Server::_cmd.size() << std::endl;
 		send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
 		return ;
 	}
 	else
 	{
-		if(_cmd.size() > 0)
-			_cmd.clear();
+		if(Server::_cmd.size() > 0)
+			Server::_cmd.clear();
 	}
 	
 	authorise(user, cmd);
@@ -261,35 +266,35 @@ std::ostream& operator<<(std::ostream& out, const User& User)
     return out;
 }
 
-bool	User::parse_cmds(std::string str)
+bool	User::parse_cmd(std::string str)
 {
 	std::vector<std::string> vector = split(str);
 
-	if(_cmd.size() > 0)
-		_cmd.clear();
+	if(Server::_cmd.size() > 0)
+		Server::_cmd.clear();
 	
 	if (vector.size() < NC_LEN)
 	{
-		_cmd = vector;
+		Server::_cmd = vector;
 		return false;
 	}
 	
 	if(vector.size() == NC_LEN && (vector[0] != "USER" || vector[2] != "NICK" || \
 		vector[4] != "PASS") )
 	{
-		_cmd = vector;
+		Server::_cmd = vector;
 		return false;
 	}
 	if((vector.size() == LONG_IRSSI_LEN && (vector[0] != "CAP" || vector[1] != "END" || \
 		vector[2] != "PASS" || vector[4] != "NICK" || vector[6] != "USER")) && \
 			(vector.size() == IRSSI_LEN && (vector[0] != "PASS" || vector[2] != "NICK" || vector[4] != "USER")))
 	{
-		_cmd = vector;
+		Server::_cmd = vector;
 		return false;
 	}
-	if(_cmd.size() > 0)
-		_cmd.clear();
-	_cmd = vector;
+	if(Server::_cmd.size() > 0)
+		Server::_cmd.clear();
+	Server::_cmd = vector;
 
 	return true;
 }

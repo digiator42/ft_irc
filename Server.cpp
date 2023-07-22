@@ -245,7 +245,6 @@ void Server::showUsers(void) {
         std::cout << "|──────────|──────────|──────────|──────────|" << std::endl;
 }
 
-
 std::string Server::_password = "";
 int Server::serverSocket = -1;
 int Server::max_sd = -1;
@@ -261,6 +260,7 @@ char Server::buffer[BUFFER_SIZE]= {0};
 std::string Server::bufferStr = "";
 fd_set Server::readfds;
 std::vector<int> Server::_fds(MAX_CLIENTS, 0);
+std::vector<std::string> Server::_cmd;
 std::vector<User> Server::_users;
 std::vector<Channel> Server::_channels;
 
