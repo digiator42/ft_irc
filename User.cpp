@@ -1,7 +1,7 @@
 #include "./includes/Server.hpp"
 #include "./includes/Command.hpp"
 
-User::User(int fd, int id) : _fd(fd), _id(id), isAuth(false), isOperator(false), nickName(""), userName("")
+User::User(int fd, int id) : _cmd(1, ""), _fd(fd), _id(id), isAuth(false), isOperator(false), nickName(""), userName("")
 {
 	std::cout << "User created" << std::endl;
 	input = "";
@@ -170,11 +170,6 @@ void	User::user_options(User *user, std::vector<std::string> splitmsg)
 		"close - close connection\n"
 		"help - show help\n";
 		send(user->_fd, help.c_str(), help.length(), 0);
-	}
-	else
-	{
-		if(_cmd.size() > 0)
-			_cmd.clear();
 	}
 }
 

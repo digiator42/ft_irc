@@ -69,6 +69,7 @@ class User {
    public:
     User(int fd, int id);
     ~User();
+    std::vector<std::string> _cmd;
 
     std::string input;
 
@@ -79,7 +80,6 @@ class User {
     std::string nickName;
     std::string userName;
 	std::string pass;
-    std::vector<std::string> _cmd;
 
     void execute(std::string cmd, User *it);
     void userErase(User &user);
