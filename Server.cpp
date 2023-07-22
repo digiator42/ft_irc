@@ -6,31 +6,27 @@ Server::~Server() {}
 void Server::openSocket() {
 	// Create the server socket
     if ((Server::serverSocket = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-        std::cerr << "Failed to create socket" << std::endl;
-        return ;
+        throw ServerException("Failed to create socket");
     }
 
     // Set socket options
     int opt = 1;
     if (setsockopt(Server::serverSocket, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0) {
-        std::cerr << "setsockopt failed" << std::endl;
-        return ;
+        throw ServerException("setsockopt failed");
     }
     // Prepare the sockaddr_in structure
-    Server::address.sin_family = AF_UNSPEC;
+    Server::address.sin_family = AF_INET;
     Server::address.sin_addr.s_addr = INADDR_ANY;
     Server::address.sin_port = htons(_port);
 
     // Bind the server socket
     if (bind(Server::serverSocket, (struct sockaddr *)&Server::address, sizeof(Server::address)) < 0) {
-        std::cerr << "Bind failed" << std::endl;
-        return ;
+        throw ServerException("Bind failed");
     }
 
     // Listen for incoming connections
     if (listen(Server::serverSocket, MAX_CLIENTS) < 0) {
-        std::cerr << "Listen failed" << std::endl;
-        return ;
+        throw ServerException("Listen failed");
     }
 
     // Accept incoming connections
@@ -42,8 +38,7 @@ void Server::openSocket() {
 // accept new connection
 void Server::acceptConnection() {
     if ((Server::newSocket = accept(Server::serverSocket, (struct sockaddr *)&Server::address, (socklen_t *)&Server::addrlen)) < 0) { 
-        std::cerr << "Accept failed" << std::endl;
-        return ; //trhow exception here
+        throw ServerException("Accept failed");
     }
     std::cout << GREEN << "New connection, socket fd is " << Server::newSocket << ", IP is : " << inet_ntoa(Server::address.sin_addr) << 
         ", port : " << ntohs(Server::address.sin_port) << RESET << std::endl;
@@ -51,17 +46,9 @@ void Server::acceptConnection() {
     // Set the new client socket to non-blocking mode using fcntl
     // flags = fcntl(newSocket, F_GETFL, 0);
     if (fcntl(Server::newSocket, F_SETFL, O_NONBLOCK) < 0) { // zero on success, -1 on error
-        std::cerr << "Failed to set client socket to non-blocking mode" << std::endl;
-        return ;
+        throw ServerException("Failed to set client socket to non-blocking mode");
     }
 }
-
-// Send welcome message to the client
-void Server::sendWlcmMsg() { 
-    const char *welcomeMessage = "CAP * ACK :multi-prefix\r\n";
-    send(Server::newSocket, welcomeMessage, strlen(welcomeMessage), 0);
-}
-
 
 // handle client messages
 void Server::handleClientMessages() {
@@ -70,14 +57,8 @@ void Server::handleClientMessages() {
     for (i = 0; i < MAX_CLIENTS; i++) {
         Server::sd = Server::clientSockets[i];
         if (FD_ISSET(Server::sd, &Server::readfds)) {
-			if(Server::sd >= MAX_CLIENTS - 1)
-			{
-				std::cout << "Max clients reached" << std::endl;
-				return ;
-			}
+		
             if ((Server::valread = recv(Server::sd, Server::buffer, BUFFER_SIZE, 0)) <= 0) {
-                if (getpeername(Server::sd, (struct sockaddr *)&Server::address, (socklen_t *)&Server::addrlen) == -1)
-                    perror("getpeername:");
                 std::cout << RED << "Host disconnected, IP " << inet_ntoa(Server::address.sin_addr) <<
                      ", port " << ntohs(Server::address.sin_port) << RESET << std::endl;
                 FD_CLR(Server::sd, &Server::readfds);
@@ -117,32 +98,21 @@ void Server::handleClientMessages() {
                         return ;
                     }
                 }
-                // Broadcast the message to other clients
-                // for (int j = 0; j < MAX_CLIENTS; j++) {
-                //     if (clientSockets[j] != 0 && clientSockets[j] != Server::sd) {
-                //         send(clientSockets[j], buffer, strlen(buffer), 0);
-                //     }
-                // }
             }
         }
     }
 }
 
 void signalHandler(int signum) {
-    std::cout << "Interrupt signal (" << signum << ") received.\n";
 
-    try {
-        for (int i = 0; i < MAX_CLIENTS; i++) {
-            if (Server::clientSockets[i] != 0) {
-                close(Server::clientSockets[i]);
-            }
+    std::cout << RED << "Interrupt signal (" << signum << ") received.\n";
+
+    for (int i = 0; i < MAX_CLIENTS; i++) {
+        if (Server::clientSockets[i] != 0) {
+            close(Server::clientSockets[i]);
         }
-        close(Server::serverSocket);
-        throw Server::ServerException("Server closed !");
-    } catch(const std::exception& e) {
-        std::cerr << e.what() << '\n';
     }
-
+    close(Server::serverSocket);
     exit(signum);
 }
 
@@ -163,10 +133,7 @@ void Server::run(void) {
             if (Server::sd > 0)
 			{
 				if(Server::sd >= MAX_CLIENTS - 1)
-				{
-					std::cout << "Max clients reached" << std::endl;
-					return ;
-				}
+					throw ServerException("Max clients reached");
                 FD_SET(Server::sd, &Server::readfds);
 			}
             if (Server::sd > Server::max_sd)
@@ -184,23 +151,13 @@ void Server::run(void) {
         // Wait for activity on any of the sockets
         int activity = select(Server::max_sd + 1, &Server::readfds, NULL, NULL, NULL);
         if ((activity < 0) && (errno != EINTR)) {
-            std::cerr << "Select error" << std::endl;
-            return ;
+            throw ServerException("Select error");
         }
 
         // If activity on the server socket, it's a new connection
         if (FD_ISSET(Server::serverSocket, &Server::readfds)) { // returns true if fd is in the set
-
-            try {
-                std::string maxClientError = "Max Client reached !";
-                Server::clientSockets[MAX_CLIENTS - 1] ? throw ServerException(maxClientError): (void)0;
-            } catch (std::exception &e) {
-                std::cerr << e.what() << std::endl;
-                close(Server::newSocket);
-                return ;
-            }
-            acceptConnection(); // accept new connection
-            // sendWlcmMsg(); // send welcome message to the client
+            // accept new connection
+            acceptConnection();
             // Add new socket to the array of client sockets
             for (i = 0; i < MAX_CLIENTS; i++) {
                 if (Server::clientSockets[i] == 0) {
@@ -212,16 +169,7 @@ void Server::run(void) {
             }
         }
         handleClientMessages(); // handle client messages
-
     }
-
-    // Close all client sockets
-    for (i = 0; i < MAX_CLIENTS; i++) {
-        Server::sd = Server::clientSockets[i];
-        if (Server::sd > 0)
-            close(Server::sd);
-    }
-
 }
 
 std::string Server::getPassword(void) {

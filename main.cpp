@@ -16,9 +16,15 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	Server::_port = port_num;
-    Server::_password = password;
-	Server::openSocket();
-    Server::run();
+	try
+	{
+		Server::_port = port_num;
+		Server::_password = password;
+		Server::openSocket();
+		Server::run();
+	} catch(const std::exception& e) {
+		std::cerr << RED << "Exception: " << e.what() << RESET << '\n';
+	}
+	
 	return 0;
 }
