@@ -53,7 +53,7 @@ void handlePrivMsgCommand(const std::vector<std::string>& splitmsg, Command& cmd
 	} else if (splitmsg.size() == 2) {
 		sendErrorMessage(user->_fd, "PRIVMSG command requires 3 arguments\n", PRIVMSG_EMPTY);
 	} else if(splitmsg.size() == 1) {
-		sendErrorMessage(user->_fd, "PRIVMSG command requires 3 arguments\n", PRIVMSG_NO_USER);
+		sendErrorMessage(user->_fd, "PRIVMSG command requires 3 arguments\n", ERR_NOSUCHNICK);
 	} else {
 		sendErrorMessage(user->_fd, "PRIVMSG command requires 3 arguments\n", TOO_MANY_ARGS);
 	}
@@ -76,4 +76,14 @@ void handleWhoisCommand(const std::vector<std::string>& splitmsg, Command& cmd, 
 	} else {
 		sendErrorMessage(user->_fd, "WHOIS command requires 2 arguments\n", TOO_MANY_ARGS);
 	}
+}
+
+void handleModeCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user)
+{
+	if (splitmsg.size() == 3){
+		cmd.mode(splitmsg[1], splitmsg[2], *user);
+	} else {
+		sendErrorMessage(user->_fd, "MODE command requires 2 arguments\n", TOO_MANY_ARGS);
+	}
+		
 }

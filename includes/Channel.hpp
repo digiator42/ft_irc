@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 21:29:02 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/20 23:28:56 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/22 22:02:31 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,10 @@
 # define B_MUSTARD "\033[38:5:136m"
 # define RESET "\033[0m"
 
-# define OP_ERR_M "Permission Denied- You're not operator of channel"
-# define ERR_NOPRIVILEGES "Error 481: "
+# define OP_ERR_M "Permission Denied- You're not an operator of the channel.\n"
+# define NO_USR_M " :No such nickname\n"
+# define NO_CHAN_M " :No such channel.\n"
+# define MODE_ERR_M " :is unknown mode char to me.\n"
 
 class User;
 

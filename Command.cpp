@@ -6,12 +6,13 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 20:41:17 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/20 23:27:36 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/22 22:03:49 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./includes/Server.hpp"
 #include "./includes/Command.hpp"
+#include "./includes/User.hpp"
 
 Command::Command(void)
 {
@@ -84,7 +85,7 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 				{
 					if (*it_k == it->getPass())
 					{
-						if (it->isMode('i'))
+						if (it->isMode('i') == 1)
 						{
 							if (it->isInvited(user))
 								it->addUser(user);
@@ -96,12 +97,10 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 				}
 				else
 				{
-					if (it->isMode('i'))
+					if (it->isMode('i') == 1)
 					{
 						if (it->isInvited(user))
-						{
 							it->addUser(user);
-						}
 					}
 					else
 						it->addUser(user);
@@ -141,16 +140,14 @@ void Command::kick(std::string channel, std::string user_kick, std::string reaso
 			break ;
 	}
 	if (it_c == Server::_channels.end())
-	{
-		std::cout << "Error: Channel Not found" << std::endl;
-		return ;
-	}
+		sendErrorMessage(user._fd, (user.nickName + NO_CHAN_M), ERR_NOSUCHCHANNEL);
 	else
 		it_c->kickUser(user_kick, reason, user);
 }
 
 void Command::invite(std::string user, std::string channel, User user_o)
 {
+	// ERR_USERONCHANNEL - implement
 	std::vector<Channel>::iterator it_c;
 	std::vector<User>::iterator it_s;
 
@@ -160,20 +157,13 @@ void Command::invite(std::string user, std::string channel, User user_o)
 			break ;
 	}
 	if (it_c == Server::_channels.end())
-	{
-		std::cout << "Error: Channel Not found" << std::endl;
-		return ;
-	}
+		sendErrorMessage(user_o._fd, (channel + NO_CHAN_M), ERR_NOSUCHCHANNEL);
 	for(it_s = Server::_users.begin(); it_s != Server::_users.end(); ++it_s)
 	{
 		if (it_s->nickName == user)
 		{
 			if (it_c->isOperator(user_o) != 1)
-			{
-				message = ERR_NOPRIVILEGES;
-				message.append(OP_ERR_M + channel + "\n");
-				send(user_o._fd, message.c_str(), strlen(message.c_str()), 0);
-			}
+				sendErrorMessage(user_o._fd, OP_ERR_M, ERR_CHANOPRIVSNEEDED);
 			else
 			{
 				message = "You're invited to the Channel " + channel + " \n";
@@ -184,10 +174,7 @@ void Command::invite(std::string user, std::string channel, User user_o)
 		}
 	}
 	if (it_s == Server::_users.end())
-	{
-		std::cout << "Error: User Not found" << std::endl;
-		return ;
-	}
+		sendErrorMessage(user_o._fd, (user + NO_USR_M), ERR_NOSUCHNICK);
 	
 }
 
@@ -217,15 +204,11 @@ void Command::topic(std::string channel, std::string topic, User user)
 			}
 		}
 		else
-		{
-			message = ERR_NOPRIVILEGES;
-			message.append(OP_ERR_M + channel + "\n");
-			send(user._fd, message.c_str(), strlen(message.c_str()), 0);
-		}
+			sendErrorMessage(user._fd, OP_ERR_M, ERR_CHANOPRIVSNEEDED);
 	}
 	else
 	{
-		std::cout << RED_LIGHT << "Error: Channel " << channel << " doesnot exist!" << RESET << std::endl;
+		sendErrorMessage(user._fd, (channel + NO_CHAN_M), ERR_NOSUCHCHANNEL);
 	}
 }
 
@@ -248,7 +231,6 @@ void Command::privmsg(std::string reciever, std::string message, User user)
 		}
 		if (it_c != Server::_channels.end())
 		{
-			// send to everyone // change it to users only from the channel
 			std::vector<User> temp_users = it_c->getUsers();
 			for(std::vector<User>::iterator it = temp_users.begin(); it != temp_users.end(); ++it)
 			{
@@ -267,18 +249,14 @@ void Command::privmsg(std::string reciever, std::string message, User user)
 		send(it_u->_fd, (message + "\n").c_str(), strlen((message + "\n").c_str()), 0);
 	}
 	if (it_u == Server::_users.end() && it_c == Server::_channels.end())
-	{
-		std::string err_msg = "Error: Couldn't find User or Channel\n";
-		send(user._fd, (RED_LIGHT + err_msg + RESET).c_str(),
-			 strlen((err_msg ).c_str()) + strlen(RED_LIGHT) + strlen(RESET), 0);
-	}
+		sendErrorMessage(user._fd, (reciever + NO_USR_M + " or channel."), ERR_NOSUCHNICK);
 }
 
 void Command::mode(std::string channel, std::string mode, User user)
 {
 	if (mode.size() != 2 && (mode[0] != '+' && mode[0] != '-'))
 	{
-		// error message
+		sendErrorMessage(user._fd, (mode + MODE_ERR_M), ERR_UNKNOWNMODE);
 		return ;
 	}
 	std::vector<Channel>::iterator it_c;
@@ -289,20 +267,18 @@ void Command::mode(std::string channel, std::string mode, User user)
 			break ;
 	}
 	if (it_c == Server::_channels.end())
-	{
-		std::cout << "Error: Channel Not found" << std::endl;
-		return ;
-	}
+		sendErrorMessage(user._fd, (channel + NO_CHAN_M), ERR_NOSUCHCHANNEL);
 	else
 	{
 		if (it_c->isOperator(user))
-			it_c->setMode(mode[1], mode[0]);
-		else
 		{
-			message = ERR_NOPRIVILEGES;
-			message.append(OP_ERR_M + channel + "\n");
-			send(user._fd, message.c_str(), strlen(message.c_str()), 0);
+			if (it_c->isMode(mode[1]) == 2)
+				sendErrorMessage(user._fd, (mode + MODE_ERR_M), ERR_UNKNOWNMODE);
+			else
+				it_c->setMode(mode[1], mode[0]);
 		}
+		else
+			sendErrorMessage(user._fd, OP_ERR_M, ERR_CHANOPRIVSNEEDED);
 	}
 }
 

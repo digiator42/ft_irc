@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 21:50:36 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/20 23:31:21 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/22 21:54:38 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,11 +135,7 @@ void Channel::kickUser(std::string user_kick, std::string reason, User user)
 		if (it_s->nickName == user_kick)
 		{
 			if (this->isOperator(user) != 1)
-			{
-				message = ERR_NOPRIVILEGES;
-				message.append(OP_ERR_M + this->name + "\n");
-				send(user._fd, message.c_str(), strlen(message.c_str()), 0);
-			}
+				sendErrorMessage(user._fd, OP_ERR_M, ERR_CHANOPRIVSNEEDED);
 			else
 			{
 				this->users.erase(it);
@@ -151,11 +147,7 @@ void Channel::kickUser(std::string user_kick, std::string reason, User user)
 		}
 	}
 	if (it_s == this->users.end())
-	{
-		// send message to the operator (not server)
-		std::cout << RED << "Error: User Not found in Channel" << RESET << std::endl;
-		return ;
-	}
+		sendErrorMessage(user._fd, (user_kick + NO_USR_M), ERR_NOSUCHNICK);
 }
 
 int Channel::isInvited(User user)
@@ -175,15 +167,14 @@ int Channel::isMode(char m)
 	for (it = this->mode.begin(); it != this->mode.end(); it++)
 	{
 		if (it->first == m)
-			if (it->second)
+		{
+			if (it->second == 1)
 				return (1);
+			else if (it->second == 0)
+				return (0);
+		}
 	}
-	if (it == this->mode.end())
-	{
-		// error message
-		// to user / operator??
-	}
-	return (0);
+	return (2);
 }
 
 int Channel::isOperator(User user)
