@@ -32,7 +32,8 @@ void handleJoinCommand(const std::vector<std::string>& splitmsg, Command& cmd, U
     if (splitmsg.size() == 2 || splitmsg.size() == 3) {
         cmd.join(splitmsg[1], "", *user);
     } else {
-        sendErrorMessage(user->_fd, "JOIN command requires 2 or 3 arguments\n", TOO_MANY_ARGS);
+		return ; // temporary
+        // sendErrorMessage(user->_fd, "JOIN command requires 2 or 3 arguments\n", TOO_MANY_ARGS);
     }
 }
 

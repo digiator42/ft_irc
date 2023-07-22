@@ -73,18 +73,19 @@ void User::authorise(User *user, std::string cmd)
 {
 	if (parse_cmds(cmd))
 	{
-		for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
-		{
-			if(it->userName == _cmd[1] && it->isAuth)
-			{
-				std::string S = ERR_ALREADYREGISTRED;
-				S.append(" User already registered");
-				send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
-				if(_cmd.size() > 0)
-					_cmd.clear();
-				return ;
-			}
-		}
+		// for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
+		// {
+		// 	if(it->userName == _cmd[1] && it->isAuth)
+		// 	{
+		// 		std::string S = ERR_ALREADYREGISTRED;
+		// 		S.append(" User already registered");
+		// 		send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
+		// 		if(_cmd.size() > 0)
+		// 			_cmd.clear();
+		// 		closeMe(*user);
+		// 		return ;
+		// 	}
+		// }
 		if (user->isAuth)
 		{
 			std::string S = ERR_NICKCOLLISION;
@@ -112,13 +113,16 @@ void User::authorise(User *user, std::string cmd)
 		}
 		for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
 		{
-			if (_cmd[1] == it->userName || _cmd[3] == it->nickName)
+			if ((_cmd.size() == NC_LEN && (_cmd[1] == it->userName || _cmd[3] == it->nickName)) \
+				|| (_cmd.size() == LONG_IRSSI_LEN && (_cmd[7] == it->userName || _cmd[5] == it->nickName)) \
+					|| (_cmd.size() == IRSSI_LEN && (_cmd[5] == it->userName || _cmd[3] == it->nickName)))
 			{
-				std::string S(ERR_NICKCOLLISION);
-				S.append(" User exists! : ");
+				std::string S = ERR_ALREADYREGISTRED;
+				S.append(" User already registered");
 				send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
 				if(_cmd.size() > 0)
 					_cmd.clear();
+				closeMe(*user);
 				return ;
 			}
 		}
