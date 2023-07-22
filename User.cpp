@@ -131,9 +131,9 @@ void User::authorise(User *user, std::string cmd)
 			user->userName = Server::_cmd[5];
 		}
 		user->isAuth = true;
-		const char *msg = ":irc 001 user :Welcome to the perfect Chat system user\n"
+		const char *msg = ":irc 001 user :Welcome\n"
 					":irc 002 user :Host are none\n"
-					":irc 003 user :Created on july->2023\n";
+					":irc 003 user :Created\n";
 		std::cout << "->>>>>>>>>" << Server::_cmd.size() << std::endl;
 		send(user->_fd, msg, strlen(msg), 0);
 		if(Server::_cmd.size() > 0)
@@ -223,8 +223,29 @@ void User::execute(std::string cmd, User *user)
 	void (User::*f[3])(User &user) = { &User::whoAmI, &User::showClients, &User::showUsers};
 	std::vector<std::string> splitmsg = split(cmd);
 
-	if ((splitmsg.size() > 0 && splitmsg.size() < 5 && splitmsg[0] == "CAP"))
+	if (splitmsg.size() > 0 && (splitmsg[0] == "CAP" || splitmsg[0] == JOIN))
 	{
+		if(splitmsg.size() >= 3 && splitmsg[1] == "LS" && splitmsg[2] == "302")
+		{
+			std::string S = "CAP * ACK :multi-prefix\r\n";
+			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
+		}
+		else if (splitmsg.size() >= 2 && splitmsg[1] == "LS")
+		{
+			
+			std::string S = "CAP * ACK :multi-prefix\r\n";
+			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
+		}
+		else if (splitmsg.size() >= 3 && splitmsg[1] == "REQ" && splitmsg[2] == "multi-prefix")
+		{
+			std::string S = "CAP * ACK :multi-prefix\n";
+			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
+		}
+		else if (splitmsg.size() >= 3 && splitmsg[1] == "END" && splitmsg[2] == "multi-prefix")
+		{
+			std::string S = "CAP * ACK :multi-prefix\n";
+			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
+		}
 		return ;
 	}
 

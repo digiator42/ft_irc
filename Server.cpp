@@ -200,7 +200,7 @@ void Server::run(void) {
                 return ;
             }
             acceptConnection(); // accept new connection
-            sendWlcmMsg(); // send welcome message to the client
+            // sendWlcmMsg(); // send welcome message to the client
             // Add new socket to the array of client sockets
             for (i = 0; i < MAX_CLIENTS; i++) {
                 if (Server::clientSockets[i] == 0) {
@@ -276,3 +276,4 @@ std::vector<Channel> Server::_channels;
 // if same fd connected again user stll exist in the vector
 
 // irssi send all details of connection, user root, nick root, and so on, that will be authenticated accordingly.
+
