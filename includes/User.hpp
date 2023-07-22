@@ -9,6 +9,14 @@
 #include <cstring>
 #include "Command.hpp"
 
+#define JOIN "JOIN"
+#define KICK "KICK"
+#define PRIVMSG "PRIVMSG"
+#define INVITE "INVITE"
+#define WHOIS "WHOIS"
+#define PING "PING"
+#define PONG "TOPIC"
+
 #define IRSSI_LEN 9
 #define LONG_IRSSI_LEN 11
 #define NC_LEN 6
@@ -70,7 +78,7 @@ class User {
    public:
     User(int fd, int id);
     ~User();
-    std::vector<std::string> _cmd;
+    // std::vector<std::string> Server::_cmd;
 
     std::string input;
 
@@ -84,7 +92,7 @@ class User {
 
     void execute(std::string cmd, User *it);
     void userErase(User &user);
-    bool	parse_cmds(std::string str);
+    bool	parse_cmd(std::string str);
     friend std::ostream& operator<<(std::ostream& os, const User& user);
     void whoAmI(User &user);
     void showUsers(User &user);
