@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 22:38:24 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/22 23:29:25 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/22 23:39:34 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,7 +181,6 @@ void Command::invite(std::string user, std::string channel, User user_o)
 
 void Command::topic(std::string channel, std::string topic, User user)
 {
-	// checks / conditions for t mode in channel -- restrictiiiooonnnnn
 	std::vector<Channel>::iterator it_c;
 
 	for(it_c = Server::_channels.begin(); it_c != Server::_channels.end(); ++it_c)
@@ -191,12 +190,32 @@ void Command::topic(std::string channel, std::string topic, User user)
 	}
 	if (it_c != Server::_channels.end())
 	{
-		if (it_c->isOperator(user) == 1)
+		if (it_c->isMode('t') == 1)
+		{
+			if (it_c->isOperator(user) == 1)
+			{
+				if (topic != "")
+				{
+					it_c->setTopic(topic);
+					message = "Topic of channel " + channel + "changed." + "\n";
+					send(user._fd, message.c_str(), strlen(message.c_str()), 0);
+				}
+				else
+				{
+					message = "Channel " + channel + "'s topic: " + it_c->getTopic() + "\n";
+					send(user._fd, message.c_str(), strlen(message.c_str()), 0);
+				}
+			}
+			else
+				sendErrorMessage(user._fd, OP_ERR_M, ERR_CHANOPRIVSNEEDED);
+		}
+		else
 		{
 			if (topic != "")
 			{
 				it_c->setTopic(topic);
-				// send message stating topic changed??
+				message = "Topic of channel " + channel + "changed." + "\n";
+				send(user._fd, message.c_str(), strlen(message.c_str()), 0);
 			}
 			else
 			{
@@ -204,8 +223,6 @@ void Command::topic(std::string channel, std::string topic, User user)
 				send(user._fd, message.c_str(), strlen(message.c_str()), 0);
 			}
 		}
-		else
-			sendErrorMessage(user._fd, OP_ERR_M, ERR_CHANOPRIVSNEEDED);
 	}
 	else
 	{
