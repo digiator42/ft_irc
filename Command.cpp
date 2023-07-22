@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 22:38:24 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/22 22:38:26 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/22 23:29:25 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,7 +181,7 @@ void Command::invite(std::string user, std::string channel, User user_o)
 
 void Command::topic(std::string channel, std::string topic, User user)
 {
-	// checks / conditions for t mode in channel
+	// checks / conditions for t mode in channel -- restrictiiiooonnnnn
 	std::vector<Channel>::iterator it_c;
 
 	for(it_c = Server::_channels.begin(); it_c != Server::_channels.end(); ++it_c)
@@ -232,11 +232,17 @@ void Command::privmsg(std::string reciever, std::string message, User user)
 		}
 		if (it_c != Server::_channels.end())
 		{
-			std::vector<User> temp_users = it_c->getUsers();
-			for(std::vector<User>::iterator it = temp_users.begin(); it != temp_users.end(); ++it)
+			if (it_c->isUser(user))
 			{
-				send((*it)._fd, (message + "\n").c_str(), strlen((message + "\n").c_str()), 0);
+				std::vector<User> temp_users = it_c->getUsers();
+				for(std::vector<User>::iterator it = temp_users.begin(); it != temp_users.end(); ++it)
+				{
+					if(it->_fd == user._fd)
+					send((*it)._fd, (message + "\n").c_str(), strlen((message + "\n").c_str()), 0);
+				}
 			}
+			else
+				sendErrorMessage(user._fd, (it_c->getName() + NOT_CHAN_USR), ERR_CANNOTSENDTOCHAN);
 		}
 	}
 	else // the receiver and the message

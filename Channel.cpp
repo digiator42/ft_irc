@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 21:50:36 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/22 21:54:38 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/22 23:22:25 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,6 +181,17 @@ int Channel::isOperator(User user)
 {
 	std::vector<User>::const_iterator it;
 	for (it = this->operators.begin(); it != this->operators.end(); it++)
+	{
+		if (it->nickName == user.nickName)
+			return (1);
+	}
+	return (0);
+}
+
+int Channel::isUser(User user)
+{
+	std::vector<User>::const_iterator it;
+	for (it = this->users.begin(); it != this->users.end(); it++)
 	{
 		if (it->nickName == user.nickName)
 			return (1);

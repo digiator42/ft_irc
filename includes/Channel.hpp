@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 21:29:02 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/22 22:02:31 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/22 23:29:06 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@
 # define NO_USR_M " :No such nickname\n"
 # define NO_CHAN_M " :No such channel.\n"
 # define MODE_ERR_M " :is unknown mode char to me.\n"
+# define NOT_CHAN_USR " ::Cannot send to channel.\n"
 
 class User;
 
@@ -72,6 +73,7 @@ class Channel{
 	int isInvited(User user);
 	int isMode(char m);
 	int isOperator(User user);
+	int isUser(User user);
 
 	// user_in_chan = if users exists in channel
 	
