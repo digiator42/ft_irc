@@ -131,11 +131,7 @@ void User::authorise(User *user, std::string cmd)
 			user->userName = Server::_cmd[5];
 		}
 		user->isAuth = true;
-		const char *msg = ":irc 001 user :Welcome\n"
-					":irc 002 user :Host are none\n"
-					":irc 003 user :Created\n";
-		std::cout << "->>>>>>>>>" << Server::_cmd.size() << std::endl;
-		send(user->_fd, msg, strlen(msg), 0);
+		send(user->_fd, "\033[32mAUTHENTICATED\n\033[0m", strlen("\033[32mAUTHENTICATED\n\033[0m"), 0);
 		if(Server::_cmd.size() > 0)
 			Server::_cmd.clear();
 	}
@@ -241,10 +237,12 @@ void User::execute(std::string cmd, User *user)
 			std::string S = "CAP * ACK :multi-prefix\n";
 			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
 		}
-		else if (splitmsg.size() >= 3 && splitmsg[1] == "END" && splitmsg[2] == "multi-prefix")
+		else if (splitmsg.size() > 1 && splitmsg[1] == "END")
 		{
-			std::string S = "CAP * ACK :multi-prefix\n";
-			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
+			const char *msg = ":irc 001 user :Welcome\n"
+					":irc 002 user :Host are none\n"
+					":irc 003 user :Created\n";
+			send(user->_fd, msg, strlen(msg), 0);
 		}
 		return ;
 	}
