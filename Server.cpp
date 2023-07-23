@@ -40,6 +40,8 @@ void Server::acceptConnection() {
     if ((Server::newSocket = accept(Server::serverSocket, (struct sockaddr *)&Server::address, (socklen_t *)&Server::addrlen)) < 0) { 
         throw ServerException("Accept failed");
     }
+    Server::_fds.push_back(Server::newSocket);
+    Server::_users.push_back(User(Server::newSocket, Server::newSocket - serverSocket));
     std::cout << GREEN << "New connection, socket fd is " << Server::newSocket << ", IP is : " << inet_ntoa(Server::address.sin_addr) << 
         ", port : " << ntohs(Server::address.sin_port) << RESET << std::endl;
 
@@ -53,9 +55,9 @@ void Server::acceptConnection() {
 // handle client messages
 void Server::handleClientMessages() {
 
-    int i = 0;
-    for (i = 0; i < MAX_CLIENTS; i++) {
-        Server::sd = Server::clientSockets[i];
+    long unsigned int i = 0;
+    for (i = 0; i < Server::_fds.size(); i++) {
+        Server::sd = Server::_fds.at(i);
         if (FD_ISSET(Server::sd, &Server::readfds)) {
 		
             if ((Server::valread = recv(Server::sd, Server::buffer, BUFFER_SIZE, 0)) <= 0) {
@@ -63,7 +65,7 @@ void Server::handleClientMessages() {
                      ", port " << ntohs(Server::address.sin_port) << RESET << std::endl;
                 FD_CLR(Server::sd, &Server::readfds);
                 close(Server::sd);
-                Server::clientSockets[i] = 0;
+                Server::_fds.at(i) = 0;
                 // remove from fd set
                 for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it) {
                     if (*it == Server::sd) {
@@ -82,11 +84,11 @@ void Server::handleClientMessages() {
                     }
                 }
             } else {
-                
+                // std::cout << "RD: ---> " << Server::valread << std::endl;
                 Server::valread < BUFFER_SIZE ? Server::buffer[Server::valread] = '\0' : Server::buffer[BUFFER_SIZE - 1] = '\0';
                 for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
                     if (it->_fd == Server::sd) {
-                        std::cout << YELLOW << "Received message from client: [NO:" << it->_id << "] " << Server::buffer << RESET << std::endl;
+                        // std::cout << YELLOW << "Received message from client: [NO:" << it->_id << "] " << Server::buffer << RESET << std::endl;
                         it->input += Server::buffer;
                         std::string userInput(Server::buffer);
                         curIndex = i;
@@ -105,11 +107,12 @@ void Server::handleClientMessages() {
 
 void signalHandler(int signum) {
 
-    std::cout << RED << "Interrupt signal (" << signum << ") received.\n";
+    std::cout << RED << "Interrupt signal (" << signum << ") received." << RESET << "\n";
 
-    for (int i = 0; i < MAX_CLIENTS; i++) {
-        if (Server::clientSockets[i] != 0) {
-            close(Server::clientSockets[i]);
+    for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it) {
+        if (*it != 0) {
+            std::cout << "Closing socket: " << *it << std::endl;
+            close(*it);
         }
     }
     close(Server::serverSocket);
@@ -120,7 +123,7 @@ void Server::run(void) {
 
     signal(SIGINT, signalHandler);
     signal(SIGQUIT, signalHandler);
-    int i = 0;
+    long unsigned int i = 0;
     
     for (;;) {
         FD_ZERO(&Server::readfds); // clears a file descriptor set
@@ -128,25 +131,19 @@ void Server::run(void) {
         Server::max_sd = serverSocket;
 
         // Add client sockets to the set
-        for (i = 0; i < MAX_CLIENTS; i++) {
-            Server::sd = Server::clientSockets[i];
-            if (Server::sd > 0)
-			{
-				if(Server::sd >= MAX_CLIENTS - 1)
-					throw ServerException("Max clients reached");
-                FD_SET(Server::sd, &Server::readfds);
-			}
+        for (i = 0; i < Server::_fds.size(); i++) {
+        
+            Server::sd = Server::_fds.at(i);
+            Server::sd >= MAX_CLIENTS - 1 ? 
+                throw ServerException("Max clients reached") :
+            Server::_fds.at(i) > 0 ? 
+                FD_SET(Server::sd, &Server::readfds) : 
+            (void)0;
+
             if (Server::sd > Server::max_sd)
                 Server::max_sd = Server::sd;
         }
 
-        // for(std::vector<int>::iterator it = _fds.begin(); it != _fds.end(); ++it) {
-        //     if (*it != 0)
-        //         std::cout << "vector fds: " << *it << std::endl;
-        // }
-        // for(std::vector<User>::iterator it = _users.begin(); it != _users.end(); ++it) {
-        //     std::cout << "User FD: " << (*it)._fd << " User ID: " << (*it)._id << std::endl;
-        // }
         
         // Wait for activity on any of the sockets
         int activity = select(Server::max_sd + 1, &Server::readfds, NULL, NULL, NULL);
@@ -158,14 +155,12 @@ void Server::run(void) {
         if (FD_ISSET(Server::serverSocket, &Server::readfds)) { // returns true if fd is in the set
             // accept new connection
             acceptConnection();
-            // Add new socket to the array of client sockets
-            for (i = 0; i < MAX_CLIENTS; i++) {
-                if (Server::clientSockets[i] == 0) {
-                    Server::clientSockets[i] = Server::newSocket;
-                    Server::_fds.push_back(Server::newSocket);
-                    Server::_users.push_back(User(Server::newSocket, Server::newSocket - serverSocket));
-                    break;
-                }
+            for(std::vector<int>::iterator it = _fds.begin(); it != _fds.end(); ++it) {
+                if (*it != 0)
+                    std::cout << "vector fds: " << *it << std::endl;
+            }
+            for(std::vector<User>::iterator it = _users.begin(); it != _users.end(); ++it) {
+                std::cout << "User FD: " << (*it)._fd << " User ID: " << (*it)._id << std::endl;
             }
         }
         handleClientMessages(); // handle client messages
@@ -202,12 +197,11 @@ int Server::_port = -1;
 int Server::newSocket = -1;
 int Server::curIndex = -1;
 int Server::addrlen = sizeof(struct sockaddr_in);
-int Server::clientSockets[MAX_CLIENTS] = {0};
 struct sockaddr_in Server::address;
 char Server::buffer[BUFFER_SIZE]= {0};
 std::string Server::bufferStr = "";
 fd_set Server::readfds;
-std::vector<int> Server::_fds(MAX_CLIENTS, 0);
+std::vector<int> Server::_fds;
 std::vector<std::string> Server::_cmd;
 std::vector<User> Server::_users;
 std::vector<Channel> Server::_channels;
