@@ -102,7 +102,7 @@ class User {
         return (this->_fd == other._fd);
     }
 
-	void	authorise(User *user, std::string cmd);
+	int	authorise(User *user, std::string cmd);
 	void	user_options(User *user, std::vector<std::string> splitmsg);
 	void	user_cmds(User *user, std::vector<std::string> splitmsg);
 
