@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Command.cpp                                        :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/07/22 22:38:24 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/23 16:33:33 by arafeeq          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 
 #include "./includes/Server.hpp"
 #include "./includes/Command.hpp"
@@ -165,7 +153,6 @@ void Command::kick(std::string channel, std::string user_kick, std::string reaso
 
 void Command::invite(std::string user, std::string channel, User user_o)
 {
-	// ERR_USERONCHANNEL - implement
 	std::vector<Channel>::iterator it_c;
 	std::vector<User>::iterator it_s;
 
@@ -298,7 +285,7 @@ void Command::privmsg(std::string reciever, std::string message, User user)
 		sendErrorMessage(user._fd, (reciever + NO_USR_M + " or channel."), ERR_NOSUCHNICK);
 }
 
-void Command::mode(std::string channel, std::string mode, User user, std::string key)
+void Command::mode(std::string channel, std::string mode, User user, std::string arg)
 {
 	if (mode.size() != 2 && (mode[0] != '+' && mode[0] != '-'))
 	{
@@ -321,12 +308,7 @@ void Command::mode(std::string channel, std::string mode, User user, std::string
 			if (it_c->isMode(mode[1]) == 2)
 				sendErrorMessage(user._fd, (mode + MODE_ERR_M), ERR_UNKNOWNMODE);
 			else
-			{
-				if (mode == "+k" && key == "")
-					sendErrorMessage(user._fd, "Key for Channel not provided\n", TOO_MANY_ARGS);
-				else
-					it_c->setMode(mode[1], mode[0], key);
-			}
+					it_c->exec_mode(mode, user, arg);
 		}
 		else
 			sendErrorMessage(user._fd, OP_ERR_M, ERR_CHANOPRIVSNEEDED);

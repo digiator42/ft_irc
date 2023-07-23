@@ -1,14 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Channel.hpp                                        :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/07/05 21:29:02 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/23 16:33:50 by arafeeq          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
 #ifndef CHANNEL_HPP
 # define CHANNEL_HPP
@@ -39,7 +28,7 @@ class User;
 
 class Channel{
 	private:
-		int max_users;
+		int user_limit;
 		std::string name; // passed as parameter in parameterized constructor??
 		std::string pass; // // passed as parameter in parameterized constructor??
 		std::string topic;
@@ -56,7 +45,7 @@ class Channel{
 	
 	// GETTERS
 	// getModes(void); // return value?? array of characters??
-	int getMaxUsers(void); 
+	int getUserLimit(void); 
 	std::string getTopic(void);
 	std::string getPass(void);
 	std::map<char, int> getMode(void); // will be string only or vector of strings
@@ -64,14 +53,15 @@ class Channel{
 	std::string getName(void);
 
 	// SETTERS
-	void setMaxUsers(int num); 
+	void setUserLimit(int num); 
 	void setTopic(std::string str);
 	void setPass(std::string str);
-	void setMode(char m, char sign, std::string key);
+	void setMode(char m, char sign);
 	
 	// MEMBER FUNCTIONS
 	void addUser(User new_user);
 	void kickUser(std::string user_kick, std::string reason, User user);
+	void exec_mode(std::string mode, User &user, std::string arg);
 
 	int isInvited(User user);
 	int isMode(char m);
