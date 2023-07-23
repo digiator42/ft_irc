@@ -8,6 +8,7 @@
 #include <string>
 #include <cstring>
 #include "Command.hpp"
+#include "Utils.hpp"
 
 #define JOIN "JOIN"
 #define KICK "KICK"
@@ -109,8 +110,6 @@ class User {
 };
 
 std::ostream& operator<<(std::ostream& out, const User& User);
-std::vector<std::string> split(std::string str);
-std::string trim(std::string &str);
 void sendErrorMessage(int fd, const std::string& message, const std::string& key);
 void handleJoinCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
 void handleKickCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);

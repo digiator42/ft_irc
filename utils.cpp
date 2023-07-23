@@ -4,8 +4,14 @@
 #include "includes/Server.hpp"
 #include "includes/Command.hpp"
 
-std::vector<std::string> split(const std::string str)
-{
+
+std::string Utils::to_string(int value) {
+    std::stringstream ss;
+	ss << value;
+	std::string s = ss.str();
+	return s;
+}
+std::vector<std::string> Utils::split(const std::string str) {
 	std::vector<std::string> vector;
 	std::istringstream iss(str);
 	std::string cmd;
@@ -13,9 +19,7 @@ std::vector<std::string> split(const std::string str)
 		vector.push_back(cmd);
 	return vector;
 }
-
-std::string trim(std::string &str)
-{
+std::string Utils::trim(std::string &str) {
     size_t left = str.find_first_not_of('\n');
     size_t right = str.find_last_not_of('\n');
     if (left == std::string::npos || right == std::string::npos)

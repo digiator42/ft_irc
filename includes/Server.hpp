@@ -3,6 +3,7 @@
 
 #include "User.hpp"
 #include "Channel.hpp"
+#include "Utils.hpp"
 #include <iostream>
 #include <string>
 #include <cstring>
@@ -18,6 +19,7 @@
 #include <sstream>
 #include <iomanip>
 #include <signal.h>
+
 
 #define MAX_PORT 65535
 #define MAX_BUFFER 1024
@@ -36,10 +38,10 @@ class Channel;
 class Server
 {
 private:
-
-public:
 	Server(void);
 	~Server();
+
+public:
 	static std::string _password;
 	static int serverSocket;
 	static int max_sd;
@@ -78,8 +80,5 @@ public:
 	// void validateMessage(char *msg);
 
 };
-
-
-
 
 #endif

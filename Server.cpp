@@ -65,11 +65,11 @@ void Server::handleClientMessages() {
                      ", port " << ntohs(Server::address.sin_port) << RESET << std::endl;
                 FD_CLR(Server::sd, &Server::readfds);
                 close(Server::sd);
-                Server::_fds.at(i) = 0;
                 // remove from fd set
                 for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it) {
                     if (*it == Server::sd) {
 
+                        std::cout << "RECV:: Erased FD : " << Server::sd << std::endl;
                         Server::_fds.erase(it);
                         --it;
                     }
@@ -77,7 +77,7 @@ void Server::handleClientMessages() {
                 // remove from users
                 for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
                     if (it->_fd == Server::sd) {
-                        std::cout << "Erased user FD : " << it->_fd << std::endl;
+                        std::cout << "RECV:: Erased user FD : " << it->_fd << std::endl;
                         // std::vector<User>::iterator it2 = std::find(Server::_users.begin(), Server::_users.end(), *it);
                         Server::_users.erase(it);
                         --it;
@@ -150,7 +150,6 @@ void Server::run(void) {
         if ((activity < 0) && (errno != EINTR)) {
             throw ServerException("Select error");
         }
-
         // If activity on the server socket, it's a new connection
         if (FD_ISSET(Server::serverSocket, &Server::readfds)) { // returns true if fd is in the set
             // accept new connection
