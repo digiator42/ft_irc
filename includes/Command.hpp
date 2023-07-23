@@ -1,14 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Command.hpp                                        :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/07/15 21:31:55 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/23 16:34:24 by arafeeq          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
 #ifndef COMMAND_HPP
 # define COMMAND_HPP
@@ -55,7 +44,7 @@ class Command{
 		// PRIVMSG
 		void privmsg(std::string reciever, std::string message, User user);
 		// MODE
-		void mode(std::string channel, std::string mode, User user, std::string key);
+		void mode(std::string channel, std::string mode, User user, std::string arg);
 
 		std::vector<std::string> ft_split(std::string str, char delimiter);
 };

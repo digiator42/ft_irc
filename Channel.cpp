@@ -1,14 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Channel.cpp                                        :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/07/05 21:50:36 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/23 16:31:18 by arafeeq          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
 #include "./includes/Server.hpp"
 
@@ -19,6 +8,7 @@ Channel::Channel(std::string str_n, std::string str_p)
 	// std::cout << RESET;
 	this->name = str_n;
 	this->pass = str_p;
+	this->user_limit = 0;
 	this->topic = "";
 	this->message = "";
 	this->mode['i'] = 0;
@@ -37,9 +27,9 @@ Channel::~Channel(void)
 
 // -- GETTERS --
 
-int	Channel::getMaxUsers(void)
+int	Channel::getUserLimit(void)
 {
-	return (max_users);
+	return (user_limit);
 }
 
 std::string	Channel::getTopic(void)
@@ -69,9 +59,9 @@ std::string Channel::getName(void)
 
 // -- SETTERS --
 
-void Channel::setMaxUsers(int num)
+void Channel::setUserLimit(int num)
 {
-	max_users = num;
+	user_limit = num;
 }
 
 void Channel::setTopic(std::string str)
@@ -84,7 +74,7 @@ void Channel::setPass(std::string str)
 	pass = str;
 }
 
-void Channel::setMode(char m, char sign, std::string key)
+void Channel::setMode(char m, char sign)
 {
 	std::map<char, int>::iterator it;
 	for (it = this->mode.begin(); it != this->mode.end(); it++)
@@ -92,17 +82,9 @@ void Channel::setMode(char m, char sign, std::string key)
 		if (it->first == m)
 		{
 			if (sign == '+')
-			{
-				if (m == 'k')
-					this->pass = key;
 				it->second = 1;
-			}
 			else
-			{
-				if (m == 'k')
-					this->pass = "";
 				it->second = 0;
-			}
 		}
 	}
 }
@@ -151,6 +133,67 @@ void Channel::kickUser(std::string user_kick, std::string reason, User user)
 	}
 	if (it_s == this->users.end())
 		sendErrorMessage(user._fd, (user_kick + NO_USR_M), ERR_NOSUCHNICK);
+}
+
+void Channel::exec_mode(std::string mode, User &user, std::string arg)
+{
+	if (mode[1] == 'k')
+	{
+		if (mode[0] == '+')
+		{
+			if (arg == "")
+				sendErrorMessage(user._fd, "Key for Channel not provided\n", TOO_MANY_ARGS);
+			else
+				this->pass = arg;
+		}
+		else
+			this->pass = "";
+	}
+	else if (mode[1] == 'o')
+	{
+		std::vector<User>::const_iterator it_s;
+		for(it_s = this->users.begin(); it_s != this->users.end(); ++it_s)
+		{
+			if (it_s->nickName == user.nickName)
+				break ;
+		}
+		if (it_s != this->users.end())
+		{
+			if (mode[0] == '+')
+			{
+					if (this->isOperator(*it_s))
+						send(user._fd, "User is already an Operator\n", strlen("User is already an Operator\n"), 0);
+					else
+					{
+						this->operators.push_back(*it_s);
+						send(it_s->_fd, ("You are an operator of " + this->name + " channel \n").c_str(), strlen(("You are an operator of " + this->name + " channel \n").c_str()), 0);
+					}
+			}
+			else
+			{
+				if (this->isOperator(*it_s))
+				{
+					this->users.erase(it_s);
+					send(it_s->_fd, ("You are mo onger an operator of " + this->name + " channel \n").c_str(), strlen(("You are mo onger an operator of " + this->name + " channel \n").c_str()), 0);
+				}
+				else
+					send(user._fd, "User is not an Operator\n", strlen("User is not an Operator\n"), 0);
+			}
+		}
+		else
+			sendErrorMessage(user._fd, (arg + NO_USR_M), ERR_NOSUCHNICK);
+	}
+	else if (mode[1] == 'l')
+	{
+		if (mode[0] == '+')
+		{
+			if (std::atoi(arg.c_str()) <= 0)
+				send(user._fd, "Invalid Limit\n", strlen("Invalid Limit\n"), 0);
+			else
+				this->user_limit = std::atoi(arg.c_str());
+		}
+	}
+	this->setMode(mode[1], mode[0]);
 }
 
 int Channel::isInvited(User user)

@@ -186,6 +186,8 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
 	} else if (cmdType == WHOIS) {
 		handleWhoisCommand(splitmsg, cmd, user);
 	}
+	// else
+	// 	sendErrorMessage(user->_fd, (splitmsg[0] + " :Unknown command\n", ERR_UNKNOWNCOMMAND));
 
 	int i = 1;
 	int j;
