@@ -3,6 +3,8 @@
 
 User::User(int fd, int id) : _fd(fd), _id(id), isAuth(false), isOperator(false), nickName(""), userName("")
 {
+	sent = 0;
+	sent2 = 0;
 	std::cout << "User created" << std::endl;
 	input = "";
 }
@@ -77,11 +79,10 @@ int User::authorise(User *user, std::string cmd)
 		{
 			if (Server::_cmd.size() > 1 && (it->nickName == Server::_cmd[1]|| it->userName == Server::_cmd[0]))
 			{
-				Server::showUsers();
 				std::string S = ERR_ALREADYREGISTRED;
 				S.append(" User already registered\n");
 				send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
-				closeMe(*user);
+				sent = 1;
 				return 0;
 			}
 		}
@@ -98,9 +99,9 @@ int User::authorise(User *user, std::string cmd)
 
 void	User::user_options(User *user, std::vector<std::string> splitmsg)
 {
-	if (splitmsg.size() > 0 && (splitmsg[0] == "quit" || splitmsg[0] == "exit" || splitmsg[0] == "close"))
+	if (splitmsg.size() > 0 && (splitmsg.at(0) == "quit" || splitmsg.at(0) == "exit" || splitmsg.at(0) == "close"))
 		closeMe(*user);
-	else if (splitmsg.size() > 0 && splitmsg[0] == "help")
+	else if (splitmsg.size() > 0 && splitmsg.at(0) == "help")
 	{
 		std::string help = "Available commands: \n"
 		"whoami - show user details\n"
@@ -121,14 +122,14 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
     }
 
     Command cmd;
-    std::string cmdType = splitmsg[0];
+    std::string cmdType = splitmsg.at(0);
 	std::cout << "cmdType -> {" << cmdType << "}" << std::endl;
     if (cmdType == JOIN) {
         handleJoinCommand(splitmsg, cmd, user);
     } else if (cmdType == KICK) {
         handleKickCommand(splitmsg, cmd, user);
-    } else if ((splitmsg.size() == 2 || splitmsg.size() == 3) && splitmsg[0] == "TOPIC") { // not yet
-        cmd.topic(splitmsg[1], splitmsg[2], *user);
+    } else if ((splitmsg.size() == 2 || splitmsg.size() == 3) && splitmsg.at(0) == "TOPIC") { // not yet
+        cmd.topic(splitmsg.at(1), splitmsg.at(2), *user);
     } else if (cmdType == PRIVMSG) {
         handlePrivMsgCommand(splitmsg, cmd, user);
     } else if (cmdType == INVITE) {
@@ -161,58 +162,65 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
 	}
 }
 
+void change_user(User *user, std::vector<std::string> splitmsg)
+{
+	if (splitmsg.at(0) == "USER")
+		user->userName = splitmsg.at(1);
+	else if (splitmsg.at(0) == "NICK")
+		user->nickName = splitmsg.at(1);
+}
+
 void User::execute(std::string cmd, User *user)
 {
 	std::string levels[3] = {"whoami", "show clients", "show users"};
 	void (User::*f[3])(User &user) = { &User::whoAmI, &User::showClients, &User::showUsers};
 	std::vector<std::string> splitmsg = Utils::split(cmd);
 
-	if (splitmsg.size() > 1 && splitmsg[0] == "CAP" && splitmsg[1] == "END")
+	if (splitmsg.size() > 1 && splitmsg.at(0) == "CAP" && splitmsg.at(1) == "END")
 	{
 		const char *msg = ":irc 001 user :Welcome\n"
 				":irc 002 user :Host are none\n"
 				":irc 003 user :Created\n";
 		send(user->_fd, msg, strlen(msg), 0);
 	}
-	else if (splitmsg.size() > 0 && (splitmsg[0] == "CAP" || splitmsg[0] == JOIN))
+	else if (splitmsg.size() > 0 && (splitmsg.at(0) == "CAP" || splitmsg.at(0) == JOIN))
 	{
-		if(splitmsg.size() >= 3 && splitmsg[1] == "LS" && splitmsg[2] == "302")
+		if(splitmsg.size() >= 3 && splitmsg.at(1) == "LS" && splitmsg.at(2) == "302")
 		{
 			std::string S = "CAP * ACK :multi-prefix\r\n";
 			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
 		}
-		else if (splitmsg.size() >= 2 && splitmsg[1] == "LS")
+		else if (splitmsg.size() >= 2 && splitmsg.at(1) == "LS")
 		{
 			
 			std::string S = "CAP * ACK :multi-prefix\r\n";
 			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
 		}
-		else if (splitmsg.size() >= 3 && splitmsg[1] == "REQ" && splitmsg[2] == "multi-prefix")
+		else if (splitmsg.size() >= 3 && splitmsg.at(1) == "REQ" && splitmsg.at(2) == "multi-prefix")
 		{
 			std::string S = "CAP * ACK :multi-prefix\n";
 			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
 		}
 		return ;
 	}
-
-	for (int i = 0; i < 3; i++)
-	{
-		cmd = Utils::trim(cmd);	
-		cmd == levels[i] ? (this->*f[i])(*user) : (void)0;
-	}
-	
 	
 	if(!authorise(user, cmd))
-		return ;
-	
-    if (user->isAuth == false)
 	{
-		std::string S = ERR_NOTREGISTERED;
-		S.append(" You have not registered\n");
-		std::cout << "->>>>>>>>>" << Server::_cmd.size() << std::endl;
-		send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
+		if(sent != 1 && sent2 != 1)
+		{
+			std::string S = ERR_NOTREGISTERED;
+			S.append(" You have not registered\n");
+			std::cout << "->>>>>>>>>" << Server::_cmd.size() << std::endl;
+			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
+		}
+		closeMe(*user);
 		return ;
 	}
+	
+
+	if(splitmsg.size() > 0 && (splitmsg.at(0) == "USER" || splitmsg.at(0) == "NICK"))
+		change_user(user, splitmsg);
+
 	user_options(user, splitmsg);
 	user_cmds(user, splitmsg);
 
@@ -273,7 +281,7 @@ bool	User::parse_cmd(std::string str)
 		std::string S = WRONG_PASS_CODE;
 		S.append(" Wrong password");
 		send(this->_fd, S.c_str(), strlen(S.c_str()), 0);
-		closeMe(*this);
+		sent = 1;
 		return false;
 	}
 	

@@ -85,6 +85,8 @@ class User {
 
     int _fd;
     int _id;
+	int sent;
+	int sent2;
     bool isAuth;
     bool isOperator;
     std::string nickName;
