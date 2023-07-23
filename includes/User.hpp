@@ -8,6 +8,7 @@
 #include <string>
 #include <cstring>
 #include "Command.hpp"
+#include "Utils.hpp"
 
 #define JOIN "JOIN"
 #define KICK "KICK"
@@ -84,6 +85,8 @@ class User {
 
     int _fd;
     int _id;
+	int sent;
+	int sent2;
     bool isAuth;
     bool isOperator;
     std::string nickName;
@@ -102,15 +105,13 @@ class User {
         return (this->_fd == other._fd);
     }
 
-	void	authorise(User *user, std::string cmd);
+	int	authorise(User *user, std::string cmd);
 	void	user_options(User *user, std::vector<std::string> splitmsg);
 	void	user_cmds(User *user, std::vector<std::string> splitmsg);
 
 };
 
 std::ostream& operator<<(std::ostream& out, const User& User);
-std::vector<std::string> split(std::string str);
-std::string trim(std::string &str);
 void sendErrorMessage(int fd, const std::string& message, const std::string& key);
 void handleJoinCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
 void handleKickCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);

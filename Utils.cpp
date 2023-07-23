@@ -4,8 +4,28 @@
 #include "includes/Server.hpp"
 #include "includes/Command.hpp"
 
-std::vector<std::string> split(const std::string str)
-{
+
+void Utils::signalHandler(int signum) {
+
+    std::cout << RED << "Interrupt signal (" << signum << ") received." << RESET << "\n";
+
+    for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it) {
+        if (*it != 0) {
+            std::cout << "Closing socket: " << *it << std::endl;
+            close(*it);
+        }
+    }
+    close(Server::serverSocket);
+    exit(signum);
+}
+
+std::string Utils::to_string(int value) {
+    std::stringstream ss;
+	ss << value;
+	std::string s = ss.str();
+	return s;
+}
+std::vector<std::string> Utils::split(const std::string str) {
 	std::vector<std::string> vector;
 	std::istringstream iss(str);
 	std::string cmd;
@@ -13,9 +33,7 @@ std::vector<std::string> split(const std::string str)
 		vector.push_back(cmd);
 	return vector;
 }
-
-std::string trim(std::string &str)
-{
+std::string Utils::trim(std::string &str) {
     size_t left = str.find_first_not_of('\n');
     size_t right = str.find_last_not_of('\n');
     if (left == std::string::npos || right == std::string::npos)
@@ -30,7 +48,7 @@ void sendErrorMessage(int fd, const std::string& message, const std::string& key
 
 void handleJoinCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user) {
     if (splitmsg.size() == 2 || splitmsg.size() == 3) {
-        cmd.join(splitmsg[1], "", *user);
+        cmd.join(splitmsg.at(1), "", *user);
     } else {
 		return ; // temporary
         // sendErrorMessage(user->_fd, "JOIN command requires 2 or 3 arguments\n", TOO_MANY_ARGS);
@@ -39,9 +57,9 @@ void handleJoinCommand(const std::vector<std::string>& splitmsg, Command& cmd, U
 
 void handleKickCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user) {
     if (splitmsg.size() == 4) {
-        cmd.kick(splitmsg[1], splitmsg[2], splitmsg[3], *user);
+        cmd.kick(splitmsg.at(1), splitmsg.at(2), splitmsg.at(3), *user);
     } else if (splitmsg.size() == 3) {
-        cmd.kick(splitmsg[1], splitmsg[2], "", *user);
+        cmd.kick(splitmsg.at(1), splitmsg.at(2), "", *user);
     } else {
         sendErrorMessage(user->_fd, "KICK command requires 3 or 4 arguments\n", TOO_MANY_ARGS);
     }
@@ -49,7 +67,7 @@ void handleKickCommand(const std::vector<std::string>& splitmsg, Command& cmd, U
 
 void handlePrivMsgCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user) {
 	if (splitmsg.size() == 3) {
-		cmd.privmsg(splitmsg[1], splitmsg[2], *user);
+		cmd.privmsg(splitmsg.at(1), splitmsg.at(2), *user);
 	} else if (splitmsg.size() == 2) {
 		sendErrorMessage(user->_fd, "PRIVMSG command requires 3 arguments\n", PRIVMSG_EMPTY);
 	} else if(splitmsg.size() == 1) {
@@ -62,7 +80,7 @@ void handlePrivMsgCommand(const std::vector<std::string>& splitmsg, Command& cmd
 void	handleInviteCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user)
 {
 	if (splitmsg.size() == 3) {
-		cmd.invite(splitmsg[1], splitmsg[2], *user);
+		cmd.invite(splitmsg.at(1), splitmsg.at(2), *user);
 	} else {
 		sendErrorMessage(user->_fd, "INVITE command requires 3 arguments\n", TOO_MANY_ARGS);
 	}
@@ -71,7 +89,7 @@ void	handleInviteCommand(const std::vector<std::string>& splitmsg, Command& cmd,
 void handleWhoisCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user) {
 	(void)cmd;
 	if (splitmsg.size() == 2) {
-		std::string nick = "\nname : " + splitmsg[1] + "\n";
+		std::string nick = "\nname : " + splitmsg.at(1) + "\n";
 		send(user->_fd, nick.c_str(), strlen(nick.c_str()), 0);
 	} else {
 		sendErrorMessage(user->_fd, "WHOIS command requires 2 arguments\n", TOO_MANY_ARGS);
@@ -81,7 +99,7 @@ void handleWhoisCommand(const std::vector<std::string>& splitmsg, Command& cmd, 
 void handleModeCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user)
 {
 	if (splitmsg.size() == 3){
-		cmd.mode(splitmsg[1], splitmsg[2], *user, splitmsg[3]);
+		cmd.mode(splitmsg.at(1), splitmsg.at(2), *user, splitmsg.at(3));
 	} else {
 		sendErrorMessage(user->_fd, "MODE command requires 2 arguments\n", TOO_MANY_ARGS);
 	}
