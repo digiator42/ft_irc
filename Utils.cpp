@@ -4,6 +4,15 @@
 #include "includes/Server.hpp"
 #include "includes/Command.hpp"
 
+User *Utils::find(int fd) {
+	for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
+        if (it->_fd == fd) {
+            std::cout << "find:: user FD : " << it->_fd << std::endl;
+			return &(*it);
+        }
+    }
+	return NULL;
+}
 
 void Utils::signalHandler(int signum) {
 
@@ -18,6 +27,18 @@ void Utils::signalHandler(int signum) {
     close(Server::serverSocket);
     exit(signum);
 }
+
+void Utils::closeThis(User &user)
+{
+	std::cout << YELLOW << user.input << RESET;
+	std::cout << RED << "User " << user._fd << " closed" << RESET << std::endl;
+	close(user._fd);
+	
+    Server::_fds.erase(std::find(Server::_fds.begin(), Server::_fds.end(), user._fd));	
+    Server::_users.erase(std::find(Server::_users.begin(), Server::_users.end(), user));
+	Server::showUsers();
+}
+
 
 std::string Utils::to_string(int value) {
     std::stringstream ss;

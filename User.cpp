@@ -44,31 +44,6 @@ void User::showUsers(User &user)
 	Server::showUsers();
 }
 
-void closeMe(User &user)
-{
-	std::cout << YELLOW << user.input << RESET;
-	std::cout << RED << "User " << user._fd << " closed" << RESET << std::endl;
-	close(user._fd);
-	    
-    for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it) 
-	{
-        if (*it == Server::sd){
-            std::cout << "closeME found -->" << *it << std::endl;
-            Server::_fds.erase(it);
-            --it;
-		}
-    }
-	
-    for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
-	{
-        if (it->_fd == Server::sd) {
-            std::cout << "closeME id -->" << it->_fd << std::endl;
-            Server::_users.erase(it);
-            --it;
-        }
-    }
-}
-
 int User::authorise(User *user, std::string cmd)
 {
 	if(user->isAuth == true)
@@ -100,7 +75,7 @@ int User::authorise(User *user, std::string cmd)
 void	User::user_options(User *user, std::vector<std::string> splitmsg)
 {
 	if (splitmsg.size() > 0 && (splitmsg.at(0) == "quit" || splitmsg.at(0) == "exit" || splitmsg.at(0) == "close"))
-		closeMe(*user);
+		Utils::closeThis(*user);
 	else if (splitmsg.size() > 0 && splitmsg.at(0) == "help")
 	{
 		std::string help = "Available commands: \n"
@@ -216,10 +191,10 @@ void User::execute(std::string cmd, User *user)
 			std::cout << "->>>>>>>>>" << splitmsg.size() << std::endl;
 			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
 		}
-		closeMe(*user);
+		Utils::closeThis(*user);
 		return ;
 	}
-	
+	std::cout << cmd << std::endl;
 
 	if(splitmsg.size() > 0 && (splitmsg.at(0) == "USER" || splitmsg.at(0) == "NICK"))
 		change_user(user, splitmsg);
@@ -282,7 +257,7 @@ bool	User::parse_cmd(std::string str)
 	if(this->pass != Server::getPassword())
 	{
 		std::string S = WRONG_PASS_CODE;
-		S.append(" Wrong password");
+		S.append(" : Wrong password");
 		send(this->_fd, S.c_str(), strlen(S.c_str()), 0);
 		sent = 1;
 		return false;
