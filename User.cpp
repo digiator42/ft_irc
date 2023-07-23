@@ -197,7 +197,7 @@ void User::execute(std::string cmd, User *user)
 
 	for (int i = 0; i < 3; i++)
 	{
-		cmd = trim(cmd);	
+		cmd = Utils::trim(cmd);	
 		cmd == levels[i] ? (this->*f[i])(*user) : (void)0;
 	}
 	
@@ -238,7 +238,7 @@ std::ostream& operator<<(std::ostream& out, const User& User)
 
 bool	User::parse_cmd(std::string str)
 {
-	std::vector<std::string> vector = split(str);
+	std::vector<std::string> vector =  Utils::split(str);
 
 	for(std::vector<std::string>::iterator it = vector.begin(); it != vector.end();)
 	{
