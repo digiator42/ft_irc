@@ -5,6 +5,20 @@
 #include "includes/Command.hpp"
 
 
+void Utils::signalHandler(int signum) {
+
+    std::cout << RED << "Interrupt signal (" << signum << ") received." << RESET << "\n";
+
+    for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it) {
+        if (*it != 0) {
+            std::cout << "Closing socket: " << *it << std::endl;
+            close(*it);
+        }
+    }
+    close(Server::serverSocket);
+    exit(signum);
+}
+
 std::string Utils::to_string(int value) {
     std::stringstream ss;
 	ss << value;

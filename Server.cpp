@@ -35,6 +35,53 @@ void Server::openSocket() {
     std::cout << "Waiting for incoming connections..." << std::endl;
 }
 
+void Server::run(void) {
+
+    signal(SIGINT, Utils::signalHandler);
+    signal(SIGQUIT, Utils::signalHandler);
+    long unsigned int i = 0;
+    
+    for (;;) {
+        FD_ZERO(&Server::readfds); // clears a file descriptor set
+        FD_SET(Server::serverSocket, &Server::readfds); // adds fd to the set
+        Server::max_sd = serverSocket;
+
+        // Add client sockets to the set
+        for (i = 0; i < Server::_fds.size(); i++) {
+        
+            Server::sd = Server::_fds.at(i);
+            Server::sd >= MAX_CLIENTS - 1 ? 
+                throw ServerException("Max clients reached") :
+            Server::_fds.at(i) > 0 ? 
+                FD_SET(Server::sd, &Server::readfds) : 
+            (void)0;
+
+            if (Server::sd > Server::max_sd)
+                Server::max_sd = Server::sd;
+        }
+
+        
+        // Wait for activity on any of the sockets
+        int activity = select(Server::max_sd + 1, &Server::readfds, NULL, NULL, NULL);
+        if ((activity < 0) && (errno != EINTR)) {
+            throw ServerException("Select error");
+        }
+        // If activity on the server socket, it's a new connection
+        if (FD_ISSET(Server::serverSocket, &Server::readfds)) { // returns true if fd is in the set
+            // accept new connection
+            acceptConnection();
+            for(std::vector<int>::iterator it = _fds.begin(); it != _fds.end(); ++it) {
+                if (*it != 0)
+                    std::cout << "vector fds: " << *it << std::endl;
+            }
+            for(std::vector<User>::iterator it = _users.begin(); it != _users.end(); ++it) {
+                std::cout << "User FD: " << (*it)._fd << " User ID: " << (*it)._id << std::endl;
+            }
+        }
+        handleClientMessages(); // handle client messages
+    }
+}
+
 // accept new connection
 void Server::acceptConnection() {
     if ((Server::newSocket = accept(Server::serverSocket, (struct sockaddr *)&Server::address, (socklen_t *)&Server::addrlen)) < 0) { 
@@ -102,67 +149,6 @@ void Server::handleClientMessages() {
                 }
             }
         }
-    }
-}
-
-void signalHandler(int signum) {
-
-    std::cout << RED << "Interrupt signal (" << signum << ") received." << RESET << "\n";
-
-    for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it) {
-        if (*it != 0) {
-            std::cout << "Closing socket: " << *it << std::endl;
-            close(*it);
-        }
-    }
-    close(Server::serverSocket);
-    exit(signum);
-}
-
-void Server::run(void) {
-
-    signal(SIGINT, signalHandler);
-    signal(SIGQUIT, signalHandler);
-    long unsigned int i = 0;
-    
-    for (;;) {
-        FD_ZERO(&Server::readfds); // clears a file descriptor set
-        FD_SET(Server::serverSocket, &Server::readfds); // adds fd to the set
-        Server::max_sd = serverSocket;
-
-        // Add client sockets to the set
-        for (i = 0; i < Server::_fds.size(); i++) {
-        
-            Server::sd = Server::_fds.at(i);
-            Server::sd >= MAX_CLIENTS - 1 ? 
-                throw ServerException("Max clients reached") :
-            Server::_fds.at(i) > 0 ? 
-                FD_SET(Server::sd, &Server::readfds) : 
-            (void)0;
-
-            if (Server::sd > Server::max_sd)
-                Server::max_sd = Server::sd;
-        }
-
-        
-        // Wait for activity on any of the sockets
-        int activity = select(Server::max_sd + 1, &Server::readfds, NULL, NULL, NULL);
-        if ((activity < 0) && (errno != EINTR)) {
-            throw ServerException("Select error");
-        }
-        // If activity on the server socket, it's a new connection
-        if (FD_ISSET(Server::serverSocket, &Server::readfds)) { // returns true if fd is in the set
-            // accept new connection
-            acceptConnection();
-            for(std::vector<int>::iterator it = _fds.begin(); it != _fds.end(); ++it) {
-                if (*it != 0)
-                    std::cout << "vector fds: " << *it << std::endl;
-            }
-            for(std::vector<User>::iterator it = _users.begin(); it != _users.end(); ++it) {
-                std::cout << "User FD: " << (*it)._fd << " User ID: " << (*it)._id << std::endl;
-            }
-        }
-        handleClientMessages(); // handle client messages
     }
 }
 
