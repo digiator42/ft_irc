@@ -186,7 +186,7 @@ void User::execute(std::string cmd, User *user)
 		send(user->_fd, msg, strlen(msg), 0);
 		return ;
 	}
-	else if (splitmsg.size() > 0 && (splitmsg.at(0) == "CAP" || splitmsg.at(0) == JOIN))
+	else if ((splitmsg.size() > 1 && splitmsg.at(0) == "CAP") || (splitmsg.size() > 1 && splitmsg.at(0) == JOIN && splitmsg[1] == ":"))
 	{
 		if(splitmsg.size() >= 3 && splitmsg.at(1) == "LS" && splitmsg.at(2) == "302")
 		{

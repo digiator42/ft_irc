@@ -7,6 +7,7 @@
 #include <vector>
 
 class User;
+class Channel;
 
 class Command{
 	private:
@@ -15,6 +16,8 @@ class Command{
 		std::string command;
 		std::vector<std::string> args;
 		std::string message;
+		std::vector<Channel>::iterator chan_it;
+		std::vector<User>::iterator user_it;
 	public:
 		Command(void);
 		// copy contsructor
@@ -47,6 +50,12 @@ class Command{
 		void mode(std::string channel, std::string mode, User user, std::string arg);
 
 		std::vector<std::string> ft_split(std::string str, char delimiter);
+		std::vector<Channel>::iterator chan_exist(std::string channel);
+		std::vector<User>::iterator user_exist(std::string nick);
+
+// helper function for command.hpp
+
+// user_in_server = if user exists in server
 };
 
 #endif

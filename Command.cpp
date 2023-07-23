@@ -17,6 +17,51 @@ Command::~Command(void)
 	// destructor
 }
 
+// - GETTERS -
+
+User* Command::getSender(void)
+{
+	return (sender);
+}
+
+int Command::getArgAmt(void)
+{
+	return (arg_amt);
+}
+
+std::string Command::getCommand(void)
+{
+	return (command);
+}
+
+std::vector<std::string> Command::getArgs(void)
+{
+	return (args);
+}
+
+// - SETTERS -
+
+void Command::setSender(User* s)
+{
+	sender = s; // correct??
+}
+
+void Command::setArgAmt(int a)
+{
+	arg_amt = a;
+}
+
+void Command::setCommand(std::string c)
+{
+	command = c;
+}
+
+void Command::setArgs(std::vector<std::string> ar)
+{
+	// clear first?
+	args = ar;
+}
+
 // - MEMBER FUNCTIONS -
 
 std::vector<std::string> Command::ft_split(std::string str, char delimiter)
@@ -40,6 +85,26 @@ std::vector<std::string> Command::ft_split(std::string str, char delimiter)
 	}
 	substrings.push_back(substring);
 	return (substrings);
+}
+
+std::vector<Channel>::iterator Command::chan_exist(std::string channel)
+{
+	for (this->chan_it = Server::_channels.begin(); this->chan_it != Server::_channels.end(); chan_it++)
+	{
+		if (chan_it->getName() == channel)
+			return chan_it;
+	}
+	return chan_it;
+}
+
+std::vector<User>::iterator Command::user_exist(std::string nick)
+{
+	for (this->user_it = Server::_users.begin(); this->user_it != Server::_users.end(); user_it++)
+	{
+		if (user_it->nickName == nick)
+			return user_it;
+	}
+	return user_it;
 }
 
 void Command::join(std::string channel_s, std::string key_s, User user)
@@ -70,7 +135,7 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 						return ;
 					}
 				}
-				if (it_k != key_split.end())
+				if (it_k != key_split.end() && key_s != "")
 				{
 					if (it->isMode('k') == 1)
 					{
@@ -91,7 +156,6 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 					}
 					else
 						sendErrorMessage(user._fd, "Key Not required to join channel\n", ERR_BADCHANNELKEY);
-						
 					it_k++;
 				}
 				else
@@ -138,17 +202,12 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 void Command::kick(std::string channel, std::string user_kick, std::string reason, User user)
 {
 	std::vector<Channel>::iterator it_c;
-	
 
-	for(it_c = Server::_channels.begin(); it_c != Server::_channels.end(); ++it_c)
-	{
-		if (it_c->getName() == channel)
-			break ;
-	}
-	if (it_c == Server::_channels.end())
-		sendErrorMessage(user._fd, (user.nickName + NO_CHAN_M), ERR_NOSUCHCHANNEL);
-	else
+	it_c = chan_exist(channel);
+	if (it_c != Server::_channels.end())
 		it_c->kickUser(user_kick, reason, user);
+	else
+		sendErrorMessage(user._fd, (user.nickName + NO_CHAN_M), ERR_NOSUCHCHANNEL);
 }
 
 void Command::invite(std::string user, std::string channel, User user_o)
@@ -156,16 +215,11 @@ void Command::invite(std::string user, std::string channel, User user_o)
 	std::vector<Channel>::iterator it_c;
 	std::vector<User>::iterator it_s;
 
-	for(it_c = Server::_channels.begin(); it_c != Server::_channels.end(); ++it_c)
+	it_c = chan_exist(channel);
+	if (it_c != Server::_channels.end())
 	{
-		if (it_c->getName() == channel)
-			break ;
-	}
-	if (it_c == Server::_channels.end())
-		sendErrorMessage(user_o._fd, (channel + NO_CHAN_M), ERR_NOSUCHCHANNEL);
-	for(it_s = Server::_users.begin(); it_s != Server::_users.end(); ++it_s)
-	{
-		if (it_s->nickName == user)
+		it_s = user_exist(user);
+		if (it_s != Server::_users.end())
 		{
 			if (it_c->isOperator(user_o) != 1)
 				sendErrorMessage(user_o._fd, OP_ERR_M, ERR_CHANOPRIVSNEEDED);
@@ -180,11 +234,12 @@ void Command::invite(std::string user, std::string channel, User user_o)
 					it_c->invites.push_back(*it_s);
 				}
 			}
-			
 		}
+		else
+			sendErrorMessage(user_o._fd, (user + NO_USR_M), ERR_NOSUCHNICK);
 	}
-	if (it_s == Server::_users.end())
-		sendErrorMessage(user_o._fd, (user + NO_USR_M), ERR_NOSUCHNICK);
+	else
+		sendErrorMessage(user_o._fd, (channel + NO_CHAN_M), ERR_NOSUCHCHANNEL);
 	
 }
 
@@ -192,11 +247,7 @@ void Command::topic(std::string channel, std::string topic, User user)
 {
 	std::vector<Channel>::iterator it_c;
 
-	for(it_c = Server::_channels.begin(); it_c != Server::_channels.end(); ++it_c)
-	{
-		if (it_c->getName() == channel)
-			break ;
-	}
+	it_c = chan_exist(channel);
 	if (it_c != Server::_channels.end())
 	{
 		if (it_c->isMode('t') == 1)
@@ -234,9 +285,7 @@ void Command::topic(std::string channel, std::string topic, User user)
 		}
 	}
 	else
-	{
 		sendErrorMessage(user._fd, (channel + NO_CHAN_M), ERR_NOSUCHCHANNEL);
-	}
 }
 
 void Command::privmsg(std::string reciever, std::string message, User user)
@@ -244,18 +293,10 @@ void Command::privmsg(std::string reciever, std::string message, User user)
 	std::vector<Channel>::iterator it_c;
 	std::vector<User>::iterator it_u;
 
-	for(it_u = Server::_users.begin(); it_u != Server::_users.end(); ++it_u)
-	{
-		if (it_u->nickName == reciever)
-			break ;
-	}
+	it_u = user_exist(reciever);
 	if (it_u == Server::_users.end())
 	{
-		for(it_c = Server::_channels.begin(); it_c != Server::_channels.end(); ++it_c)
-		{
-			if (it_c->getName() == reciever)
-				break ;
-		}
+		it_c = chan_exist(reciever);
 		if (it_c != Server::_channels.end())
 		{
 			if (it_c->isUser(user))
@@ -282,23 +323,19 @@ void Command::privmsg(std::string reciever, std::string message, User user)
 		send(it_u->_fd, (message + "\n").c_str(), strlen((message + "\n").c_str()), 0);
 	}
 	if (it_u == Server::_users.end() && it_c == Server::_channels.end())
-		sendErrorMessage(user._fd, (reciever + NO_USR_M + " or channel."), ERR_NOSUCHNICK);
+		sendErrorMessage(user._fd, (reciever + ":No such nickname" + " or channel."), ERR_NOSUCHNICK);
 }
 
 void Command::mode(std::string channel, std::string mode, User user, std::string arg)
 {
+	std::vector<Channel>::iterator it_c;
+
 	if (mode.size() != 2 && (mode[0] != '+' && mode[0] != '-'))
 	{
 		sendErrorMessage(user._fd, (mode + MODE_ERR_M), ERR_UNKNOWNMODE);
 		return ;
 	}
-	std::vector<Channel>::iterator it_c;
-
-	for(it_c = Server::_channels.begin(); it_c != Server::_channels.end(); ++it_c)
-	{
-		if (it_c->getName() == channel)
-			break ;
-	}
+	it_c = chan_exist(channel);
 	if (it_c == Server::_channels.end())
 		sendErrorMessage(user._fd, (channel + NO_CHAN_M), ERR_NOSUCHCHANNEL);
 	else
@@ -313,49 +350,4 @@ void Command::mode(std::string channel, std::string mode, User user, std::string
 		else
 			sendErrorMessage(user._fd, OP_ERR_M, ERR_CHANOPRIVSNEEDED);
 	}
-}
-
-// - GETTERS -
-
-User* Command::getSender(void)
-{
-	return (sender);
-}
-
-int Command::getArgAmt(void)
-{
-	return (arg_amt);
-}
-
-std::string Command::getCommand(void)
-{
-	return (command);
-}
-
-std::vector<std::string> Command::getArgs(void)
-{
-	return (args);
-}
-
-// - SETTERS -
-
-void Command::setSender(User* s)
-{
-	sender = s; // correct??
-}
-
-void Command::setArgAmt(int a)
-{
-	arg_amt = a;
-}
-
-void Command::setCommand(std::string c)
-{
-	command = c;
-}
-
-void Command::setArgs(std::vector<std::string> ar)
-{
-	// clear first?
-	args = ar;
 }

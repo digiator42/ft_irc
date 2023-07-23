@@ -50,7 +50,7 @@ class Channel{
 	std::string getPass(void);
 	std::map<char, int> getMode(void); // will be string only or vector of strings
 	std::vector<User> getUsers(void);
-	std::string getName(void);
+	std::string getName(void) const;
 
 	// SETTERS
 	void setUserLimit(int num); 
@@ -73,11 +73,6 @@ class Channel{
 	// PUBLIC MEMBER VARIABLES
 	std::vector<User> invites;
 };
-
-// helper function for command.hpp
-
-// chan_exist = to check if a channel exists // return he reference of the chan??
-// user_in_server = if user exists in server
 
 // USER azra NICK azra PASS 4
 // USER nouf NICK nouf PASS 4

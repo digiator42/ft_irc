@@ -52,7 +52,7 @@ std::vector<User> Channel::getUsers(void)
 	return (users);
 }
 
-std::string Channel::getName(void)
+std::string Channel::getName(void) const
 {
 	return (name);
 }
@@ -120,13 +120,18 @@ void Channel::kickUser(std::string user_kick, std::string reason, User user)
 		if (it_s->nickName == user_kick)
 		{
 			if (this->isOperator(user) != 1)
+			{
 				sendErrorMessage(user._fd, OP_ERR_M, ERR_CHANOPRIVSNEEDED);
+				return ;
+			}
 			else
 			{
-				this->users.erase(it);
+				send(it_s->_fd, "You have been kicked from the channel\n", strlen("You have been kicked from the channel\n"), 0);
+				this->users.erase(it_s);
 				// send(user._fd, message.c_str(), strlen(message.c_str()), 0); // message to user about kicking
-				std::cout << "Reason for Kicking User: " << reason << std::endl;
-				std::cout << "User " << user << " kicked from channel" << std::endl;
+				if (reason != "")
+					std::cout << "Reason for Kicking User: " << reason << std::endl;
+				std::cout << "User " << user_kick << " kicked from channel" << std::endl;
 				return ;
 			}
 		}
