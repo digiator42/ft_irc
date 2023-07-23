@@ -71,8 +71,7 @@ void Server::run(void) {
             // accept new connection
             acceptConnection();
             for(std::vector<int>::iterator it = _fds.begin(); it != _fds.end(); ++it) {
-                if (*it != 0)
-                    std::cout << "vector fds: " << *it << std::endl;
+                std::cout << "vector fds: " << *it << std::endl;
             }
             for(std::vector<User>::iterator it = _users.begin(); it != _users.end(); ++it) {
                 std::cout << "User FD: " << (*it)._fd << " User ID: " << (*it)._id << std::endl;
@@ -112,24 +111,11 @@ void Server::handleClientMessages() {
                      ", port " << ntohs(Server::address.sin_port) << RESET << std::endl;
                 FD_CLR(Server::sd, &Server::readfds);
                 close(Server::sd);
-                // remove from fd set
-                for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it) {
-                    if (*it == Server::sd) {
 
-                        std::cout << "RECV:: Erased FD : " << Server::sd << std::endl;
-                        Server::_fds.erase(it);
-                        --it;
-                    }
-                }
-                // remove from users
-                for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
-                    if (it->_fd == Server::sd) {
-                        std::cout << "RECV:: Erased user FD : " << it->_fd << std::endl;
-                        // std::vector<User>::iterator it2 = std::find(Server::_users.begin(), Server::_users.end(), *it);
-                        Server::_users.erase(it);
-                        --it;
-                    }
-                }
+                Server::_fds.erase(std::find(Server::_fds.begin(), Server::_fds.end(), Server::sd));
+                Server::_users.erase(std::find(Server::_users.begin(), Server::_users.end(), *Utils::find(Server::sd)));
+                Server::showUsers();
+
             } else {
                 // std::cout << "RD: ---> " << Server::valread << std::endl;
                 Server::valread < BUFFER_SIZE ? Server::buffer[Server::valread] = '\0' : Server::buffer[BUFFER_SIZE - 1] = '\0';
