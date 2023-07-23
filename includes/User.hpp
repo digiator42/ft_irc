@@ -8,6 +8,7 @@
 #include <string>
 #include <cstring>
 #include "Command.hpp"
+#include "Utils.hpp"
 
 #define JOIN "JOIN"
 #define KICK "KICK"
@@ -34,6 +35,9 @@
 #define ERR_ALREADYREGISTRED "462"
 # define ERR_UNKNOWNMODE "472"
 # define ERR_CHANOPRIVSNEEDED "482"
+# define ERR_INVITEONLYCHAN "473"
+# define ERR_BADCHANNELKEY "475"
+# define ERR_USERONCHANNEL "443"
 /*
 # define ERR_NOSUCHSERVER "402"
 # define ERR_TOOMANYCHANNELS "405"
@@ -46,13 +50,10 @@
 # define ERR_NICKCOLLISION "436"
 # define ERR_USERNOTINCHANNEL "441"
 # define ERR_NOTONCHANNEL "442"
-# define ERR_USERONCHANNEL "443"
 # define ERR_NEEDMOREPARAMS "461"
 # define ERR_ALREADYREGISTERED "462"
 # define ERR_PASSWDMISMATCH "464"
 # define ERR_CHANNELISFULL "471"
-# define ERR_INVITEONLYCHAN "473"
-# define ERR_BADCHANNELKEY "475"
 # define ERR_BADCHANMASK "476"
 # define ERR_NOPRIVILEGES "481" 
 # define ERR_NOOPERHOST "491"
@@ -109,8 +110,6 @@ class User {
 };
 
 std::ostream& operator<<(std::ostream& out, const User& User);
-std::vector<std::string> split(std::string str);
-std::string trim(std::string &str);
 void sendErrorMessage(int fd, const std::string& message, const std::string& key);
 void handleJoinCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
 void handleKickCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);

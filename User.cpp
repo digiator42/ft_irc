@@ -24,7 +24,7 @@ void User::whoAmI(User &user)
 {
 	std::cout << CYAN << user << RESET <<std::endl;
 	std::string userDetails = "UserName: [" + user.userName + "]" + ", Nick: " + "[" + user.nickName + "]" + ", Auth: " 
-			+ "[" + (user.isAuth ? "YES" : "NO") + "]" + ", [fd: " + std::to_string(user._fd) +  "]" + ".\n";
+			+ "[" + (user.isAuth ? "YES" : "NO") + "]" + ", [fd: " + Utils::to_string(user._fd) +  "]" + ".\n";
 	send(user._fd, (YELLOW + userDetails + RESET).c_str(), userDetails.length() + strlen(YELLOW) + strlen(RESET) , 0);
     
 }
@@ -51,7 +51,7 @@ void closeMe(User &user)
     for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it) 
 	{
         if (*it == Server::sd){
-            std::cout << "found -->" << *it << std::endl;
+            std::cout << "closeME found -->" << *it << std::endl;
             Server::_fds.erase(it);
             --it;
 		}
@@ -60,7 +60,7 @@ void closeMe(User &user)
     for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
 	{
         if (it->_fd == Server::sd) {
-            std::cout << "id -->" << it->_fd << std::endl;
+            std::cout << "closeME id -->" << it->_fd << std::endl;
             Server::_users.erase(it);
             --it;
         }
@@ -165,7 +165,7 @@ void User::execute(std::string cmd, User *user)
 {
 	std::string levels[3] = {"whoami", "show clients", "show users"};
 	void (User::*f[3])(User &user) = { &User::whoAmI, &User::showClients, &User::showUsers};
-	std::vector<std::string> splitmsg = split(cmd);
+	std::vector<std::string> splitmsg = Utils::split(cmd);
 
 	if (splitmsg.size() > 1 && splitmsg[0] == "CAP" && splitmsg[1] == "END")
 	{
@@ -215,6 +215,12 @@ void User::execute(std::string cmd, User *user)
 	}
 	user_options(user, splitmsg);
 	user_cmds(user, splitmsg);
+
+	for (int i = 0; i < 3; i++)
+	{
+		cmd = Utils::trim(cmd);	
+		cmd == levels[i] ? (this->*f[i])(*user) : (void)0;
+	}
 
 	return ;
 }

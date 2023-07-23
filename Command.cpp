@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 22:38:24 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/22 23:39:34 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/23 16:33:33 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,18 +82,28 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 						return ;
 					}
 				}
-				if (it_k != key_split.end() && *it_k != "")
+				if (it_k != key_split.end())
 				{
-					if (*it_k == it->getPass())
+					if (it->isMode('k') == 1)
 					{
-						if (it->isMode('i') == 1)
+						if (*it_k == it->getPass())
 						{
-							if (it->isInvited(user))
+							if (it->isMode('i') == 1)
+							{
+								if (it->isInvited(user))
+									it->addUser(user);
+								else
+									sendErrorMessage(user._fd, (channel_s + NO_INV_M), ERR_INVITEONLYCHAN);
+							}
+							else
 								it->addUser(user);
 						}
 						else
-							it->addUser(user);
+						sendErrorMessage(user._fd, (channel_s + NO_KEY_M), ERR_BADCHANNELKEY);
 					}
+					else
+						sendErrorMessage(user._fd, "Key Not required to join channel\n", ERR_BADCHANNELKEY);
+						
 					it_k++;
 				}
 				else
@@ -101,7 +111,14 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 					if (it->isMode('i') == 1)
 					{
 						if (it->isInvited(user))
-							it->addUser(user);
+						{
+							if (it->isMode('k') == 1)
+								sendErrorMessage(user._fd, (channel_s + NO_KEY_M), ERR_BADCHANNELKEY);
+							else
+								it->addUser(user);
+						}
+						else
+							sendErrorMessage(user._fd, (channel_s + NO_INV_M), ERR_INVITEONLYCHAN);
 					}
 					else
 						it->addUser(user);
@@ -167,9 +184,14 @@ void Command::invite(std::string user, std::string channel, User user_o)
 				sendErrorMessage(user_o._fd, OP_ERR_M, ERR_CHANOPRIVSNEEDED);
 			else
 			{
-				message = "You're invited to the Channel " + channel + " \n";
-				send(it_s->_fd, message.c_str(), strlen(message.c_str()), 0);
-				it_c->invites.push_back(*it_s);
+				if (it_c->isUser(*it_s))
+					sendErrorMessage(user_o._fd, (user + " " + channel + YES_USR_M), ERR_USERONCHANNEL);
+				else
+				{
+					message = "You're invited to the Channel " + channel + " \n";
+					send(it_s->_fd, message.c_str(), strlen(message.c_str()), 0);
+					it_c->invites.push_back(*it_s);
+				}
 			}
 			
 		}
@@ -276,7 +298,7 @@ void Command::privmsg(std::string reciever, std::string message, User user)
 		sendErrorMessage(user._fd, (reciever + NO_USR_M + " or channel."), ERR_NOSUCHNICK);
 }
 
-void Command::mode(std::string channel, std::string mode, User user)
+void Command::mode(std::string channel, std::string mode, User user, std::string key)
 {
 	if (mode.size() != 2 && (mode[0] != '+' && mode[0] != '-'))
 	{
@@ -299,7 +321,12 @@ void Command::mode(std::string channel, std::string mode, User user)
 			if (it_c->isMode(mode[1]) == 2)
 				sendErrorMessage(user._fd, (mode + MODE_ERR_M), ERR_UNKNOWNMODE);
 			else
-				it_c->setMode(mode[1], mode[0]);
+			{
+				if (mode == "+k" && key == "")
+					sendErrorMessage(user._fd, "Key for Channel not provided\n", TOO_MANY_ARGS);
+				else
+					it_c->setMode(mode[1], mode[0], key);
+			}
 		}
 		else
 			sendErrorMessage(user._fd, OP_ERR_M, ERR_CHANOPRIVSNEEDED);

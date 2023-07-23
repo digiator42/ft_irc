@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 21:31:55 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/20 23:04:59 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/23 16:34:24 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ class Command{
 		// PRIVMSG
 		void privmsg(std::string reciever, std::string message, User user);
 		// MODE
-		void mode(std::string channel, std::string mode, User user);
+		void mode(std::string channel, std::string mode, User user, std::string key);
 
 		std::vector<std::string> ft_split(std::string str, char delimiter);
 };
