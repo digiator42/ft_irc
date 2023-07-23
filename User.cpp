@@ -182,6 +182,7 @@ void User::execute(std::string cmd, User *user)
 				":irc 002 user :Host are none\n"
 				":irc 003 user :Created\n";
 		send(user->_fd, msg, strlen(msg), 0);
+		return ;
 	}
 	else if (splitmsg.size() > 0 && (splitmsg.at(0) == "CAP" || splitmsg.at(0) == JOIN))
 	{
@@ -210,7 +211,7 @@ void User::execute(std::string cmd, User *user)
 		{
 			std::string S = ERR_NOTREGISTERED;
 			S.append(" You have not registered\n");
-			std::cout << "->>>>>>>>>" << Server::_cmd.size() << std::endl;
+			std::cout << "->>>>>>>>>" << splitmsg.size() << std::endl;
 			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
 		}
 		closeMe(*user);
