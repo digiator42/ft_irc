@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 21:50:36 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/22 23:22:25 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/23 16:31:18 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ void Channel::setPass(std::string str)
 	pass = str;
 }
 
-void Channel::setMode(char m, char sign)
+void Channel::setMode(char m, char sign, std::string key)
 {
 	std::map<char, int>::iterator it;
 	for (it = this->mode.begin(); it != this->mode.end(); it++)
@@ -92,15 +92,18 @@ void Channel::setMode(char m, char sign)
 		if (it->first == m)
 		{
 			if (sign == '+')
+			{
+				if (m == 'k')
+					this->pass = key;
 				it->second = 1;
+			}
 			else
+			{
+				if (m == 'k')
+					this->pass = "";
 				it->second = 0;
+			}
 		}
-	}
-	if (it == this->mode.end())
-	{
-		// error message // send to the user/ operator??
-		
 	}
 }
 

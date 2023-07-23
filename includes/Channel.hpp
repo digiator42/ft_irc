@@ -6,7 +6,7 @@
 /*   By: arafeeq <arafeeq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 21:29:02 by arafeeq           #+#    #+#             */
-/*   Updated: 2023/07/22 23:29:06 by arafeeq          ###   ########.fr       */
+/*   Updated: 2023/07/23 16:33:50 by arafeeq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,10 @@
 # define NO_USR_M " :No such nickname\n"
 # define NO_CHAN_M " :No such channel.\n"
 # define MODE_ERR_M " :is unknown mode char to me.\n"
-# define NOT_CHAN_USR " ::Cannot send to channel.\n"
+# define NOT_CHAN_USR " :Cannot send to channel.\n"
+# define NO_KEY_M " :Cannot join channel (+k).\n"
+# define NO_INV_M " :Cannot join channel (+i).\n"
+# define YES_USR_M " :is already on channel\n"
 
 class User;
 
@@ -64,7 +67,7 @@ class Channel{
 	void setMaxUsers(int num); 
 	void setTopic(std::string str);
 	void setPass(std::string str);
-	void setMode(char m, char sign);
+	void setMode(char m, char sign, std::string key);
 	
 	// MEMBER FUNCTIONS
 	void addUser(User new_user);
