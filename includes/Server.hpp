@@ -28,7 +28,7 @@
 #define RESET "\033[0m"
 
 const int MAX_CLIENTS = FD_SETSIZE;
-const int BUFFER_SIZE = MAX_BUFFER + 1; // max terminal buffer 1024
+const int BUFFER_SIZE = MAX_BUFFER; // max terminal buffer 1024
 
 class User;
 class Channel;
@@ -49,9 +49,8 @@ public:
 	static int newSocket;
 	static int curIndex;
 	static int addrlen;
-	static int clientSockets[MAX_CLIENTS];
 	static struct sockaddr_in address;
-	static char buffer[BUFFER_SIZE];
+	static char buffer[MAX_BUFFER];
 	static std::string bufferStr;
 	static fd_set readfds;
 	static std::vector<std::string> _cmd;

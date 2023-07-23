@@ -24,7 +24,7 @@ void User::whoAmI(User &user)
 {
 	std::cout << CYAN << user << RESET <<std::endl;
 	std::string userDetails = "UserName: [" + user.userName + "]" + ", Nick: " + "[" + user.nickName + "]" + ", Auth: " 
-			+ "[" + (user.isAuth ? "YES" : "NO") + "]" + ", [fd: " +  std::to_string(user._fd) + "]" + ".\n";
+			+ "[" + (user.isAuth ? "YES" : "NO") + "]" + ", [fd: " + std::to_string(user._fd) +  "]" + ".\n";
 	send(user._fd, (YELLOW + userDetails + RESET).c_str(), userDetails.length() + strlen(YELLOW) + strlen(RESET) , 0);
     
 }
@@ -33,7 +33,7 @@ void User::showClients(User &user)
 {
 	(void)user;
 	for (int i = 0; i < Server::max_sd; i++)
-	std::cout << "client " << Server::clientSockets[i] << " " << std::endl;
+	std::cout << "client " << Server::_fds.at(i) << " " << std::endl;
 }
 
 void User::showUsers(User &user)
@@ -44,21 +44,17 @@ void User::showUsers(User &user)
 
 void closeMe(User &user)
 {
-	std::cout << YELLOW << user.input << RESET << std::endl;
+	std::cout << YELLOW << user.input << RESET;
 	std::cout << RED << "User " << user._fd << " closed" << RESET << std::endl;
 	close(user._fd);
-	for (int i = 0; i < MAX_CLIENTS; i++)
-	{
-		if (Server::clientSockets[i] == user._fd)
-			Server::clientSockets[i] = 0;
-	}
 	    
     for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it) 
 	{
-        if (*it == Server::sd) 
+        if (*it == Server::sd){
             std::cout << "found -->" << *it << std::endl;
             Server::_fds.erase(it);
             --it;
+		}
     }
 	
     for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
