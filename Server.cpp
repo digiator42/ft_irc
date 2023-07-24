@@ -40,8 +40,8 @@ void Server::run( void ) {
     int i = 0;
     
     for ( ;; ) {
-        FD_ZERO( &Server::readfds ); // clears a file descriptor set
-        FD_SET( Server::serverSocket, &Server::readfds ); // adds fd to the set
+        FD_ZERO( &Server::readfds );
+        FD_SET( Server::serverSocket, &Server::readfds );
         Server::max_sd = serverSocket;
 
         for ( i = 0; i < static_cast<int>(Server::_fds.size()); i++ ) {
