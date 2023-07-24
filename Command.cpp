@@ -109,7 +109,6 @@ std::vector<User>::iterator Command::user_exist(std::string nick)
 
 void Command::join(std::string channel_s, std::string key_s, User user)
 {
-	//  ------  have to put conditions for invite only channel -------
 	std::vector<std::string> channel_split = ft_split(channel_s, ',');
 	std::vector<std::string> key_split = ft_split(key_s, ',');
 	std::vector<Channel>::iterator it;
@@ -120,66 +119,56 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 	// check if channel exists
 	for (it_s = channel_split.begin(); it_s != channel_split.end(); it_s++)
 	{
-		for (it = Server::_channels.begin(); it != Server::_channels.end(); it++)
+		it = chan_exist(*it_s);
+		if (it != Server::_channels.end())
 		{
-			if (*it_s == it->getName())
+			if (it->isUser(user))
 			{
-				// check if user exists already
-				std::vector<User> temp_users = it->getUsers();
-				for (it_u = temp_users.begin(); it_u != temp_users.end(); it_u++)
+				sendErrorMessage(user._fd, (user.nickName + " " + it->getName() + YES_USR_M), ERR_USERONCHANNEL);
+				return ;
+			}
+			if (it_k != key_split.end() && key_s != "")
+			{
+				if (it->isMode('k') == 1)
 				{
-					if (it_u->nickName == user.nickName)
+					if (*it_k == it->getPass())
 					{
-						// should send tho the client or server??
-						std::cout << RED_LIGHT << "Error: User already exists in the channel" << RESET << std::endl;
-						return ;
-					}
-				}
-				if (it_k != key_split.end() && key_s != "")
-				{
-					if (it->isMode('k') == 1)
-					{
-						if (*it_k == it->getPass())
+						if (it->isMode('i') == 1)
 						{
-							if (it->isMode('i') == 1)
-							{
-								if (it->isInvited(user))
-									it->addUser(user);
-								else
-									sendErrorMessage(user._fd, (channel_s + NO_INV_M), ERR_INVITEONLYCHAN);
-							}
-							else
+							if (it->isInvited(user))
 								it->addUser(user);
+							else
+								sendErrorMessage(user._fd, (channel_s + NO_INV_M), ERR_INVITEONLYCHAN);
 						}
 						else
-						sendErrorMessage(user._fd, (channel_s + NO_KEY_M), ERR_BADCHANNELKEY);
+							it->addUser(user);
 					}
 					else
-						sendErrorMessage(user._fd, "Key Not required to join channel\n", ERR_BADCHANNELKEY);
-					it_k++;
+					sendErrorMessage(user._fd, (channel_s + NO_KEY_M), ERR_BADCHANNELKEY);
 				}
 				else
+					sendErrorMessage(user._fd, "Key Not required to join channel\n", ERR_BADCHANNELKEY);
+				it_k++;
+			}
+			else
+			{
+				if (it->isMode('i') == 1)
 				{
-					if (it->isMode('i') == 1)
+					if (it->isInvited(user))
 					{
-						if (it->isInvited(user))
-						{
-							if (it->isMode('k') == 1)
-								sendErrorMessage(user._fd, (channel_s + NO_KEY_M), ERR_BADCHANNELKEY);
-							else
-								it->addUser(user);
-						}
+						if (it->isMode('k') == 1)
+							sendErrorMessage(user._fd, (channel_s + NO_KEY_M), ERR_BADCHANNELKEY);
 						else
-							sendErrorMessage(user._fd, (channel_s + NO_INV_M), ERR_INVITEONLYCHAN);
+							it->addUser(user);
 					}
 					else
-						it->addUser(user);
+						sendErrorMessage(user._fd, (channel_s + NO_INV_M), ERR_INVITEONLYCHAN);
 				}
-				break ;
+				else
+					it->addUser(user);
 			}
 		}
-		// if channel doesnot exist
-		if (it == Server::_channels.end())
+		else
 		{
 			if (it_k != key_split.end())
 			{
@@ -290,40 +279,41 @@ void Command::topic(std::string channel, std::string topic, User user)
 
 void Command::privmsg(std::string reciever, std::string message, User user)
 {
+	std::vector<std::string> reciever_split = ft_split(reciever, ',');
 	std::vector<Channel>::iterator it_c;
 	std::vector<User>::iterator it_u;
+	std::vector<std::string>::iterator it_s;
 
-	it_u = user_exist(reciever);
-	if (it_u == Server::_users.end())
+	for (it_s = reciever_split.begin(); it_s != reciever_split.end(); it_s++)
 	{
-		it_c = chan_exist(reciever);
-		if (it_c != Server::_channels.end())
+		std::cout << "reciever = " << *it_s << std::endl;
+		it_u = user_exist(*it_s);
+		if (it_u == Server::_users.end())
 		{
-			if (it_c->isUser(user))
+			it_c = chan_exist(reciever);
+			if (it_c != Server::_channels.end())
 			{
-				std::vector<User> temp_users = it_c->getUsers();
-				for(std::vector<User>::iterator it = temp_users.begin(); it != temp_users.end(); ++it)
+				if (it_c->isUser(user))
 				{
-					if(it->_fd == user._fd)
-					send((*it)._fd, (message + "\n").c_str(), strlen((message + "\n").c_str()), 0);
+					std::vector<User> temp_users = it_c->getUsers();
+					for(std::vector<User>::iterator it = temp_users.begin(); it != temp_users.end(); ++it)
+						if(it->_fd != user._fd)
+							send((*it)._fd, (message + "\n").c_str(), strlen((message + "\n").c_str()), 0);
 				}
+				else
+					sendErrorMessage(user._fd, (it_c->getName() + NOT_CHAN_USR), ERR_CANNOTSENDTOCHAN);
 			}
-			else
-				sendErrorMessage(user._fd, (it_c->getName() + NOT_CHAN_USR), ERR_CANNOTSENDTOCHAN);
 		}
-	}
-	else // the receiver and the message
-	{
-		// any message to server??
-		if(user._fd == it_u->_fd)
+		else
 		{
-			send(it_u->_fd, "can't send message to same user\n", strlen("can't send message to same user\n"), 0);
-			return ;
+			if(user._fd == it_u->_fd)
+				send(it_u->_fd, "can't send message to same user\n", strlen("can't send message to same user\n"), 0);
+			else
+				send(it_u->_fd, (message + "\n").c_str(), strlen((message + "\n").c_str()), 0);
 		}
-		send(it_u->_fd, (message + "\n").c_str(), strlen((message + "\n").c_str()), 0);
+		if (it_u == Server::_users.end() && it_c == Server::_channels.end())
+			sendErrorMessage(user._fd, (*it_s + " :No such nickname" + " or channel.\n"), ERR_NOSUCHNICK);
 	}
-	if (it_u == Server::_users.end() && it_c == Server::_channels.end())
-		sendErrorMessage(user._fd, (reciever + ":No such nickname" + " or channel."), ERR_NOSUCHNICK);
 }
 
 void Command::mode(std::string channel, std::string mode, User user, std::string arg)

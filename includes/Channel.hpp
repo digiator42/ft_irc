@@ -77,6 +77,7 @@ class Channel{
 // USER azra NICK azra PASS 4
 // USER nouf NICK nouf PASS 4
 // USER aisha NICK aisha PASS 4
+// USER aysha NICK aysha PASS 4
 // USER nijah NICK nijah PASS 4
 
 # endif
