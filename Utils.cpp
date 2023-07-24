@@ -88,13 +88,13 @@ void handleKickCommand(const std::vector<std::string>& splitmsg, Command& cmd, U
 
 void handlePrivMsgCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user) {
 	if (splitmsg.size() == 3) {
-		cmd.privmsg(splitmsg.at(1), splitmsg.at(2), *user);
+		cmd.privmsg(splitmsg.at(1), splitmsg.at(2), *user); // second argument will be the split message for mutiple words
 	} else if (splitmsg.size() == 2) {
-		sendErrorMessage(user->_fd, "PRIVMSG command requires 3 arguments\n", PRIVMSG_EMPTY);
+		sendErrorMessage(user->_fd, "PRIVMSG command requires atleast 3 arguments\n", PRIVMSG_EMPTY);
 	} else if(splitmsg.size() == 1) {
-		sendErrorMessage(user->_fd, "PRIVMSG command requires 3 arguments\n", ERR_NOSUCHNICK);
+		sendErrorMessage(user->_fd, "PRIVMSG command requires atleast 3 arguments\n", ERR_NOSUCHNICK);
 	} else {
-		sendErrorMessage(user->_fd, "PRIVMSG command requires 3 arguments\n", TOO_MANY_ARGS);
+		sendErrorMessage(user->_fd, "PRIVMSG command requires atleast 3 arguments\n", TOO_MANY_ARGS);
 	}
 }
 

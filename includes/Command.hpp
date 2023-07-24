@@ -11,10 +11,6 @@ class Channel;
 
 class Command{
 	private:
-		User *sender; // the one who sent the command // can change to reference in the future
-		int arg_amt;
-		std::string command;
-		std::vector<std::string> args;
 		std::string message;
 		std::vector<Channel>::iterator chan_it;
 		std::vector<User>::iterator user_it;
@@ -24,17 +20,6 @@ class Command{
 		//assignent operator overlaod
 		~Command(void);
 
-	// - GETTERS -
-		User* getSender(void);
-		int getArgAmt(void);
-		std::string getCommand(void);
-		std::vector<std::string> getArgs(void);
-	// - SETTERS -
-		void setSender(User* s);
-		void setArgAmt(int a);
-		void setCommand(std::string c);
-		void setArgs(std::vector<std::string> ar);
-		
 		// - MEMEBER FUNCTIONS - 
 		// JOIN
 		void join(std::string channel_s, std::string key_s, User user); // probably references of these
