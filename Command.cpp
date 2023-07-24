@@ -119,71 +119,76 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 	// check if channel exists
 	for (it_s = channel_split.begin(); it_s != channel_split.end(); it_s++)
 	{
-		it = chan_exist(*it_s);
-		if (it != Server::_channels.end())
-		{
-			if (it->isUser(user))
-			{
-				sendErrorMessage(user._fd, (user.nickName + " " + it->getName() + YES_USR_M), ERR_USERONCHANNEL);
-				return ;
-			}
-			if (it_k != key_split.end() && key_s != "")
-			{
-				if (it->isMode('k') == 1)
-				{
-					if (*it_k == it->getPass())
-					{
-						if (it->isMode('i') == 1)
-						{
-							if (it->isInvited(user))
-								it->addUser(user);
-							else
-								sendErrorMessage(user._fd, (channel_s + NO_INV_M), ERR_INVITEONLYCHAN);
-						}
-						else
-							it->addUser(user);
-					}
-					else
-					sendErrorMessage(user._fd, (channel_s + NO_KEY_M), ERR_BADCHANNELKEY);
-				}
-				else
-					sendErrorMessage(user._fd, "Key Not required to join channel\n", ERR_BADCHANNELKEY);
-				it_k++;
-			}
-			else
-			{
-				if (it->isMode('i') == 1)
-				{
-					if (it->isInvited(user))
-					{
-						if (it->isMode('k') == 1)
-							sendErrorMessage(user._fd, (channel_s + NO_KEY_M), ERR_BADCHANNELKEY);
-						else
-							it->addUser(user);
-					}
-					else
-						sendErrorMessage(user._fd, (channel_s + NO_INV_M), ERR_INVITEONLYCHAN);
-				}
-				else
-					it->addUser(user);
-			}
-		}
+		if (it_s->at(0) != '#' && it_s->at(0) != '&')
+			send(user._fd, INVALID_CHAN, strlen(INVALID_CHAN), 0);
 		else
 		{
-			if (it_k != key_split.end())
+			it = chan_exist(*it_s);
+			if (it != Server::_channels.end())
 			{
-				Channel new_channel(*it_s, *it_k);
-				new_channel.addUser(user);
-				Server::_channels.push_back(new_channel);
-				it_k++;
+				if (it->isUser(user))
+				{
+					sendErrorMessage(user._fd, (user.nickName + " " + it->getName() + YES_USR_M), ERR_USERONCHANNEL);
+					return ;
+				}
+				if (it_k != key_split.end() && key_s != "")
+				{
+					if (it->isMode('k') == 1)
+					{
+						if (*it_k == it->getPass())
+						{
+							if (it->isMode('i') == 1)
+							{
+								if (it->isInvited(user))
+									it->addUser(user);
+								else
+									sendErrorMessage(user._fd, (channel_s + NO_INV_M), ERR_INVITEONLYCHAN);
+							}
+							else
+								it->addUser(user);
+						}
+						else
+						sendErrorMessage(user._fd, (channel_s + NO_KEY_M), ERR_BADCHANNELKEY);
+					}
+					else
+						sendErrorMessage(user._fd, "Key Not required to join channel\n", ERR_BADCHANNELKEY);
+					it_k++;
+				}
+				else
+				{
+					if (it->isMode('i') == 1)
+					{
+						if (it->isInvited(user))
+						{
+							if (it->isMode('k') == 1)
+								sendErrorMessage(user._fd, (channel_s + NO_KEY_M), ERR_BADCHANNELKEY);
+							else
+								it->addUser(user);
+						}
+						else
+							sendErrorMessage(user._fd, (channel_s + NO_INV_M), ERR_INVITEONLYCHAN);
+					}
+					else
+						it->addUser(user);
+				}
 			}
 			else
 			{
-				Channel new_channel(*it_s, "");
-				new_channel.addUser(user);
-				Server::_channels.push_back(new_channel);
+				if (it_k != key_split.end())
+				{
+					Channel new_channel(*it_s, *it_k);
+					new_channel.addUser(user);
+					Server::_channels.push_back(new_channel);
+					it_k++;
+				}
+				else
+				{
+					Channel new_channel(*it_s, "");
+					new_channel.addUser(user);
+					Server::_channels.push_back(new_channel);
+				}
+				std::cout << "Channel " << *it_s << " created!" << std::endl;
 			}
-			std::cout << "Channel " << *it_s << " created!" << std::endl;
 		}
 	}
 }
