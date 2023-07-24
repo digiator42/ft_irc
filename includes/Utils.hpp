@@ -15,7 +15,7 @@ namespace Utils {
 	std::string trim(std::string &str);
 	void signalHandler(int signum);
 	void closeThis(User &user);
-	User *find(int fd);
+	User &find(int fd);
 }
 
 #endif

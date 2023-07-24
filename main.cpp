@@ -16,6 +16,9 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
+	signal( SIGINT, Utils::signalHandler );
+    signal( SIGQUIT, Utils::signalHandler );
+	
 	try
 	{
 		Server::_port = port_num;

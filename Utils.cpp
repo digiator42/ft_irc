@@ -4,14 +4,14 @@
 #include "includes/Server.hpp"
 #include "includes/Command.hpp"
 
-User *Utils::find(int fd) {
+User &Utils::find(int fd) {
 	for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
         if (it->_fd == fd) {
-            std::cout << "find:: user FD : " << it->_fd << std::endl;
-			return &(*it);
+            std::cout << "Utils::find:: u=User FD : " << it->_fd << std::endl;
+			return *it;
         }
     }
-	return NULL;
+	throw Server::ServerException("Utils::find: User not found");
 }
 
 void Utils::signalHandler(int signum) {

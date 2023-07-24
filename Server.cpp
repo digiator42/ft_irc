@@ -1,74 +1,68 @@
 #include "./includes/Server.hpp"
 
-Server::Server() {}
-Server::~Server() {}
-
+/**
+ * @brief Construct a new Server:: , Create the server socket, Set socket options
+ * Prepare the sockaddr_in structure, Bind the server socket, Listen for incoming connections
+ */
 void Server::openSocket() {
-	// Create the server socket
-    if ((Server::serverSocket = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-        throw ServerException("Failed to create socket");
+    if ( (Server::serverSocket = socket( AF_INET, SOCK_STREAM, 0) ) == 0 ) {
+        throw ServerException( "Failed to create socket" );
     }
 
-    // Set socket options
     int opt = 1;
-    if (setsockopt(Server::serverSocket, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0) {
-        throw ServerException("setsockopt failed");
+    if ( setsockopt(Server::serverSocket, SOL_SOCKET, SO_REUSEADDR, ( char * )&opt, sizeof( opt )) < 0 ) {
+        throw ServerException( "setsockopt failed" );
     }
-    // Prepare the sockaddr_in structure
+
     Server::address.sin_family = AF_INET;
     Server::address.sin_addr.s_addr = INADDR_ANY;
     Server::address.sin_port = htons(_port);
 
-    // Bind the server socket
-    if (bind(Server::serverSocket, (struct sockaddr *)&Server::address, sizeof(Server::address)) < 0) {
-        throw ServerException("Bind failed");
+    if ( bind(Server::serverSocket, ( struct sockaddr * )&Server::address, sizeof( Server::address )) < 0 ) {
+        throw ServerException( "Bind failed" );
     }
 
-    // Listen for incoming connections
-    if (listen(Server::serverSocket, MAX_CLIENTS) < 0) {
-        throw ServerException("Listen failed");
+    if ( listen(Server::serverSocket, MAX_CLIENTS) < 0 ) {
+        throw ServerException( "Listen failed" );
     }
 
-    // Accept incoming connections
-    addrlen = sizeof(Server::address);
-    std::cout << "IRC Server started on port " << Server::_port << std::endl;
+    addrlen = sizeof( Server::address );
+    std::cout << GREEN << "IRC Server started on port " << RESET << Server::_port << std::endl;
     std::cout << "Waiting for incoming connections..." << std::endl;
 }
 
-void Server::run(void) {
+/**
+ * @brief Add client sockets to the set, Wait for activity on any of the sockets
+ * If activity on the server socket, it's a new connection
+ */
+void Server::run( void ) {
 
-    signal(SIGINT, Utils::signalHandler);
-    signal(SIGQUIT, Utils::signalHandler);
-    long unsigned int i = 0;
+    int i = 0;
     
-    for (;;) {
-        FD_ZERO(&Server::readfds); // clears a file descriptor set
-        FD_SET(Server::serverSocket, &Server::readfds); // adds fd to the set
+    for ( ;; ) {
+        FD_ZERO( &Server::readfds ); // clears a file descriptor set
+        FD_SET( Server::serverSocket, &Server::readfds ); // adds fd to the set
         Server::max_sd = serverSocket;
 
-        // Add client sockets to the set
-        for (i = 0; i < Server::_fds.size(); i++) {
+        for ( i = 0; i < static_cast<int>(Server::_fds.size()); i++ ) {
         
             Server::sd = Server::_fds.at(i);
             Server::sd >= MAX_CLIENTS - 1 ? 
-                throw ServerException("Max clients reached") :
+                throw ServerException( "Max clients reached" ) :
             Server::_fds.at(i) > 0 ? 
-                FD_SET(Server::sd, &Server::readfds) : 
-            (void)0;
+                FD_SET( Server::sd, &Server::readfds ) : 
+            ( void )0;
 
-            if (Server::sd > Server::max_sd)
+            if ( Server::sd > Server::max_sd )
                 Server::max_sd = Server::sd;
         }
 
-        
-        // Wait for activity on any of the sockets
-        int activity = select(Server::max_sd + 1, &Server::readfds, NULL, NULL, NULL);
-        if ((activity < 0) && (errno != EINTR)) {
-            throw ServerException("Select error");
+        int activity = select( Server::max_sd + 1, &Server::readfds, NULL, NULL, NULL );
+        if ( ( activity < 0 ) && ( errno != EINTR ) ) {
+            throw ServerException( "Select error" );
         }
-        // If activity on the server socket, it's a new connection
-        if (FD_ISSET(Server::serverSocket, &Server::readfds)) { // returns true if fd is in the set
-            // accept new connection
+
+        if ( FD_ISSET( Server::serverSocket, &Server::readfds ) ) {
             acceptConnection();
             for(std::vector<int>::iterator it = _fds.begin(); it != _fds.end(); ++it) {
                 std::cout << "vector fds: " << *it << std::endl;
@@ -77,59 +71,67 @@ void Server::run(void) {
                 std::cout << "User FD: " << (*it)._fd << " User ID: " << (*it)._id << std::endl;
             }
         }
-        handleClientMessages(); // handle client messages
+        handleClientMessages();
     }
 }
 
-// accept new connection
+/**
+ * @brief Accept new connection
+ * Set the new client socket to non-blocking mode using fcntl
+ */
 void Server::acceptConnection() {
-    if ((Server::newSocket = accept(Server::serverSocket, (struct sockaddr *)&Server::address, (socklen_t *)&Server::addrlen)) < 0) { 
-        throw ServerException("Accept failed");
+    if ( ( Server::newSocket = accept( Server::serverSocket, ( struct sockaddr * )&Server::address, ( socklen_t * )&Server::addrlen ) ) < 0 ) { 
+        throw ServerException( "Accept failed" );
     }
-    Server::_fds.push_back(Server::newSocket);
-    Server::_users.push_back(User(Server::newSocket, Server::newSocket - serverSocket));
+
+    Server::_fds.push_back( Server::newSocket );
+    Server::_users.push_back( User( Server::newSocket, Server::newSocket - serverSocket ) );
     std::cout << GREEN << "New connection, socket fd is " << Server::newSocket << ", IP is : " << inet_ntoa(Server::address.sin_addr) << 
         ", port : " << ntohs(Server::address.sin_port) << RESET << std::endl;
 
-    // Set the new client socket to non-blocking mode using fcntl
     // flags = fcntl(newSocket, F_GETFL, 0);
-    if (fcntl(Server::newSocket, F_SETFL, O_NONBLOCK) < 0) { // zero on success, -1 on error
-        throw ServerException("Failed to set client socket to non-blocking mode");
+    if ( fcntl( Server::newSocket, F_SETFL, O_NONBLOCK ) < 0 ) {
+        throw ServerException( "Failed to set client socket to non-blocking mode" );
     }
 }
 
-// handle client messages
+/**
+ * @brief handle client messages, check if the client fd in fd_set
+ * if it is, read the message and execute it
+ * if not, remove the client from the vector and close the socket 
+ */
 void Server::handleClientMessages() {
 
-    long unsigned int i = 0;
-    for (i = 0; i < Server::_fds.size(); i++) {
+    int i = 0;
+    for ( i = 0; i < static_cast<int>( Server::_fds.size() ); i++ ) {
         Server::sd = Server::_fds.at(i);
-        if (FD_ISSET(Server::sd, &Server::readfds)) {
+
+        if ( FD_ISSET(Server::sd, &Server::readfds) ) {
 		
-            if ((Server::valread = recv(Server::sd, Server::buffer, BUFFER_SIZE, 0)) <= 0) {
+            if ( (Server::valread = recv(Server::sd, Server::buffer, BUFFER_SIZE, 0)) <= 0 ) {
+
                 std::cout << RED << "Host disconnected, IP " << inet_ntoa(Server::address.sin_addr) <<
                      ", port " << ntohs(Server::address.sin_port) << RESET << std::endl;
                 FD_CLR(Server::sd, &Server::readfds);
                 close(Server::sd);
 
                 Server::_fds.erase(std::find(Server::_fds.begin(), Server::_fds.end(), Server::sd));
-                Server::_users.erase(std::find(Server::_users.begin(), Server::_users.end(), *Utils::find(Server::sd)));
+                Server::_users.erase(std::find(Server::_users.begin(), Server::_users.end(), Utils::find(Server::sd)));
                 Server::showUsers();
 
             } else {
                 // std::cout << "RD: ---> " << Server::valread << std::endl;
                 Server::valread < BUFFER_SIZE ? Server::buffer[Server::valread] = '\0' : Server::buffer[BUFFER_SIZE - 1] = '\0';
-                for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
-                    if (it->_fd == Server::sd) {
+                for( std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it ) {
+                    if ( it->_fd == Server::sd ) {
                         // std::cout << YELLOW << "Received message from client: [NO:" << it->_id << "] " << Server::buffer << RESET << std::endl;
                         it->input += Server::buffer;
-                        std::string userInput(Server::buffer);
+                        std::string userInput( Server::buffer );
                         curIndex = i;
-                        if (!userInput.empty()) {
-                            it->execute(userInput, &(*it));
-                            break ;
+                        if ( !userInput.empty() ) {
+                            it->execute( userInput, &( *it ) );
+                            break ; 
                         }
-                        std::cout << "user input is empty" << std::endl;
                         return ;
                     }
                 }
@@ -142,6 +144,9 @@ std::string Server::getPassword(void) {
     return Server::_password;
 }
 
+/**
+ * @brief Show all users connected to the server
+ */
 void Server::showUsers(void) {
         std::cout << "|──────────|──────────|──────────|──────────|" << std::endl;
         std::cout << "│" << std::setw(10) << std::left << "ID";
@@ -176,17 +181,3 @@ std::vector<int> Server::_fds;
 std::vector<std::string> Server::_cmd(2);
 std::vector<User> Server::_users;
 std::vector<Channel> Server::_channels;
-
-
-
-// FD_CLR(int fd, fd_set *set) - removes fd from the set // might be useful for removing clients
-// FD_ISSET(int fd, fd_set *set) - returns true if fd is in the set
-
-// CMDS    10.13.1.1
-//  USER yoni NICK yoni PASS 123
-// /conn 10.11.2.13 6667 1
-
-// if same fd connected again user stll exist in the vector
-
-// irssi send all details of connection, user root, nick root, and so on, that will be authenticated accordingly.
-
