@@ -156,7 +156,7 @@ void Channel::exec_mode(std::string mode, User &user, std::string arg)
 	}
 	else if (mode[1] == 'o')
 	{
-		std::vector<User>::const_iterator it_s;
+		std::vector<User>::iterator it_s;
 		for(it_s = this->users.begin(); it_s != this->users.end(); ++it_s)
 		{
 			if (it_s->nickName == user.nickName)
