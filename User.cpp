@@ -3,8 +3,8 @@
 
 User::User(int fd, int id) : _fd(fd), _id(id), isAuth(false), isOperator(false), nickName(""), userName("")
 {
-	sent = 0;
-	sent2 = 0;
+	pass_issue = 0;
+	alr_reg = 0;
 	std::cout << "User created" << std::endl;
 	input = "";
 }
@@ -57,7 +57,7 @@ int User::authorise(User *user, std::string cmd)
 				std::string S = ERR_ALREADYREGISTRED;
 				S.append(" User already registered\n");
 				send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
-				sent = 1;
+				alr_reg = 1;
 				return 0;
 			}
 		}
@@ -161,7 +161,8 @@ void User::execute(std::string cmd, User *user)
 		send(user->_fd, msg, strlen(msg), 0);
 		return ;
 	}
-	else if ((splitmsg.size() > 1 && splitmsg.at(0) == "CAP") || (splitmsg.size() > 1 && splitmsg.at(0) == JOIN && splitmsg[1] == ":"))
+	else if ((splitmsg.size() > 1 && splitmsg.at(0) == "CAP") || (splitmsg.size() > 1 && \
+		splitmsg.at(0) == JOIN && splitmsg[1] == ":"))
 	{
 		if(splitmsg.size() >= 3 && splitmsg.at(1) == "LS" && splitmsg.at(2) == "302")
 		{
@@ -170,7 +171,6 @@ void User::execute(std::string cmd, User *user)
 		}
 		else if (splitmsg.size() >= 2 && splitmsg.at(1) == "LS")
 		{
-			
 			std::string S = "CAP * ACK :multi-prefix\r\n";
 			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
 		}
@@ -184,7 +184,7 @@ void User::execute(std::string cmd, User *user)
 	
 	if(!authorise(user, cmd))
 	{
-		if(sent != 1 && sent2 != 1)
+		if(pass_issue != 1 && alr_reg != 1)
 		{
 			std::string S = ERR_NOTREGISTERED;
 			S.append(" You have not registered\n");
@@ -259,7 +259,7 @@ bool	User::parse_cmd(std::string str)
 		std::string S = WRONG_PASS_CODE;
 		S.append(" : Wrong password");
 		send(this->_fd, S.c_str(), strlen(S.c_str()), 0);
-		sent = 1;
+		pass_issue = 1;
 		return false;
 	}
 	
