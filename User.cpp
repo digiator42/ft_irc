@@ -186,8 +186,7 @@ void User::execute(std::string cmd, User *user)
 		send(user->_fd, msg, strlen(msg), 0);
 		return ;
 	}
-	else if ((splitmsg.size() > 1 && splitmsg.at(0) == "CAP") || (splitmsg.size() > 1 && \
-		splitmsg.at(0) == JOIN && splitmsg[1] == ":"))
+	else if ((splitmsg.size() > 1 && splitmsg.at(0) == "CAP"))
 	{
 		if(splitmsg.size() >= 3 && splitmsg.at(1) == "LS" && splitmsg.at(2) == "302")
 		{
@@ -216,7 +215,7 @@ void User::execute(std::string cmd, User *user)
 			std::cout << "->>>>>>>>>" << splitmsg.size() << std::endl;
 			send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
 		}
-		Utils::closeThis(*user);
+		// Utils::closeThis(*user);
 		return ;
 	}
 	std::cout << cmd << std::endl;
