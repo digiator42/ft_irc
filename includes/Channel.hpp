@@ -23,6 +23,7 @@
 # define NO_KEY_M " :Cannot join channel (+k).\n"
 # define NO_INV_M " :Cannot join channel (+i).\n"
 # define YES_USR_M " :is already on channel\n"
+# define INVALID_CHAN "Error: Invalid Channel Name. Channel name starts with \'#\' or \'&\'\n"
 
 class User;
 
@@ -77,6 +78,7 @@ class Channel{
 // USER azra NICK azra PASS 4
 // USER nouf NICK nouf PASS 4
 // USER aisha NICK aisha PASS 4
+// USER aysha NICK aysha PASS 4
 // USER nijah NICK nijah PASS 4
 
 # endif
