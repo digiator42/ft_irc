@@ -3,6 +3,7 @@
 
 User::User(int fd, int id) : _fd(fd), _id(id), isAuth(false), isOperator(false), nickName(""), userName("")
 {
+	change_flag = false;
 	pass_issue = 0;
 	alr_reg = 0;
 	std::cout << "User created" << std::endl;
@@ -67,6 +68,7 @@ int User::authorise(User *user, std::string cmd)
 		user->isAuth = true;
 
 		send(user->_fd, "\033[32mAUTHENTICATED\n\033[0m", strlen("\033[32mAUTHENTICATED\n\033[0m"), 0);
+		change_flag	= true;
 		return 1;
 	}
 	return 0;
@@ -142,9 +144,33 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
 void change_user(User *user, std::vector<std::string> splitmsg)
 {
 	if (splitmsg.at(0) == "USER")
+	{
+		for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
+		{
+			if (it->userName == splitmsg.at(1))
+			{
+				std::string S = ERR_ALREADYREGISTRED;
+				S.append(" there is user with this name\n");
+				send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
+				return ;
+			}
+		}
 		user->userName = splitmsg.at(1);
+	}
 	else if (splitmsg.at(0) == "NICK")
+	{
+		for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
+		{
+			if (it->userName == splitmsg.at(1))
+			{
+				std::string S = ERR_ALREADYREGISTRED;
+				S.append(" there is user with this nickname\n");
+				send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
+				return ;
+			}
+		}
 		user->nickName = splitmsg.at(1);
+	}
 }
 
 void User::execute(std::string cmd, User *user)
@@ -196,12 +222,12 @@ void User::execute(std::string cmd, User *user)
 	}
 	std::cout << cmd << std::endl;
 
-	if(splitmsg.size() > 0 && (splitmsg.at(0) == "USER" || splitmsg.at(0) == "NICK"))
+	if(splitmsg.size() > 0 && (splitmsg.at(0) == "USER" || splitmsg.at(0) == "NICK") && change_flag == false)
 		change_user(user, splitmsg);
 
 	user_options(user, splitmsg);
 	user_cmds(user, splitmsg);
-
+	change_flag = false;
 	for (int i = 0; i < 3; i++)
 	{
 		cmd = Utils::trim(cmd);	
