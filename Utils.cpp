@@ -120,9 +120,13 @@ void handleWhoisCommand(const std::vector<std::string>& splitmsg, Command& cmd, 
 void handleModeCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user)
 {
 	if (splitmsg.size() == 3){
+		cmd.mode(splitmsg.at(1), splitmsg.at(2), *user, "");
+	}
+	else if(splitmsg.size() == 4){
 		cmd.mode(splitmsg.at(1), splitmsg.at(2), *user, splitmsg.at(3));
-	} else {
-		sendErrorMessage(user->_fd, "MODE command requires 2 arguments\n", TOO_MANY_ARGS);
+	}
+	else {
+		sendErrorMessage(user->_fd, "MODE command requires 2 or 3 arguments\n", TOO_MANY_ARGS);
 	}
 		
 }

@@ -117,6 +117,7 @@ void Server::handleClientMessages() {
 
                 Server::_fds.erase(std::find(Server::_fds.begin(), Server::_fds.end(), Server::sd));
                 Server::_users.erase(std::find(Server::_users.begin(), Server::_users.end(), Utils::find(Server::sd)));
+                // remove client from channel
                 Server::showUsers();
 
             } else {

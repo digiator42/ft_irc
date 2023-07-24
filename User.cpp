@@ -115,6 +115,8 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
 		send(user->_fd, "PONG\n", strlen("PONG\n"), 0);
 	} else if (cmdType == WHOIS) {
 		handleWhoisCommand(splitmsg, cmd, user);
+	}else if (cmdType == MODE) {
+		handleModeCommand(splitmsg, cmd, user);
 	}
 	// else
 	// 	sendErrorMessage(user->_fd, (splitmsg[0] + " :Unknown command\n", ERR_UNKNOWNCOMMAND));
@@ -138,6 +140,17 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
 			j++;
 		}
 		i++;
+		std::cout << "Channel's modes -> " << std::endl;
+		if (it->isMode('i') == 1)
+			std::cout << "mode +i" << std::endl;
+		if (it->isMode('o') == 1)
+			std::cout << "mode +o" << std::endl;
+		if (it->isMode('l') == 1)
+			std::cout << "mode +l" << std::endl;
+		if (it->isMode('t') == 1)
+			std::cout << "mode +t" << std::endl;
+		if (it->isMode('k') == 1)
+			std::cout << "mode +k" << std::endl;
 	}
 }
 
