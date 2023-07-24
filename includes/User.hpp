@@ -89,6 +89,7 @@ class User {
 	int alr_reg;
     bool isAuth;
     bool isOperator;
+	bool change_flag;
     std::string nickName;
     std::string userName;
 	std::string pass;
