@@ -33,12 +33,13 @@ class Channel{
 		std::string name; // passed as parameter in parameterized constructor??
 		std::string pass; // // passed as parameter in parameterized constructor??
 		std::string topic;
-		std::vector<User> users;
 		std::vector<User> operators;
 		std::map<char, int> mode;
 		std::string message;
 		Channel(void); //default
 	public:
+	std::vector<User> users;
+	std::vector<User>::iterator it_u;
 	Channel(std::string str_n, std::string str_p);
 	// copy constructor
 	// assignment operator overload
@@ -70,6 +71,7 @@ class Channel{
 	int isUser(User user);
 
 	// user_in_chan = if users exists in channel
+	std::vector<User>::iterator user_in_chan(int fd);
 	
 	// PUBLIC MEMBER VARIABLES
 	std::vector<User> invites;

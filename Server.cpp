@@ -103,6 +103,7 @@ void Server::acceptConnection() {
 void Server::handleClientMessages() {
 
     int i = 0;
+	std::vector<User>::iterator it_u;
     for ( i = 0; i < static_cast<int>( Server::_fds.size() ); i++ ) {
         Server::sd = Server::_fds.at(i);
 
@@ -117,7 +118,12 @@ void Server::handleClientMessages() {
 
                 Server::_fds.erase(std::find(Server::_fds.begin(), Server::_fds.end(), Server::sd));
                 Server::_users.erase(std::find(Server::_users.begin(), Server::_users.end(), Utils::find(Server::sd)));
-                // remove client from channel
+                for (std::vector<Channel>::iterator it = Server::_channels.begin(); it != Server::_channels.end(); it++)
+				{
+					it_u = it->user_in_chan(Server::sd);
+					if (it_u != it->users.end())
+						it->users.erase(it_u);
+				}
                 Server::showUsers();
 
             } else {

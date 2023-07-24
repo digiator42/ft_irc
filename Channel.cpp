@@ -249,3 +249,13 @@ int Channel::isUser(User user)
 	}
 	return (0);
 }
+
+std::vector<User>::iterator Channel::user_in_chan(int fd)
+{
+	for (this->it_u = this->users.begin(); this->it_u != this->users.end(); it_u++)
+	{
+		if (it_u->_fd == fd)
+			return (it_u);
+	}
+	return (it_u);
+}
