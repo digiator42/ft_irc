@@ -19,9 +19,10 @@
 #include <sstream>
 #include <iomanip>
 #include <signal.h>
+#include <stdint.h>
 
 
-#define MAX_PORT 65535
+#define MAX_PORT UINT16_MAX
 #define MAX_BUFFER 1024
 #define CYAN "\033[36m"
 #define YELLOW "\033[33m"
@@ -30,7 +31,7 @@
 #define RESET "\033[0m"
 
 const int MAX_CLIENTS = FD_SETSIZE;
-const int BUFFER_SIZE = MAX_BUFFER; // max terminal buffer 1024
+const int BUFFER_SIZE = MAX_BUFFER;
 
 class User;
 class Channel;
@@ -39,7 +40,6 @@ class Server
 {
 private:
 	Server(void);
-	~Server();
 
 public:
 	static std::string _password;
@@ -73,12 +73,9 @@ public:
 	static void openSocket(void);
 	static void run(void);
 	static void acceptConnection(void);
-	static void sendWlcmMsg(void);
 	static void handleClientMessages(void);
 	static void showUsers(void);
 	static std::string getPassword(void);
-	// void validateMessage(char *msg);
-
 };
 
 #endif
