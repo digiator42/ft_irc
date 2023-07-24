@@ -19,6 +19,7 @@
 #include <sstream>
 #include <iomanip>
 #include <signal.h>
+#include <stdint.h>
 
 
 #define MAX_PORT UINT16_MAX
