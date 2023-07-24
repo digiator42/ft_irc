@@ -143,28 +143,14 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
 
 void change_user(User *user, std::vector<std::string> splitmsg)
 {
-	if (splitmsg.at(0) == "USER")
+	if (splitmsg.at(0) == "NICK")
 	{
 		for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
 		{
-			if (it->userName == splitmsg.at(1))
+			if (it->nickName == splitmsg.at(1))
 			{
-				std::string S = ERR_ALREADYREGISTRED;
-				S.append(" there is user with this name\n");
-				send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
-				return ;
-			}
-		}
-		user->userName = splitmsg.at(1);
-	}
-	else if (splitmsg.at(0) == "NICK")
-	{
-		for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
-		{
-			if (it->userName == splitmsg.at(1))
-			{
-				std::string S = ERR_ALREADYREGISTRED;
-				S.append(" there is user with this nickname\n");
+				std::string S = NICKNAME_IN_USE;
+				S.append(" : Nickname is already in use\n");
 				send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
 				return ;
 			}
@@ -288,6 +274,6 @@ bool	User::parse_cmd(std::string str)
 		pass_issue = 1;
 		return false;
 	}
-	
+
 	return true;
 }
