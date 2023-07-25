@@ -182,21 +182,24 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
 	}
 }
 
-void change_user(User *user, std::vector<std::string> splitmsg)
+void	handleTopicCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user)
 {
-	if (splitmsg.at(0) == "NICK")
-	{
-		for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
-		{
-			if (it->nickName == splitmsg.at(1))
-			{
-				std::string S = NICKNAME_IN_USE;
-				S.append(" : Nickname is already in use\n");
-				send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
-				return ;
-			}
-		}
-		user->nickName = splitmsg.at(1);
+	if (splitmsg.size() == 3) {
+		cmd.topic(splitmsg.at(1), splitmsg.at(2), *user);
+	}else if (splitmsg.size() == 2){ 
+		cmd.topic(splitmsg.at(1), "", *user);
+	}else {
+		sendErrorMessage(user->_fd, "INVITE command requires 1 or 2 arguments\n", TOO_MANY_ARGS);
+	}
+}
+
+void handleWhoisCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user) {
+	(void)cmd;
+	if (splitmsg.size() == 2) {
+		std::string nick = "\nname : " + splitmsg.at(1) + "\n";
+		send(user->_fd, nick.c_str(), strlen(nick.c_str()), 0);
+	} else {
+		sendErrorMessage(user->_fd, "WHOIS command requires 2 arguments\n", TOO_MANY_ARGS);
 	}
 }
 

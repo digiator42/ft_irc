@@ -50,6 +50,7 @@ class Channel{
 	std::string getPass(void);
 	std::map<char, int> getMode(void);
 	std::vector<User> getUsers(void);
+	std::vector<User> getOperators(void);
 	std::string getName(void) const;
 
 	// SETTERS
