@@ -39,6 +39,7 @@
 # define ERR_USERONCHANNEL "443"
 # define ERR_UNKNOWNCOMMAND "421"
 # define ERR_CHANNELISFULL "471"
+# define ERR_NEEDMOREPARAMS "461"
 /*
 # define ERR_NOSUCHSERVER "402"
 # define ERR_TOOMANYCHANNELS "405"
@@ -50,7 +51,6 @@
 # define ERR_NICKCOLLISION "436"
 # define ERR_USERNOTINCHANNEL "441"
 # define ERR_NOTONCHANNEL "442"
-# define ERR_NEEDMOREPARAMS "461"
 # define ERR_ALREADYREGISTERED "462"
 # define ERR_PASSWDMISMATCH "464"
 # define ERR_BADCHANMASK "476"
@@ -105,9 +105,9 @@ class User {
     bool operator==(const User& other) const {
         return (this->_fd == other._fd);
     }
-
+    void change_user(User *user, std::vector<std::string> splitmsg);
 	int	authorise(User *user, std::string cmd);
-	void	user_options(User *user, std::vector<std::string> splitmsg);
+	bool	user_options(User *user, std::vector<std::string> splitmsg);
 	void	user_cmds(User *user, std::vector<std::string> splitmsg);
 
 };

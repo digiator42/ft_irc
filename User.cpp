@@ -89,7 +89,7 @@ int User::authorise(User *user, std::string cmd)
 			if(this->pass != Server::getPassword())
 				{
 					std::string S = WRONG_PASS_CODE;
-					S.append(" : Wrong password");
+					S.append(" : Password incorrect");
 					send(this->_fd, S.c_str(), strlen(S.c_str()), 0);
 					pass_issue = 1;
 					return false;
@@ -103,10 +103,13 @@ int User::authorise(User *user, std::string cmd)
 	return 0;
 }
 
-void	User::user_options(User *user, std::vector<std::string> splitmsg)
+bool	User::user_options(User *user, std::vector<std::string> splitmsg)
 {
-	if (splitmsg.size() > 0 && (splitmsg.at(0) == "quit" || splitmsg.at(0) == "exit" || splitmsg.at(0) == "close"))
+	if (splitmsg.size() > 0 && (splitmsg.at(0) == "quit"))
+	{
 		Utils::closeThis(*user);
+		return false;
+	}	
 	else if (splitmsg.size() > 0 && splitmsg.at(0) == "help")
 	{
 		std::string help = "Available commands: \n"
@@ -120,6 +123,7 @@ void	User::user_options(User *user, std::vector<std::string> splitmsg)
 		"help - show help\n";
 		send(user->_fd, help.c_str(), help.length(), 0);
 	}
+	return true;
 }
 
 void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
@@ -146,6 +150,16 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
 		handleWhoisCommand(splitmsg, cmd, user);
 	}else if (cmdType == MODE) {
 		handleModeCommand(splitmsg, cmd, user);
+	}
+	else if (cmdType == "PASS") {
+			std::cout << splitmsg.at(0) << std::endl;
+			if (splitmsg.size() != 2) { //useless for now
+				send(user->_fd, ("461 " + splitmsg.at(0) + " :Not Enough Parameters\r\n").c_str(), 26, 0);
+			}
+			else if (user->isAuth == true) {
+				send(user->_fd, "462 :You may not reregister\r\n", 30, 0);
+    	}
+		return ;
 	}
 
 	int i = 1;
@@ -188,9 +202,18 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
 	}
 }
 
-void change_user(User *user, std::vector<std::string> splitmsg)
+void User::change_user(User *user, std::vector<std::string> splitmsg)
 {
-	if (splitmsg.at(0) == "NICK")
+	if(!this->isAuth)
+		return ;
+
+	 if (splitmsg.size() < 2) {
+		std::string S = "431";
+		S.append(" :No nickname given\r\n");
+        send(this->_fd, S.c_str(), strlen(S.c_str()), 0);
+        return;
+    }
+	if (splitmsg.size() == 2 && splitmsg.at(0) == "NICK")
 	{
 		for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it)
 		{
@@ -204,6 +227,13 @@ void change_user(User *user, std::vector<std::string> splitmsg)
 		}
 		user->nickName = splitmsg.at(1);
 	}
+	else // should be returned when PRIVMSG no nick name
+	{
+		std::string S = ERR_NEEDMOREPARAMS;
+		S.append(" :Not enough parameters\r\n");
+		send(this->_fd, S.c_str(), strlen(S.c_str()), 0);
+		return;
+	}
 }
 
 void User::execute(std::string cmd, User *user)
@@ -212,6 +242,8 @@ void User::execute(std::string cmd, User *user)
 	void (User::*f[3])(User &user) = { &User::whoAmI, &User::showClients, &User::showUsers};
 	std::vector<std::string> splitmsg = Utils::split(cmd);
 
+	if (!user_options(user, splitmsg))
+		return ;
 	if(!authorise(user, cmd))
 	{
 		if(splitmsg.size() > 0 && splitmsg.at(0) != "CAP"){
@@ -255,7 +287,6 @@ void User::execute(std::string cmd, User *user)
 
 	if(this->isAuth)
 	{
-		user_options(user, splitmsg);
 		user_cmds(user, splitmsg);
 		change_flag = false;
 	}

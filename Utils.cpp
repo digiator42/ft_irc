@@ -90,11 +90,15 @@ void handlePrivMsgCommand(const std::vector<std::string>& splitmsg, Command& cmd
 	if (splitmsg.size() == 3) {
 		cmd.privmsg(splitmsg.at(1), splitmsg.at(2), *user); // second argument will be the split message for mutiple words
 	} else if (splitmsg.size() == 2) {
+		// no such nickname, if nickname doesn't exist
 		sendErrorMessage(user->_fd, "PRIVMSG command requires atleast 3 arguments\n", PRIVMSG_EMPTY);
 	} else if(splitmsg.size() == 1) {
 		sendErrorMessage(user->_fd, "PRIVMSG command requires atleast 3 arguments\n", ERR_NOSUCHNICK);
-	} else {
-		sendErrorMessage(user->_fd, "PRIVMSG command requires atleast 3 arguments\n", TOO_MANY_ARGS);
+	} else { // if PRIVMSG nickname exist and msg dosent exist
+		std::string S = ERR_NEEDMOREPARAMS;
+		S.append(" :Not enough parameters\r\n");
+		send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
+		return;
 	}
 }
 
@@ -121,7 +125,7 @@ void	handleTopicCommand(const std::vector<std::string>& splitmsg, Command& cmd, 
 void handleWhoisCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user) {
 	(void)cmd;
 	if (splitmsg.size() == 2) {
-		std::string nick = "\nname : " + splitmsg.at(1) + "\n";
+		std::string nick = "name : " + splitmsg.at(1) + "\r\n";
 		send(user->_fd, nick.c_str(), strlen(nick.c_str()), 0);
 	} else {
 		sendErrorMessage(user->_fd, "WHOIS command requires 2 arguments\n", TOO_MANY_ARGS);
