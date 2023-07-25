@@ -54,7 +54,7 @@
 # define ERR_ALREADYREGISTERED "462"
 # define ERR_PASSWDMISMATCH "464"
 # define ERR_BADCHANMASK "476"
-# define ERR_NOPRIVILEGES "481" 
+# define ERR_NOPRIVILEGES "481"
 # define ERR_NOOPERHOST "491"
 # define ERR_UMODEUNKNOWNFLAG "501"
 # define ERR_USERSDONTMATCH "502"
@@ -78,7 +78,6 @@ class User {
    public:
     User(int fd, int id);
     ~User();
-    // std::vector<std::string> Server::_cmd;
 
     std::string input;
 
@@ -89,9 +88,11 @@ class User {
     bool isAuth;
     bool isOperator;
 	bool change_flag;
+	bool is_registered;
     std::string nickName;
     std::string userName;
 	std::string pass;
+	std::vector<std::string> _cmd;
 
     void execute(std::string cmd, User *it);
     void userErase(User &user);
