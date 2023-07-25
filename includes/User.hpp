@@ -14,6 +14,7 @@
 #define KICK "KICK"
 #define PRIVMSG "PRIVMSG"
 #define INVITE "INVITE"
+#define MODE "MODE"
 #define WHOIS "WHOIS"
 #define PING "PING"
 #define PONG "TOPIC"
@@ -116,6 +117,7 @@ void handleKickCommand(const std::vector<std::string>& splitmsg, Command& cmd, U
 void handlePrivMsgCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
 void handleInviteCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
 void handleWhoisCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
+void handleModeCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
 
 #endif
 

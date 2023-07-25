@@ -6,8 +6,6 @@
 Command::Command(void)
 {
 	// defualt constructor
-	this->arg_amt = 0;
-	this->command = "";
 	this->message = "";
 	
 }
@@ -15,51 +13,6 @@ Command::Command(void)
 Command::~Command(void)
 {
 	// destructor
-}
-
-// - GETTERS -
-
-User* Command::getSender(void)
-{
-	return (sender);
-}
-
-int Command::getArgAmt(void)
-{
-	return (arg_amt);
-}
-
-std::string Command::getCommand(void)
-{
-	return (command);
-}
-
-std::vector<std::string> Command::getArgs(void)
-{
-	return (args);
-}
-
-// - SETTERS -
-
-void Command::setSender(User* s)
-{
-	sender = s; // correct??
-}
-
-void Command::setArgAmt(int a)
-{
-	arg_amt = a;
-}
-
-void Command::setCommand(std::string c)
-{
-	command = c;
-}
-
-void Command::setArgs(std::vector<std::string> ar)
-{
-	// clear first?
-	args = ar;
 }
 
 // - MEMBER FUNCTIONS -
@@ -113,7 +66,6 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 	std::vector<std::string> key_split = ft_split(key_s, ',');
 	std::vector<Channel>::iterator it;
 	std::vector<std::string>::iterator it_s;
-	std::vector<User>::iterator it_u;
 	std::vector<std::string>::iterator it_k = key_split.begin();
 	
 	// check if channel exists

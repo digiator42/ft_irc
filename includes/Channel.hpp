@@ -8,7 +8,6 @@
 #include <map>
 
 # define RED_LIGHT "\033[1;38:5:131m"
-// # define RED "\033[0;31m"
 # define GREEN_OLIVE "\033[1;38:5:107m"
 # define GREEN_LIGHT "\033[1;38:5:150m"
 # define MUSTARD "\033[38:5:136m"
@@ -30,26 +29,26 @@ class User;
 class Channel{
 	private:
 		int user_limit;
-		std::string name; // passed as parameter in parameterized constructor??
-		std::string pass; // // passed as parameter in parameterized constructor??
+		std::string name;
+		std::string pass;
 		std::string topic;
-		std::vector<User> users;
 		std::vector<User> operators;
 		std::map<char, int> mode;
 		std::string message;
 		Channel(void); //default
 	public:
+	std::vector<User> users;
+	std::vector<User>::iterator it_u;
 	Channel(std::string str_n, std::string str_p);
 	// copy constructor
 	// assignment operator overload
 	~Channel(void);
 	
 	// GETTERS
-	// getModes(void); // return value?? array of characters??
 	int getUserLimit(void); 
 	std::string getTopic(void);
 	std::string getPass(void);
-	std::map<char, int> getMode(void); // will be string only or vector of strings
+	std::map<char, int> getMode(void);
 	std::vector<User> getUsers(void);
 	std::string getName(void) const;
 
@@ -63,13 +62,12 @@ class Channel{
 	void addUser(User new_user);
 	void kickUser(std::string user_kick, std::string reason, User user);
 	void exec_mode(std::string mode, User &user, std::string arg);
+	std::vector<User>::iterator user_in_chan(int fd);
 
 	int isInvited(User user);
 	int isMode(char m);
 	int isOperator(User user);
 	int isUser(User user);
-
-	// user_in_chan = if users exists in channel
 	
 	// PUBLIC MEMBER VARIABLES
 	std::vector<User> invites;
