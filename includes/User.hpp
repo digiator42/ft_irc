@@ -18,10 +18,6 @@
 #define PING "PING"
 #define PONG "TOPIC"
 
-#define IRSSI_LEN 9
-#define LONG_IRSSI_LEN 11
-#define NC_LEN 6
-
 #define ERR_NICKCOLLISION "436"
 #define WRONG_PASS_CODE "464"
 #define PRIVMSG_EMPTY "412"
