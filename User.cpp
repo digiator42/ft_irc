@@ -222,6 +222,11 @@ void User::execute(std::string cmd, User *user)
 				std::cout << "->>>>>>>>>" << splitmsg.size() << std::endl;
 				send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
 			}
+			else
+			{
+				Utils::closeThis(*user);
+				return ;
+			}
 		}
 	}
 	std::cout << "hiiiiiiii->>>>>>|||" << cmd << "|" << std::endl;
