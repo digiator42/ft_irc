@@ -52,6 +52,11 @@ std::vector<User> Channel::getUsers(void)
 	return (users);
 }
 
+std::vector<User> Channel::getOperators(void)
+{
+	return (operators);
+}
+
 std::string Channel::getName(void) const
 {
 	return (name);
@@ -101,7 +106,7 @@ void Channel::addUser(User new_user)
 	std::string chan_message = "\n - WELCOME TO THE CHANNEL " + this->name + "! - \n";
 	message = "List of Commands                                             Usage\n"
 		"PRIVMSG - message user(s) in the channel           PRIVMSG <receiver>{,<receiver>} <text to be sent>\n"
-		"MODE (o) - change the mode of the channel         MODE <channel> <mode>\n"
+		"MODE (o) - change the mode of the channel         MODE <channel> <+/-mode> {argument}\n"
 		"TOPIC (o) - change the topic of the channel        TOPIC <channel> <topic>\n"
 		"INVITE (o) - invite another user to the channel   INVITE <nickname> <channel>\n"
 		"KICK (o) - eject a client from a channel          KICK <channel> <user> [<comment>] \n\n";
@@ -114,6 +119,7 @@ void Channel::kickUser(std::string user_kick, std::string reason, User user)
 {
 	std::vector<User>::iterator it;
 	std::vector<User>::iterator it_s;
+	std::vector<User>::iterator it_o;
 
 	for(it_s = this->users.begin(); it_s != this->users.end(); ++it_s)
 	{
@@ -128,6 +134,9 @@ void Channel::kickUser(std::string user_kick, std::string reason, User user)
 			{
 				send(it_s->_fd, "You have been kicked from the channel\n", strlen("You have been kicked from the channel\n"), 0);
 				this->users.erase(it_s);
+				for (it_o = this->operators.begin(); it_o != this->operators.end(); ++it_o)
+					if (it_o->nickName == user_kick)
+						this->operators.erase(it_o);
 				// send(user._fd, message.c_str(), strlen(message.c_str()), 0); // message to user about kicking
 				if (reason != "")
 					std::cout << "Reason for Kicking User: " << reason << std::endl;
@@ -159,7 +168,7 @@ void Channel::exec_mode(std::string mode, User &user, std::string arg)
 		std::vector<User>::iterator it_s;
 		for(it_s = this->users.begin(); it_s != this->users.end(); ++it_s)
 		{
-			if (it_s->nickName == user.nickName)
+			if (it_s->nickName == arg)
 				break ;
 		}
 		if (it_s != this->users.end())

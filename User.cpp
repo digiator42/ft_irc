@@ -105,8 +105,8 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
         handleJoinCommand(splitmsg, cmd, user);
     } else if (cmdType == KICK) {
         handleKickCommand(splitmsg, cmd, user);
-    } else if ((splitmsg.size() == 2 || splitmsg.size() == 3) && splitmsg.at(0) == "TOPIC") { // not yet
-        cmd.topic(splitmsg.at(1), splitmsg.at(2), *user);
+    } else if (cmdType == TOPIC) {
+        handleTopicCommand(splitmsg, cmd, user);
     } else if (cmdType == PRIVMSG) {
         handlePrivMsgCommand(splitmsg, cmd, user);
     } else if (cmdType == INVITE) {
@@ -131,6 +131,13 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
 		for (std::vector<User>::iterator it_u = temp_users.begin(); it_u != temp_users.end(); it_u++)
 		{
 			std::cout << "User " << j << " - " << it_u->nickName << std::endl;
+			j++;
+		}
+		j = 1;
+		std::vector<User> temp_op = it->getOperators();
+		for (std::vector<User>::iterator it_u = temp_op.begin(); it_u != temp_op.end(); it_u++)
+		{
+			std::cout << "Operator " << j << " - " << it_u->nickName << std::endl;
 			j++;
 		}
 		j = 1;

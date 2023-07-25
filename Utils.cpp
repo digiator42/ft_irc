@@ -107,6 +107,17 @@ void	handleInviteCommand(const std::vector<std::string>& splitmsg, Command& cmd,
 	}
 }
 
+void	handleTopicCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user)
+{
+	if (splitmsg.size() == 3) {
+		cmd.topic(splitmsg.at(1), splitmsg.at(2), *user);
+	}else if (splitmsg.size() == 2){ 
+		cmd.topic(splitmsg.at(1), "", *user);
+	}else {
+		sendErrorMessage(user->_fd, "INVITE command requires 1 or 2 arguments\n", TOO_MANY_ARGS);
+	}
+}
+
 void handleWhoisCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user) {
 	(void)cmd;
 	if (splitmsg.size() == 2) {

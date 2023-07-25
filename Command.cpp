@@ -220,7 +220,7 @@ void Command::topic(std::string channel, std::string topic, User user)
 			if (topic != "")
 			{
 				it_c->setTopic(topic);
-				message = "Topic of channel " + channel + "changed." + "\n";
+				message = "Topic of channel " + channel + " changed." + "\n";
 				send(user._fd, message.c_str(), strlen(message.c_str()), 0);
 			}
 			else
