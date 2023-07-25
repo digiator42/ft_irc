@@ -23,6 +23,7 @@
 # define NO_INV_M " :Cannot join channel (+i).\n"
 # define YES_USR_M " :is already on channel\n"
 # define INVALID_CHAN "Error: Invalid Channel Name. Channel name starts with \'#\' or \'&\'\n"
+# define CHAN_FULL "  :Cannot join channel (+l)\n"
 
 class User;
 
@@ -64,6 +65,7 @@ class Channel{
 	void kickUser(std::string user_kick, std::string reason, User user);
 	void exec_mode(std::string mode, User &user, std::string arg);
 	std::vector<User>::iterator user_in_chan(int fd);
+	int user_len(void);
 
 	int isInvited(User user);
 	int isMode(char m);

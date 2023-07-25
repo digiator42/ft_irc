@@ -99,8 +99,14 @@ void Channel::setMode(char m, char sign)
 void Channel::addUser(User new_user)
 {
 	if (operators.size() == 0)
-	{
 		operators.push_back(User(new_user));
+	if (this->isMode('l'))
+	{
+		if (this->user_len() == this->user_limit)
+		{
+			sendErrorMessage(new_user._fd, (this->getName() + CHAN_FULL), ERR_CHANNELISFULL);
+			return ;
+		}
 	}
 	users.push_back(User(new_user));
 	std::string chan_message = "\n - WELCOME TO THE CHANNEL " + this->name + "! - \n";
@@ -188,7 +194,7 @@ void Channel::exec_mode(std::string mode, User &user, std::string arg)
 				if (this->isOperator(*it_s))
 				{
 					this->users.erase(it_s);
-					send(it_s->_fd, ("You are mo onger an operator of " + this->name + " channel \n").c_str(), strlen(("You are mo onger an operator of " + this->name + " channel \n").c_str()), 0);
+					send(it_s->_fd, ("You are no longer an operator of " + this->name + " channel \n").c_str(), strlen(("You are mo onger an operator of " + this->name + " channel \n").c_str()), 0);
 				}
 				else
 					send(user._fd, "User is not an Operator\n", strlen("User is not an Operator\n"), 0);
@@ -208,6 +214,15 @@ void Channel::exec_mode(std::string mode, User &user, std::string arg)
 		}
 	}
 	this->setMode(mode[1], mode[0]);
+}
+
+int Channel::user_len(void)
+{
+	int len = 0;
+
+	for (it_u = users.begin(); it_u != users.end(); it_u++)
+		len++;
+	return (len);
 }
 
 int Channel::isInvited(User user)
