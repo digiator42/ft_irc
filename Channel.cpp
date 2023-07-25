@@ -283,3 +283,13 @@ std::vector<User>::iterator Channel::user_in_chan(int fd)
 	}
 	return (it_u);
 }
+
+std::vector<User>::iterator Channel::op_in_chan(int fd)
+{
+	for (this->it_o = this->operators.begin(); this->it_o != this->operators.end(); it_o++)
+	{
+		if (this->it_o->_fd == fd)
+			return (it_o);
+	}
+	return (it_o);
+}

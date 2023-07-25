@@ -33,13 +33,14 @@ class Channel{
 		std::string name;
 		std::string pass;
 		std::string topic;
-		std::vector<User> operators;
 		std::map<char, int> mode;
 		std::string message;
 		Channel(void); //default
 	public:
+	std::vector<User> operators;
 	std::vector<User> users;
 	std::vector<User>::iterator it_u;
+	std::vector<User>::iterator it_o;
 	Channel(std::string str_n, std::string str_p);
 	// copy constructor
 	// assignment operator overload
@@ -65,6 +66,7 @@ class Channel{
 	void kickUser(std::string user_kick, std::string reason, User user);
 	void exec_mode(std::string mode, User &user, std::string arg);
 	std::vector<User>::iterator user_in_chan(int fd);
+	std::vector<User>::iterator op_in_chan(int fd);
 	int user_len(void);
 
 	int isInvited(User user);
