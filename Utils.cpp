@@ -32,10 +32,22 @@ void Utils::closeThis(User &user)
 	std::cout << YELLOW << user.input << RESET;
 	std::cout << RED << "User " << user._fd << " closed" << RESET << std::endl;
 	close(user._fd);
-	
+	std::vector<User>::iterator it_u;
+	std::vector<User>::iterator it_o;
+
     Server::_fds.erase(std::find(Server::_fds.begin(), Server::_fds.end(), user._fd));	
     Server::_users.erase(std::find(Server::_users.begin(), Server::_users.end(), user));
+	for (std::vector<Channel>::iterator it = Server::_channels.begin(); it != Server::_channels.end(); it++)
+	{
+		it_u = it->user_in_chan(Server::sd);
+		it_o = it->op_in_chan(Server::sd);
+		if (it_u != it->users.end())
+			it->users.erase(it_u);
+		if (it_o != it->operators.end())
+			it->operators.erase(it_o);
+	}
 	Server::showUsers();
+	Server::showChannels();
 }
 
 

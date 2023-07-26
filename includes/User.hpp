@@ -101,6 +101,7 @@ class User {
     void whoAmI(User &user);
     void showUsers(User &user);
     void showClients(User &user);
+    void showchannels(User &user);
     void kick(std::string nick);
     bool operator==(const User& other) const {
         return (this->_fd == other._fd);

@@ -34,6 +34,12 @@ void User::whoAmI(User &user)
 
 }
 
+void User::showchannels(User &user)
+{
+	(void)user;
+
+}
+
 void User::showClients(User &user)
 {
 	(void)user;
@@ -69,7 +75,7 @@ int User::authorise(User *user, std::string cmd)
 				}
 			}
 		}
-		std::cout << "nick : " << nickName << "\n";
+		// std::cout << "nick : " << nickName << "\n";
 		user->nickName = _cmd[1];
 		user->userName = _cmd[0];
 		if(user->nickName != "" && user->userName != "" && pass == Server::getPassword() && !is_registered)
@@ -187,7 +193,7 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
 			j++;
 		}
 		i++;
-		std::cout << "Channel's modes -> " << std::endl;
+		Server::showChannels();
 		if (it->isMode('i') == 1)
 			std::cout << "mode +i" << std::endl;
 		if (it->isMode('o') == 1)
@@ -260,7 +266,7 @@ void User::execute(std::string cmd, User *user)
 			}
 		}
 	}
-	std::cout << "hiiiiiiii->>>>>>|||" << cmd << "|" << std::endl;
+	// std::cout << "hiiiiiiii->>>>>>|||" << cmd << "|" << std::endl;
 
 	if(splitmsg.size() > 0 && splitmsg.at(0) == "NICK" && change_flag == false)
 		change_user(user, splitmsg);
