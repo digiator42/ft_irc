@@ -5,44 +5,43 @@
 #include "Channel.hpp"
 #include "Utils.hpp"
 #include <iostream>
-#include <string>
-#include <cstring>
 #include <vector>
-#include <algorithm>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include <unistd.h>
 #include <sys/select.h>
 #include <fcntl.h>
 #include <cerrno>
-#include <iostream>
-#include <sstream>
 #include <iomanip>
 #include <signal.h>
 #include <stdint.h>
+#include <unistd.h>
 
 
 #define MAX_PORT UINT16_MAX
 #define MAX_BUFFER 1024
+#define MAX_HOST_NAME 512
 #define CYAN "\033[36m"
 #define YELLOW "\033[33m"
 #define RED "\033[31m"
 #define GREEN "\033[32m"
 #define RESET "\033[0m"
 
-const int MAX_CLIENTS = FD_SETSIZE;
-const int BUFFER_SIZE = MAX_BUFFER;
 
 class User;
 class Channel;
-
 class Server
 {
 private:
 	Server(void);
 
 public:
+	static const int MAX_CLIENTS = FD_SETSIZE;
+	static const int BUFFER_SIZE = MAX_BUFFER;
 	static std::string _password;
+	static std::string _hostName;
+	static std::string bufferStr;
+	static char c_buffer[MAX_BUFFER];
+	static char c_hostName[MAX_HOST_NAME];
 	static int serverSocket;
 	static int max_sd;
 	static int sd;
@@ -52,12 +51,7 @@ public:
 	static int curIndex;
 	static int addrlen;
 	static struct sockaddr_in address;
-	static char buffer[MAX_BUFFER];
-	static std::string bufferStr;
 	static fd_set readfds;
-	static std::vector<std::string> _cmd;
-
-
 	class ServerException : public std::exception
 	{
 		private:
@@ -75,6 +69,7 @@ public:
 	static void acceptConnection(void);
 	static void handleClientMessages(void);
 	static void showUsers(void);
+	static void showChannels(void);
 	static std::string getPassword(void);
 };
 

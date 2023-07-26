@@ -1,6 +1,3 @@
-#include <iostream>
-#include <string>
-#include <vector>
 #include "includes/Server.hpp"
 #include "includes/Command.hpp"
 
@@ -19,12 +16,14 @@ void Utils::signalHandler(int signum) {
     std::cout << RED << "Interrupt signal (" << signum << ") received." << RESET << "\n";
 
     for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it) {
-        if (*it != 0) {
             std::cout << "Closing socket: " << *it << std::endl;
             close(*it);
-        }
     }
+	shutdown(Server::serverSocket, SHUT_RDWR); //shutdown the server socket, suppose to handle still opened fds,if there is any data left before closing
     close(Server::serverSocket);
+	Server::_fds.clear();
+	Server::_users.clear();
+	Server::_channels.clear();
     exit(signum);
 }
 
@@ -33,10 +32,22 @@ void Utils::closeThis(User &user)
 	std::cout << YELLOW << user.input << RESET;
 	std::cout << RED << "User " << user._fd << " closed" << RESET << std::endl;
 	close(user._fd);
-	
+	std::vector<User>::iterator it_u;
+	std::vector<User>::iterator it_o;
+
     Server::_fds.erase(std::find(Server::_fds.begin(), Server::_fds.end(), user._fd));	
     Server::_users.erase(std::find(Server::_users.begin(), Server::_users.end(), user));
+	for (std::vector<Channel>::iterator it = Server::_channels.begin(); it != Server::_channels.end(); it++)
+	{
+		it_u = it->user_in_chan(Server::sd);
+		it_o = it->op_in_chan(Server::sd);
+		if (it_u != it->users.end())
+			it->users.erase(it_u);
+		if (it_o != it->operators.end())
+			it->operators.erase(it_o);
+	}
 	Server::showUsers();
+	Server::showChannels();
 }
 
 
@@ -90,11 +101,15 @@ void handlePrivMsgCommand(const std::vector<std::string>& splitmsg, Command& cmd
 	if (splitmsg.size() == 3) {
 		cmd.privmsg(splitmsg.at(1), splitmsg.at(2), *user); // second argument will be the split message for mutiple words
 	} else if (splitmsg.size() == 2) {
+		// no such nickname, if nickname doesn't exist
 		sendErrorMessage(user->_fd, "PRIVMSG command requires atleast 3 arguments\n", PRIVMSG_EMPTY);
 	} else if(splitmsg.size() == 1) {
 		sendErrorMessage(user->_fd, "PRIVMSG command requires atleast 3 arguments\n", ERR_NOSUCHNICK);
-	} else {
-		sendErrorMessage(user->_fd, "PRIVMSG command requires atleast 3 arguments\n", TOO_MANY_ARGS);
+	} else { // if PRIVMSG nickname exist and msg dosent exist
+		std::string S = ERR_NEEDMOREPARAMS;
+		S.append(" :Not enough parameters\r\n");
+		send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
+		return;
 	}
 }
 
@@ -121,7 +136,7 @@ void	handleTopicCommand(const std::vector<std::string>& splitmsg, Command& cmd, 
 void handleWhoisCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user) {
 	(void)cmd;
 	if (splitmsg.size() == 2) {
-		std::string nick = "\nname : " + splitmsg.at(1) + "\n";
+		std::string nick = "name : " + splitmsg.at(1) + "\r\n";
 		send(user->_fd, nick.c_str(), strlen(nick.c_str()), 0);
 	} else {
 		sendErrorMessage(user->_fd, "WHOIS command requires 2 arguments\n", TOO_MANY_ARGS);

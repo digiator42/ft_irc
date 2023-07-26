@@ -27,13 +27,16 @@ void Server::openSocket() {
     }
 
     addrlen = sizeof( Server::address );
-    std::cout << GREEN << "IRC Server started on port " << RESET << Server::_port << std::endl;
-    std::cout << "Waiting for incoming connections..." << std::endl;
+
+    gethostname( c_hostName, MAX_HOST_NAME );
+    Server::_hostName = c_hostName;
+    std::cout << GREEN_LIGHT << "IRC Server started on port " << Server::_port << " : " << _hostName << std::endl;
+    std::cout << "Waiting for incoming connections..." << RESET << std::endl;
 }
 
 /**
  * @brief Add client sockets to the set, Wait for activity on any of the sockets
- * If activity on the server socket, it's a new connection
+ * If activity on the server socket, it's a new connecStion
  */
 void Server::run( void ) {
 
@@ -110,7 +113,7 @@ void Server::handleClientMessages() {
 
         if ( FD_ISSET(Server::sd, &Server::readfds) ) {
 		
-            if ( (Server::valread = recv(Server::sd, Server::buffer, BUFFER_SIZE, 0)) <= 0 ) {
+            if ( (Server::valread = recv(Server::sd, Server::c_buffer, BUFFER_SIZE, 0)) <= 0 ) {
 
                 std::cout << RED << "Host disconnected, IP " << inet_ntoa(Server::address.sin_addr) <<
                      ", port " << ntohs(Server::address.sin_port) << RESET << std::endl;
@@ -129,15 +132,16 @@ void Server::handleClientMessages() {
 						it->operators.erase(it_o);
 				}
                 Server::showUsers();
+                Server::showChannels();
 
             } else {
                 // std::cout << "RD: ---> " << Server::valread << std::endl;
-                Server::valread < BUFFER_SIZE ? Server::buffer[Server::valread] = '\0' : Server::buffer[BUFFER_SIZE - 1] = '\0';
+                Server::valread < BUFFER_SIZE ? Server::c_buffer[Server::valread] = '\0' : Server::c_buffer[BUFFER_SIZE - 1] = '\0';
                 for( std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it ) {
                     if ( it->_fd == Server::sd ) {
                         // std::cout << YELLOW << "Received message from client: [NO:" << it->_id << "] " << Server::buffer << RESET << std::endl;
-                        it->input += Server::buffer;
-                        std::string userInput( Server::buffer );
+                        it->input += Server::c_buffer;
+                        std::string userInput( Server::c_buffer );
                         curIndex = i;
                         if ( !userInput.empty() ) {
                             it->execute( userInput, &( *it ) );
@@ -175,7 +179,97 @@ void Server::showUsers(void) {
         std::cout << "|──────────|──────────|──────────|──────────|" << std::endl;
 }
 
+void Server::showChannels(void) {
+        std::cout << std::endl;
+        std::cout << std::endl;
+        std::cout << "|──────────|──────────|──────────|──────────|" << std::endl;
+        std::cout << "│" << std::setw(10) << std::left << "Channels" << std::endl;
+        std::cout << "├──────────┼──────────┼──────────┼──────────┤" << std::endl;
+        for(std::vector<Channel>::iterator it = Server::_channels.begin(); it != Server::_channels.end(); ++it) {
+            std::cout << "|──────────|──────────|──────────|──────────|" << std::endl;
+            std::cout << "│" << std::setw(10) << std::left << it->getName() << std::endl;
+            std::cout << "├──────────┼──────────┼──────────┼──────────┤" << std::endl;
+            std::vector<User> temp_users = it->getUsers();
+		    int j = 1;
+		    for (std::vector<User>::iterator it_u = temp_users.begin(); it_u != temp_users.end(); it_u++)
+		    {
+                std::cout << "|" << std::setw(10) << j;
+                std::cout << "|" << std::setw(10) << it_u->nickName << std::endl;;
+		    	j++;
+		    }
+        }
+        std::cout << "|──────────|──────────|──────────|──────────|" << std::endl;
+
+        std::cout << std::endl;
+        std::cout << std::endl;
+        std::cout << "|──────────|──────────|──────────|──────────|" << std::endl;
+        std::cout << "│" << std::setw(10) << std::left << "Operators" << std::endl;
+        std::cout << "├──────────┼──────────┼──────────┼──────────┤" << std::endl;
+        for(std::vector<Channel>::iterator it = Server::_channels.begin(); it != Server::_channels.end(); ++it) {
+            // std::cout << "User FD: " << (*it)._fd << " | User ID: " << (*it)._id << std::endl;
+            std::vector<User> temp_users = it->getOperators();
+		    int j = 1;
+		    for (std::vector<User>::iterator it_u = temp_users.begin(); it_u != temp_users.end(); it_u++)
+		    {
+                std::cout << "|" << std::setw(10) << it->getName() << std::endl;
+                std::cout << "|" << std::setw(10) << it_u->nickName << std::endl;;
+		    	j++;
+		    }
+        }
+        std::cout << "|──────────|──────────|──────────|──────────|" << std::endl;
+
+        std::cout << std::endl;
+        std::cout << std::endl;
+        std::cout << "|──────────|──────────|──────────|──────────|" << std::endl;
+        std::cout << "│" << std::setw(10) << std::left << "invites" << std::endl;
+        std::cout << "├──────────┼──────────┼──────────┼──────────┤" << std::endl;
+        for(std::vector<Channel>::iterator it = Server::_channels.begin(); it != Server::_channels.end(); ++it) {
+            // std::cout << "User FD: " << (*it)._fd << " | User ID: " << (*it)._id << std::endl;
+            std::vector<User> temp_users = it->invites;
+		    int j = 1;
+		    for (std::vector<User>::iterator it_u = temp_users.begin(); it_u != temp_users.end(); it_u++)
+		    {
+                std::cout << "|" << std::setw(10) << j;
+                std::cout << "|" << std::setw(10) << it_u->nickName << std::endl;
+		    	j++;
+		    }
+        }
+        std::cout << "|──────────|──────────|──────────|──────────|" << std::endl;
+}
+
+
+    // int i = 1;
+	// int j;
+	// for (std::vector<Channel>::iterator it = Server::_channels.begin(); it != Server::_channels.end(); it++)
+	// {
+	// 	std::cout << "Channel " << i << "'s name in server vector -> " << it->getName() << std::endl;
+	// 	std::vector<User> temp_users = it->getUsers();
+	// 	j = 1;
+	// 	for (std::vector<User>::iterator it_u = temp_users.begin(); it_u != temp_users.end(); it_u++)
+	// 	{
+	// 		std::cout << "User " << j << " - " << it_u->nickName << std::endl;
+	// 		j++;
+	// 	}
+	// 	j = 1;
+	// 	std::vector<User> temp_op = it->getOperators();
+	// 	for (std::vector<User>::iterator it_u = temp_op.begin(); it_u != temp_op.end(); it_u++)
+	// 	{
+	// 		std::cout << "Operator " << j << " - " << it_u->nickName << std::endl;
+	// 		j++;
+	// 	}
+	// 	j = 1;
+	// 	for (std::vector<User>::iterator it_i = it->invites.begin(); it_i != it->invites.end(); it_i++)
+	// 	{
+	// 		std::cout << "Invite " << j << " - " << it_i->nickName << std::endl;
+	// 		j++;
+	// 	}
+    // }
+
 std::string Server::_password = "";
+std::string Server::bufferStr = "";
+std::string Server::_hostName = "";
+char Server::c_buffer[BUFFER_SIZE]= {0};
+char Server::c_hostName[MAX_HOST_NAME] = {0};
 int Server::serverSocket = -1;
 int Server::max_sd = -1;
 int Server::sd = -1;
@@ -184,11 +278,8 @@ int Server::_port = -1;
 int Server::newSocket = -1;
 int Server::curIndex = -1;
 int Server::addrlen = sizeof(struct sockaddr_in);
-struct sockaddr_in Server::address;
-char Server::buffer[BUFFER_SIZE]= {0};
-std::string Server::bufferStr = "";
-fd_set Server::readfds;
 std::vector<int> Server::_fds;
-std::vector<std::string> Server::_cmd(2);
 std::vector<User> Server::_users;
 std::vector<Channel> Server::_channels;
+struct sockaddr_in Server::address;
+fd_set Server::readfds;
