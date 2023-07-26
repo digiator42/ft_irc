@@ -16,12 +16,14 @@ void Utils::signalHandler(int signum) {
     std::cout << RED << "Interrupt signal (" << signum << ") received." << RESET << "\n";
 
     for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it) {
-        if (*it != 0) {
             std::cout << "Closing socket: " << *it << std::endl;
             close(*it);
-        }
     }
+	shutdown(Server::serverSocket, SHUT_RDWR); //shutdown the server socket, suppose to handle still opened fds,if there is any data left before closing
     close(Server::serverSocket);
+	Server::_fds.clear();
+	Server::_users.clear();
+	Server::_channels.clear();
     exit(signum);
 }
 

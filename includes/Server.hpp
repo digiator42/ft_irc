@@ -14,10 +14,12 @@
 #include <iomanip>
 #include <signal.h>
 #include <stdint.h>
+#include <unistd.h>
 
 
 #define MAX_PORT UINT16_MAX
 #define MAX_BUFFER 1024
+#define MAX_HOST_NAME 512
 #define CYAN "\033[36m"
 #define YELLOW "\033[33m"
 #define RED "\033[31m"
@@ -36,6 +38,10 @@ public:
 	static const int MAX_CLIENTS = FD_SETSIZE;
 	static const int BUFFER_SIZE = MAX_BUFFER;
 	static std::string _password;
+	static std::string _hostName;
+	static std::string bufferStr;
+	static char c_buffer[MAX_BUFFER];
+	static char c_hostName[MAX_HOST_NAME];
 	static int serverSocket;
 	static int max_sd;
 	static int sd;
@@ -45,8 +51,6 @@ public:
 	static int curIndex;
 	static int addrlen;
 	static struct sockaddr_in address;
-	static char buffer[MAX_BUFFER];
-	static std::string bufferStr;
 	static fd_set readfds;
 	class ServerException : public std::exception
 	{

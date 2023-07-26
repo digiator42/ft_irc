@@ -27,13 +27,16 @@ void Server::openSocket() {
     }
 
     addrlen = sizeof( Server::address );
-    std::cout << GREEN << "IRC Server started on port " << RESET << Server::_port << std::endl;
-    std::cout << "Waiting for incoming connections..." << std::endl;
+
+    gethostname( c_hostName, MAX_HOST_NAME );
+    Server::_hostName = c_hostName;
+    std::cout << GREEN_LIGHT << "IRC Server started on port " << Server::_port << " : " << _hostName << std::endl;
+    std::cout << "Waiting for incoming connections..." << RESET << std::endl;
 }
 
 /**
  * @brief Add client sockets to the set, Wait for activity on any of the sockets
- * If activity on the server socket, it's a new connection
+ * If activity on the server socket, it's a new connecStion
  */
 void Server::run( void ) {
 
@@ -110,7 +113,7 @@ void Server::handleClientMessages() {
 
         if ( FD_ISSET(Server::sd, &Server::readfds) ) {
 		
-            if ( (Server::valread = recv(Server::sd, Server::buffer, BUFFER_SIZE, 0)) <= 0 ) {
+            if ( (Server::valread = recv(Server::sd, Server::c_buffer, BUFFER_SIZE, 0)) <= 0 ) {
 
                 std::cout << RED << "Host disconnected, IP " << inet_ntoa(Server::address.sin_addr) <<
                      ", port " << ntohs(Server::address.sin_port) << RESET << std::endl;
@@ -132,12 +135,12 @@ void Server::handleClientMessages() {
 
             } else {
                 // std::cout << "RD: ---> " << Server::valread << std::endl;
-                Server::valread < BUFFER_SIZE ? Server::buffer[Server::valread] = '\0' : Server::buffer[BUFFER_SIZE - 1] = '\0';
+                Server::valread < BUFFER_SIZE ? Server::c_buffer[Server::valread] = '\0' : Server::c_buffer[BUFFER_SIZE - 1] = '\0';
                 for( std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it ) {
                     if ( it->_fd == Server::sd ) {
                         // std::cout << YELLOW << "Received message from client: [NO:" << it->_id << "] " << Server::buffer << RESET << std::endl;
-                        it->input += Server::buffer;
-                        std::string userInput( Server::buffer );
+                        it->input += Server::c_buffer;
+                        std::string userInput( Server::c_buffer );
                         curIndex = i;
                         if ( !userInput.empty() ) {
                             it->execute( userInput, &( *it ) );
@@ -176,6 +179,10 @@ void Server::showUsers(void) {
 }
 
 std::string Server::_password = "";
+std::string Server::bufferStr = "";
+std::string Server::_hostName = "";
+char Server::c_buffer[BUFFER_SIZE]= {0};
+char Server::c_hostName[MAX_HOST_NAME] = {0};
 int Server::serverSocket = -1;
 int Server::max_sd = -1;
 int Server::sd = -1;
@@ -184,10 +191,8 @@ int Server::_port = -1;
 int Server::newSocket = -1;
 int Server::curIndex = -1;
 int Server::addrlen = sizeof(struct sockaddr_in);
-struct sockaddr_in Server::address;
-char Server::buffer[BUFFER_SIZE]= {0};
-std::string Server::bufferStr = "";
-fd_set Server::readfds;
 std::vector<int> Server::_fds;
 std::vector<User> Server::_users;
 std::vector<Channel> Server::_channels;
+struct sockaddr_in Server::address;
+fd_set Server::readfds;
