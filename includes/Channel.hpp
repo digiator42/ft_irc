@@ -23,6 +23,7 @@
 # define NO_INV_M " :Cannot join channel (+i).\n"
 # define YES_USR_M " :is already on channel\n"
 # define INVALID_CHAN "Error: Invalid Channel Name. Channel name starts with \'#\' or \'&\'\n"
+# define INVALID_CHAN_NAME "Error: Invalid Channel Name. Channel should have more than one character\n"
 # define CHAN_FULL "  :Cannot join channel (+l)\n"
 
 class User;

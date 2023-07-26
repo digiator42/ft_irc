@@ -44,7 +44,12 @@ void Utils::closeThis(User &user)
 		if (it_u != it->users.end())
 			it->users.erase(it_u);
 		if (it_o != it->operators.end())
+		{
 			it->operators.erase(it_o);
+			it_o = it->users.begin();
+			if (it_o != it->users.end())
+				it->operators.push_back(*it_o);
+		}
 	}
 	Server::showUsers();
 	Server::showChannels();
@@ -74,16 +79,19 @@ std::string Utils::trim(std::string &str) {
 }
 
 void sendErrorMessage(int fd, const std::string& message, const std::string& key) {
-    std::string errorMsg = key + " ERROR: " + message;
+    std::string errorMsg = RED + key + " ERROR: " + message + RESET;
     send(fd, errorMsg.c_str(), strlen(errorMsg.c_str()), 0);
 }
 
 void handleJoinCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user) {
-    if (splitmsg.size() == 2 || splitmsg.size() == 3) {
+    if (splitmsg.size() == 2) {
         cmd.join(splitmsg.at(1), "", *user);
-    } else {
+    } else if (splitmsg.size() == 3){
+		cmd.join(splitmsg.at(1), splitmsg.at(2), *user);
+	}
+	else {
 		return ; // temporary
-        // sendErrorMessage(user->_fd, "JOIN command requires 2 or 3 arguments\n", TOO_MANY_ARGS);
+        	// sendErrorMessage(user->_fd, "JOIN command requires 2 or 3 arguments\n", TOO_MANY_ARGS);
     }
 }
 

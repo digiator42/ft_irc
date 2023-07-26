@@ -129,7 +129,12 @@ void Server::handleClientMessages() {
 					if (it_u != it->users.end())
 						it->users.erase(it_u);
 					if (it_o != it->operators.end())
+					{
 						it->operators.erase(it_o);
+						it_o = it->users.begin();
+						if (it_o != it->users.end())
+							it->operators.push_back(*it_o);
+					}
 				}
                 Server::showUsers();
                 Server::showChannels();
@@ -211,7 +216,7 @@ void Server::showChannels(void) {
 		    int j = 1;
 		    for (std::vector<User>::iterator it_u = temp_users.begin(); it_u != temp_users.end(); it_u++)
 		    {
-                std::cout << "|" << std::setw(10) << it->getName() << std::endl;
+                std::cout << "|" << std::setw(10) << it->getName();
                 std::cout << "|" << std::setw(10) << it_u->nickName << std::endl;;
 		    	j++;
 		    }

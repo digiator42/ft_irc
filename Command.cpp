@@ -71,8 +71,10 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 	// check if channel exists
 	for (it_s = channel_split.begin(); it_s != channel_split.end(); it_s++)
 	{
-		if (it_s->at(0) != '#' && it_s->at(0) != '&')
+		if ((it_s->at(0) != '#' && it_s->at(0) != '&'))
 			send(user._fd, INVALID_CHAN, strlen(INVALID_CHAN), 0);
+		else if(it_s->size() <= 1)
+			send(user._fd, INVALID_CHAN_NAME, strlen(INVALID_CHAN_NAME), 0);
 		else
 		{
 			it = chan_exist(*it_s);
@@ -87,7 +89,6 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 				{
 					if (it->isMode('k') == 1)
 					{
-						std::cout << "pleassseeee work" << std::endl;
 						if (*it_k == it->getPass())
 						{
 							if (it->isMode('i') == 1)
