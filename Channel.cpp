@@ -138,6 +138,11 @@ void Channel::kickUser(std::string user_kick, std::string reason, User user)
 			}
 			else
 			{
+				if(user.nickName == user_kick)
+				{
+					sendErrorMessage(user._fd, "You cannot kick yourself\n", ERR_CANNOTSENDTOCHAN);
+					return ;
+				}
 				send(it_s->_fd, "You have been kicked from the channel\n", strlen("You have been kicked from the channel\n"), 0);
 				this->users.erase(it_s);
 				for (it_o = this->operators.begin(); it_o != this->operators.end(); ++it_o)

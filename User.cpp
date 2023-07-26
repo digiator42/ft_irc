@@ -43,8 +43,6 @@ void User::showchannels(User &user)
 void User::showClients(User &user)
 {
 	(void)user;
-	for (int i = 0; i < Server::max_sd; i++)
-	std::cout << "client " << Server::_fds.at(i) << " " << std::endl;
 }
 
 void User::showUsers(User &user)
@@ -128,11 +126,7 @@ bool	User::user_options(User *user, std::vector<std::string> splitmsg)
 		send(user->_fd, help.c_str(), help.length(), 0);
 	}
 	else if (splitmsg.size() > 0 && splitmsg.at(0) == "PASS") {
-			std::cout << splitmsg.at(0) << std::endl;
-			if (splitmsg.size() != 2) { //useless for now
-				send(user->_fd, ("461 " + splitmsg.at(0) + " :Not Enough Parameters\r\n").c_str(), 26, 0);
-			}
-			else if (user->isAuth == true) {
+			 if (user->isAuth == true) {
 				send(user->_fd, "462 :You may not reregister\r\n", 30, 0);
     	}
 	}
@@ -348,3 +342,7 @@ bool	User::parse_cmd(std::string str)
 
 	return true;
 }
+
+// PASS 1
+// NICK root
+// USER root root 10.13.2.7 :root
