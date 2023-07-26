@@ -87,6 +87,7 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 				{
 					if (it->isMode('k') == 1)
 					{
+						std::cout << "pleassseeee work" << std::endl;
 						if (*it_k == it->getPass())
 						{
 							if (it->isMode('i') == 1)
@@ -100,7 +101,7 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 								it->addUser(user);
 						}
 						else
-						sendErrorMessage(user._fd, (channel_s + NO_KEY_M), ERR_BADCHANNELKEY);
+							sendErrorMessage(user._fd, (channel_s + NO_KEY_M), ERR_BADCHANNELKEY);
 					}
 					else
 						sendErrorMessage(user._fd, "Key Not required to join channel\n", ERR_BADCHANNELKEY);
@@ -121,7 +122,12 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 							sendErrorMessage(user._fd, (channel_s + NO_INV_M), ERR_INVITEONLYCHAN);
 					}
 					else
-						it->addUser(user);
+					{
+						if (it->isMode('k') == 1)
+								sendErrorMessage(user._fd, (channel_s + NO_KEY_M), ERR_BADCHANNELKEY);
+						else
+							it->addUser(user);
+					}
 				}
 			}
 			else

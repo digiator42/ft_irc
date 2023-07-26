@@ -191,10 +191,11 @@ void Channel::exec_mode(std::string mode, User &user, std::string arg)
 			}
 			else
 			{
+				it_s = this->op_in_chan(it_s->_fd);
 				if (this->isOperator(*it_s))
 				{
-					this->users.erase(it_s);
 					send(it_s->_fd, ("You are no longer an operator of " + this->name + " channel \n").c_str(), strlen(("You are mo onger an operator of " + this->name + " channel \n").c_str()), 0);
+					this->operators.erase(it_s);
 				}
 				else
 					send(user._fd, "User is not an Operator\n", strlen("User is not an Operator\n"), 0);
