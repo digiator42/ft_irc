@@ -117,9 +117,7 @@ bool	User::user_options(User *user, std::vector<std::string> splitmsg)
 		"show clients - show all clients\n"
 		"show users - show all users\n"
 		"kick <nick> - kick user\n"
-		"exit - close connection\n"
 		"quit - close connection\n"
-		"close - close connection\n"
 		"help - show help\n";
 		send(user->_fd, help.c_str(), help.length(), 0);
 	}
@@ -159,6 +157,8 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
 		handleWhoisCommand(splitmsg, cmd, user);
 	}else if (cmdType == MODE) {
 		handleModeCommand(splitmsg, cmd, user);
+	} else if (cmdType != "NICK" && cmdType != "PASS" && cmdType != "USER" && cmdType != "CAP"){
+		sendErrorMessage(user->_fd, "Unknown command\n", UNKNOWN_CMD);
 	}
 
 	int i = 1;

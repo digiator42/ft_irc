@@ -19,7 +19,7 @@
 #define WHOIS "WHOIS"
 #define PING "PING"
 #define PONG "TOPIC"
-
+#define UNKNOWN_CMD "421"
 #define ERR_NICKCOLLISION "436"
 #define WRONG_PASS_CODE "464"
 #define PRIVMSG_EMPTY "412"
