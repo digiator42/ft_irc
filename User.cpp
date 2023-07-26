@@ -123,6 +123,15 @@ bool	User::user_options(User *user, std::vector<std::string> splitmsg)
 		"help - show help\n";
 		send(user->_fd, help.c_str(), help.length(), 0);
 	}
+	else if (splitmsg.size() > 0 && splitmsg.at(0) == "PASS") {
+			std::cout << splitmsg.at(0) << std::endl;
+			if (splitmsg.size() != 2) { //useless for now
+				send(user->_fd, ("461 " + splitmsg.at(0) + " :Not Enough Parameters\r\n").c_str(), 26, 0);
+			}
+			else if (user->isAuth == true) {
+				send(user->_fd, "462 :You may not reregister\r\n", 30, 0);
+    	}
+	}
 	return true;
 }
 
@@ -150,16 +159,6 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
 		handleWhoisCommand(splitmsg, cmd, user);
 	}else if (cmdType == MODE) {
 		handleModeCommand(splitmsg, cmd, user);
-	}
-	else if (cmdType == "PASS") {
-			std::cout << splitmsg.at(0) << std::endl;
-			if (splitmsg.size() != 2) { //useless for now
-				send(user->_fd, ("461 " + splitmsg.at(0) + " :Not Enough Parameters\r\n").c_str(), 26, 0);
-			}
-			else if (user->isAuth == true) {
-				send(user->_fd, "462 :You may not reregister\r\n", 30, 0);
-    	}
-		return ;
 	}
 
 	int i = 1;
