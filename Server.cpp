@@ -189,6 +189,5 @@ char Server::buffer[BUFFER_SIZE]= {0};
 std::string Server::bufferStr = "";
 fd_set Server::readfds;
 std::vector<int> Server::_fds;
-std::vector<std::string> Server::_cmd(2);
 std::vector<User> Server::_users;
 std::vector<Channel> Server::_channels;

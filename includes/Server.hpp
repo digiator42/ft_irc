@@ -5,18 +5,12 @@
 #include "Channel.hpp"
 #include "Utils.hpp"
 #include <iostream>
-#include <string>
-#include <cstring>
 #include <vector>
-#include <algorithm>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include <unistd.h>
 #include <sys/select.h>
 #include <fcntl.h>
 #include <cerrno>
-#include <iostream>
-#include <sstream>
 #include <iomanip>
 #include <signal.h>
 #include <stdint.h>
@@ -30,18 +24,17 @@
 #define GREEN "\033[32m"
 #define RESET "\033[0m"
 
-const int MAX_CLIENTS = FD_SETSIZE;
-const int BUFFER_SIZE = MAX_BUFFER;
 
 class User;
 class Channel;
-
 class Server
 {
 private:
 	Server(void);
 
 public:
+	static const int MAX_CLIENTS = FD_SETSIZE;
+	static const int BUFFER_SIZE = MAX_BUFFER;
 	static std::string _password;
 	static int serverSocket;
 	static int max_sd;
@@ -55,9 +48,6 @@ public:
 	static char buffer[MAX_BUFFER];
 	static std::string bufferStr;
 	static fd_set readfds;
-	static std::vector<std::string> _cmd;
-
-
 	class ServerException : public std::exception
 	{
 		private:
