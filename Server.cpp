@@ -144,7 +144,7 @@ void Server::handleClientMessages() {
                 Server::valread < BUFFER_SIZE ? Server::c_buffer[Server::valread] = '\0' : Server::c_buffer[BUFFER_SIZE - 1] = '\0';
                 for( std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it ) {
                     if ( it->_fd == Server::sd ) {
-                        // std::cout << YELLOW << "Received message from client: [NO:" << it->_id << "] " << Server::buffer << RESET << std::endl;
+                        std::cout << YELLOW << "Received message from client: [NO:" << it->_id << "] " << Server::c_buffer << RESET << std::endl;
                         it->input += Server::c_buffer;
                         std::string userInput( Server::c_buffer );
                         curIndex = i;
@@ -241,34 +241,6 @@ void Server::showChannels(void) {
         }
         std::cout << "|──────────|──────────|──────────|──────────|" << std::endl;
 }
-
-
-    // int i = 1;
-	// int j;
-	// for (std::vector<Channel>::iterator it = Server::_channels.begin(); it != Server::_channels.end(); it++)
-	// {
-	// 	std::cout << "Channel " << i << "'s name in server vector -> " << it->getName() << std::endl;
-	// 	std::vector<User> temp_users = it->getUsers();
-	// 	j = 1;
-	// 	for (std::vector<User>::iterator it_u = temp_users.begin(); it_u != temp_users.end(); it_u++)
-	// 	{
-	// 		std::cout << "User " << j << " - " << it_u->nickName << std::endl;
-	// 		j++;
-	// 	}
-	// 	j = 1;
-	// 	std::vector<User> temp_op = it->getOperators();
-	// 	for (std::vector<User>::iterator it_u = temp_op.begin(); it_u != temp_op.end(); it_u++)
-	// 	{
-	// 		std::cout << "Operator " << j << " - " << it_u->nickName << std::endl;
-	// 		j++;
-	// 	}
-	// 	j = 1;
-	// 	for (std::vector<User>::iterator it_i = it->invites.begin(); it_i != it->invites.end(); it_i++)
-	// 	{
-	// 		std::cout << "Invite " << j << " - " << it_i->nickName << std::endl;
-	// 		j++;
-	// 	}
-    // }
 
 std::string Server::_password = "";
 std::string Server::bufferStr = "";
