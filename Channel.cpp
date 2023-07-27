@@ -6,6 +6,7 @@ Channel::Channel(std::string str_n, std::string str_p)
 	// std::cout << GREEN_OLIVE;
 	// std::cout << "Default Constructor for Channel called" << std::endl;
 	// std::cout << RESET;
+	this->flag = 0;
 	this->name = str_n;
 	this->pass = str_p;
 	this->user_limit = 0;
@@ -197,10 +198,11 @@ void Channel::exec_mode(std::string mode, User &user, std::string arg)
 			else
 			{
 				it_s = this->op_in_chan(it_s->_fd);
-				if (this->isOperator(*it_s))
+				if (this->flag != 1 && this->isOperator(*it_s)) // one more check in the if statement
 				{
 					send(it_s->_fd, ("You are no longer an operator of " + this->name + " channel \n").c_str(), strlen(("You are mo onger an operator of " + this->name + " channel \n").c_str()), 0);
 					this->operators.erase(it_s);
+					this->flag = 1; // flag is set to 1
 				}
 				else
 					send(user._fd, "User is not an Operator\n", strlen("User is not an Operator\n"), 0);

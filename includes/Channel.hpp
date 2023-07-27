@@ -43,10 +43,10 @@ class Channel{
 	std::vector<User>::iterator it_u;
 	std::vector<User>::iterator it_o;
 	Channel(std::string str_n, std::string str_p);
+	int flag; // fixed the segfault
 	// copy constructor
 	// assignment operator overload
 	~Channel(void);
-	
 	// GETTERS
 	int getUserLimit(void); 
 	std::string getTopic(void);
