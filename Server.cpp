@@ -67,12 +67,6 @@ void Server::run( void ) {
 
         if ( FD_ISSET( Server::serverSocket, &Server::readfds ) ) {
             acceptConnection();
-            for(std::vector<int>::iterator it = _fds.begin(); it != _fds.end(); ++it) {
-                std::cout << "vector fds: " << *it << std::endl;
-            }
-            for(std::vector<User>::iterator it = _users.begin(); it != _users.end(); ++it) {
-                std::cout << "User FD: " << (*it)._fd << " User ID: " << (*it)._id << std::endl;
-            }
         }
         handleClientMessages();
     }
@@ -90,7 +84,7 @@ void Server::acceptConnection() {
     Server::_fds.push_back( Server::newSocket );
     Server::_users.push_back( User( Server::newSocket, Server::newSocket - serverSocket ) );
     std::cout << GREEN << "New connection, socket fd is " << Server::newSocket << ", IP is : " << inet_ntoa(Server::address.sin_addr) << 
-        ", port : " << ntohs(Server::address.sin_port) << RESET << std::endl;
+        ", port : " << Server::_port << RESET << std::endl;
 
     // flags = fcntl(newSocket, F_GETFL, 0);
     if ( fcntl( Server::newSocket, F_SETFL, O_NONBLOCK ) < 0 ) {
@@ -140,15 +134,11 @@ void Server::handleClientMessages() {
 					if (it_i != it->invites.end())
 						it->invites.erase(it_i);
 				}
-                Server::showUsers();
-                Server::showChannels();
 
             } else {
-                // std::cout << "RD: ---> " << Server::valread << std::endl;
                 Server::valread < BUFFER_SIZE ? Server::c_buffer[Server::valread] = '\0' : Server::c_buffer[BUFFER_SIZE - 1] = '\0';
                 for( std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it ) {
                     if ( it->_fd == Server::sd ) {
-                        std::cout << YELLOW << "Received message from client: [NO:" << it->_id << "] " << Server::c_buffer << RESET << std::endl;
                         it->input += Server::c_buffer;
                         std::string userInput( Server::c_buffer );
                         curIndex = i;
@@ -166,84 +156,6 @@ void Server::handleClientMessages() {
 
 std::string Server::getPassword(void) {
     return Server::_password;
-}
-
-/**
- * @brief Show all users connected to the server
- */
-void Server::showUsers(void) {
-        std::cout << "|──────────|──────────|──────────|──────────|" << std::endl;
-        std::cout << "│" << std::setw(10) << std::left << "ID";
-        std::cout << "│" << std::setw(10) << std::left << "name";
-        std::cout << "│" << std::setw(10) << std::left << "nickname";
-        std::cout << "│" << std::setw(10) << std::left << "fd" << "│" << std::endl;
-        std::cout << "├──────────┼──────────┼──────────┼──────────┤" << std::endl;
-        for(std::vector<User>::iterator it = Server::_users.begin(); it != Server::_users.end(); ++it) {
-            // std::cout << "User FD: " << (*it)._fd << " | User ID: " << (*it)._id << std::endl;
-            std::cout << "|" << std::setw(10) << (*it)._id;
-		    std::cout << "|" << std::setw(10) << (*it).userName;
-		    std::cout << "|" << std::setw(10) << (*it).nickName;
-		    std::cout << "|" << std::setw(10) << (*it)._fd << "|" << std::endl;
-        }
-        std::cout << "|──────────|──────────|──────────|──────────|" << std::endl;
-}
-
-void Server::showChannels(void) {
-        std::cout << std::endl;
-        std::cout << std::endl;
-        std::cout << "|──────────|──────────|──────────|──────────|" << std::endl;
-        std::cout << "│" << std::setw(10) << std::left << "Channels" << std::endl;
-        std::cout << "├──────────┼──────────┼──────────┼──────────┤" << std::endl;
-        for(std::vector<Channel>::iterator it = Server::_channels.begin(); it != Server::_channels.end(); ++it) {
-            std::cout << "|──────────|──────────|──────────|──────────|" << std::endl;
-            std::cout << "│" << std::setw(10) << std::left << it->getName() << std::endl;
-            std::cout << "├──────────┼──────────┼──────────┼──────────┤" << std::endl;
-            std::vector<User> temp_users = it->getUsers();
-		    int j = 1;
-		    for (std::vector<User>::iterator it_u = temp_users.begin(); it_u != temp_users.end(); it_u++)
-		    {
-                std::cout << "|" << std::setw(10) << j;
-                std::cout << "|" << std::setw(10) << it_u->nickName << std::endl;;
-		    	j++;
-		    }
-        }
-        std::cout << "|──────────|──────────|──────────|──────────|" << std::endl;
-
-        std::cout << std::endl;
-        std::cout << std::endl;
-        std::cout << "|──────────|──────────|──────────|──────────|" << std::endl;
-        std::cout << "│" << std::setw(10) << std::left << "Operators" << std::endl;
-        std::cout << "├──────────┼──────────┼──────────┼──────────┤" << std::endl;
-        for(std::vector<Channel>::iterator it = Server::_channels.begin(); it != Server::_channels.end(); ++it) {
-            // std::cout << "User FD: " << (*it)._fd << " | User ID: " << (*it)._id << std::endl;
-            std::vector<User> temp_users = it->getOperators();
-		    int j = 1;
-		    for (std::vector<User>::iterator it_u = temp_users.begin(); it_u != temp_users.end(); it_u++)
-		    {
-                std::cout << "|" << std::setw(10) << it->getName();
-                std::cout << "|" << std::setw(10) << it_u->nickName << std::endl;;
-		    	j++;
-		    }
-        }
-        std::cout << "|──────────|──────────|──────────|──────────|" << std::endl;
-
-        std::cout << std::endl;
-        std::cout << std::endl;
-        std::cout << "|──────────|──────────|──────────|──────────|" << std::endl;
-        std::cout << "│" << std::setw(10) << std::left << "invites" << std::endl;
-        std::cout << "├──────────┼──────────┼──────────┼──────────┤" << std::endl;
-        for(std::vector<Channel>::iterator it = Server::_channels.begin(); it != Server::_channels.end(); ++it) {
-            // std::cout << "User FD: " << (*it)._fd << " | User ID: " << (*it)._id << std::endl;
-            std::vector<User> temp_users = it->invites;
-		    int j = 1;
-		    for (std::vector<User>::iterator it_u = temp_users.begin(); it_u != temp_users.end(); it_u++)
-		    {
-                std::cout << "|" << std::setw(10) << j;
-                std::cout << "|" << std::setw(10) << it_u->nickName << std::endl;
-		    	j++;
-		    }
-        }
-        std::cout << "|──────────|──────────|──────────|──────────|" << std::endl;
 }
 
 std::string Server::_password = "";

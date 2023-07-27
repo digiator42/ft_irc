@@ -55,8 +55,6 @@ void Utils::closeThis(User &user)
 		if (it_i != it->invites.end())
 			it->invites.erase(it_i);
 	}
-	Server::showUsers();
-	Server::showChannels();
 }
 
 

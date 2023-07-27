@@ -100,11 +100,6 @@ class User {
     void userErase(User &user);
     bool	parse_cmd(std::string str);
     friend std::ostream& operator<<(std::ostream& os, const User& user);
-    void whoAmI(User &user);
-    void showUsers(User &user);
-    void showClients(User &user);
-    void showchannels(User &user);
-    void kick(std::string nick);
     bool operator==(const User& other) const {
         return (this->_fd == other._fd);
     }
@@ -115,7 +110,6 @@ class User {
 
 };
 
-std::ostream& operator<<(std::ostream& out, const User& User);
 void sendErrorMessage(int fd, const std::string& message, const std::string& key);
 void handleJoinCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
 void handleKickCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);

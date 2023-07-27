@@ -8,7 +8,6 @@ User::User(int fd, int id) : _fd(fd), _id(id), isAuth(false), isOperator(false),
 	change_flag = false;
 	pass_issue = 0;
 	alr_reg = 0;
-	std::cout << "User created" << std::endl;
 	input = "";
 }
 
@@ -23,32 +22,6 @@ void User::userErase(User &user)
 			--it;
 		}
 	}
-}
-
-void User::whoAmI(User &user)
-{
-	std::cout << CYAN << user << RESET <<std::endl;
-	std::string userDetails = "UserName: [" + user.userName + "]" + ", Nick: " + "[" + user.nickName + "]" + ", Auth: "
-			+ "[" + (user.isAuth ? "YES" : "NO") + "]" + ", [fd: " + Utils::to_string(user._fd) +  "]" + ".\n";
-	send(user._fd, (YELLOW + userDetails + RESET).c_str(), userDetails.length() + strlen(YELLOW) + strlen(RESET) , 0);
-
-}
-
-void User::showchannels(User &user)
-{
-	(void)user;
-
-}
-
-void User::showClients(User &user)
-{
-	(void)user;
-}
-
-void User::showUsers(User &user)
-{
-	(void)user;
-	Server::showUsers();
 }
 
 int User::authorise(User *user, std::string cmd)
@@ -73,7 +46,6 @@ int User::authorise(User *user, std::string cmd)
 				}
 			}
 		}
-		// std::cout << "nick : " << nickName << "\n";
 		user->nickName = _cmd[1];
 		user->userName = _cmd[0];
 		if(user->nickName != "" && user->userName != "" && pass == Server::getPassword() && !is_registered)
@@ -114,17 +86,6 @@ bool	User::user_options(User *user, std::vector<std::string> splitmsg)
 		Utils::closeThis(*user);
 		return false;
 	}	
-	else if (splitmsg.size() > 0 && splitmsg.at(0) == "help")
-	{
-		std::string help = "Available commands: \n"
-		"whoami - show user details\n"
-		"show clients - show all clients\n"
-		"show users - show all users\n"
-		"kick <nick> - kick user\n"
-		"quit - close connection\n"
-		"help - show help\n";
-		send(user->_fd, help.c_str(), help.length(), 0);
-	}
 	else if (splitmsg.size() > 0 && splitmsg.at(0) == "PASS") {
 			 if (user->isAuth == true) {
 				send(user->_fd, "462 :You may not reregister\r\n", 30, 0);
@@ -140,7 +101,6 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
 
     Command cmd;
     std::string cmdType = splitmsg.at(0);
-	std::cout << "cmdType -> {" << cmdType << "}" << std::endl;
     if (cmdType == JOIN) {
         handleJoinCommand(splitmsg, cmd, user);
     } else if (cmdType == KICK) {
@@ -191,7 +151,6 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
 			j++;
 		}
 		i++;
-		Server::showChannels();
 		if (it->isMode('i') == 1)
 			std::cout << "mode +i" << std::endl;
 		if (it->isMode('o') == 1)
@@ -244,7 +203,7 @@ void User::change_user(User *user, std::vector<std::string> splitmsg)
 					it_i->nickName = splitmsg.at(1);
 		}
 	}
-	else // should be returned when PRIVMSG no nick name
+	else
 	{
 		std::string S = ERR_NEEDMOREPARAMS;
 		S.append(" :Not enough parameters\r\n");
@@ -255,8 +214,6 @@ void User::change_user(User *user, std::vector<std::string> splitmsg)
 
 void User::execute(std::string cmd, User *user)
 {
-	std::string levels[3] = {"whoami", "show clients", "show users"};
-	void (User::*f[3])(User &user) = { &User::whoAmI, &User::showClients, &User::showUsers};
 	std::vector<std::string> splitmsg = Utils::split(cmd);
 
 	if(!isAuth) {
@@ -296,7 +253,6 @@ void User::execute(std::string cmd, User *user)
 			{
 				std::string S = ERR_NOTREGISTERED;
 				S.append(" You have not registered\n");
-				std::cout << "->>>>>>>>>" << splitmsg.size() << std::endl;
 				send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
 			}
 			else
@@ -306,7 +262,6 @@ void User::execute(std::string cmd, User *user)
 			}
 		}
 	}
-	// std::cout << "hiiiiiiii->>>>>>|||" << cmd << "|" << std::endl;
 
 	if(splitmsg.size() > 0 && splitmsg.at(0) == "NICK" && change_flag == false)
 		change_user(user, splitmsg);
@@ -335,24 +290,8 @@ void User::execute(std::string cmd, User *user)
 		user_cmds(user, splitmsg);
 		change_flag = false;
 	}
-		for (int i = 0; i < 3; i++)
-		{
-			cmd = Utils::trim(cmd);
-			cmd == levels[i] ? (this->*f[i])(*user) : (void)0;
-		}
 
 	return ;
-}
-
-
-std::ostream& operator<<(std::ostream& out, const User& User)
-{
-	std::string input = User.input;
-	std::string userDetails = "UserName: [" + User.userName + "]" + ", Nick: " + "[" + User.nickName + "]" + ", Auth: "
-		+ "[" + (User.isAuth ? "YES" : "NO") + "]" + ", last inputs: " + "[" + input.erase(input.length() - 1, 1) + "]" + ".";
-
-    out << userDetails;
-    return out;
 }
 
 bool	User::parse_cmd(std::string str)
@@ -399,7 +338,3 @@ bool	User::parse_cmd(std::string str)
 
 	return true;
 }
-
-// PASS 1
-// NICK root
-// USER root root 10.13.2.7 :root
