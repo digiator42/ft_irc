@@ -356,6 +356,9 @@ void Command::part(std::string channel, User user)
 			it_u = it_c->op_in_chan(user._fd);
 			if (it_u != it_c->operators.end())
 				it_c->operators.erase(it_u);
+			it_u = it_c->users.begin();
+			if (it_u != it_c->users.end() && it_c->operators.size() == 0)
+				it_c->operators.push_back(*it_u);
 		}
 		else
 			sendErrorMessage(user._fd, (channel + NOT_USER_M), ERR_NOTONCHANNEL);
