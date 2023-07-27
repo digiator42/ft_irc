@@ -50,9 +50,9 @@ int User::authorise(User *user, std::string cmd)
 		user->userName = _cmd[0];
 		if(user->nickName != "" && user->userName != "" && pass == Server::getPassword() && !is_registered)
 		{
-			const char *msg = ":irc 001 user :Welcome hello\n"
-				":irc 002 user :Host are none\n"
-				":irc 003 user :Created\n";
+			const char *msg = ":irc 001 user :Welcome to FT_IRC\n"
+				":irc 002 user :Hosts are us\n"
+				":irc 003 user :Created in 42 labs\n";
 			send(user->_fd, msg, strlen(msg), 0);
 			if(pass == Server::getPassword()){
 				user->isAuth = true;
@@ -123,44 +123,6 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
 		handlePartCommand(splitmsg, cmd, user);
 	} else if (cmdType != "NICK" && cmdType != "PASS" && cmdType != "USER" && cmdType != "CAP"){
 		sendErrorMessage(user->_fd, "Unknown command\n", UNKNOWN_CMD);
-	}
-
-	int i = 1;
-	int j;
-	for (std::vector<Channel>::iterator it = Server::_channels.begin(); it != Server::_channels.end(); it++)
-	{
-		std::cout << "Channel " << i << "'s name in server vector -> " << it->getName() << std::endl;
-		std::vector<User> temp_users = it->getUsers();
-		j = 1;
-		for (std::vector<User>::iterator it_u = temp_users.begin(); it_u != temp_users.end(); it_u++)
-		{
-			std::cout << "User " << j << " - " << it_u->nickName << std::endl;
-			j++;
-		}
-		j = 1;
-		std::vector<User> temp_op = it->getOperators();
-		for (std::vector<User>::iterator it_u = temp_op.begin(); it_u != temp_op.end(); it_u++)
-		{
-			std::cout << "Operator " << j << " - " << it_u->nickName << std::endl;
-			j++;
-		}
-		j = 1;
-		for (std::vector<User>::iterator it_i = it->invites.begin(); it_i != it->invites.end(); it_i++)
-		{
-			std::cout << "Invite " << j << " - " << it_i->nickName << std::endl;
-			j++;
-		}
-		i++;
-		if (it->isMode('i') == 1)
-			std::cout << "mode +i" << std::endl;
-		if (it->isMode('o') == 1)
-			std::cout << "mode +o" << std::endl;
-		if (it->isMode('l') == 1)
-			std::cout << "mode +l" << std::endl;
-		if (it->isMode('t') == 1)
-			std::cout << "mode +t" << std::endl;
-		if (it->isMode('k') == 1)
-			std::cout << "mode +k" << std::endl;
 	}
 }
 

@@ -111,7 +111,7 @@ void Server::handleClientMessages() {
             if ( (Server::valread = recv(Server::sd, Server::c_buffer, BUFFER_SIZE, 0)) <= 0 ) {
 
                 std::cout << RED << "Host disconnected, IP " << inet_ntoa(Server::address.sin_addr) <<
-                     ", port " << ntohs(Server::address.sin_port) << RESET << std::endl;
+                     ", port " << Server::_port << RESET << std::endl;
                 FD_CLR(Server::sd, &Server::readfds);
                 close(Server::sd);
 

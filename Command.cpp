@@ -157,7 +157,6 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 					new_channel.addUser(user);
 					Server::_channels.push_back(new_channel);
 				}
-				std::cout << "Channel " << *it_s << " created!" << std::endl;
 			}
 		}
 	}
