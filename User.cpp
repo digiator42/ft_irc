@@ -50,10 +50,10 @@ int User::authorise(User *user, std::string cmd)
 		user->userName = _cmd[0];
 		if(user->nickName != "" && user->userName != "" && pass == Server::getPassword() && !is_registered)
 		{
-			const char *msg = ":irc 001 user :Welcome to FT_IRC\n"
-				":irc 002 user :Hosts are us\n"
-				":irc 003 user :Created in 42 labs\n";
-			send(user->_fd, msg, strlen(msg), 0);
+			std::string wlcmMsg = ":irc 001 " + user->nickName + " :Welcome to FT_IRC, " + user->userName + "@" + Server::_hostName + "\n"
+								  ":irc 002 " + user->nickName + " :Host is " + Server::_hostName + ", running version 1.0\n"
+								  ":irc 003 " + user->nickName + " :Created in 42 labs at July\n";
+			send(user->_fd, wlcmMsg.c_str(), strlen(wlcmMsg.c_str()), 0);
 			if(pass == Server::getPassword()){
 				user->isAuth = true;
 				is_registered = true;
@@ -71,8 +71,6 @@ int User::authorise(User *user, std::string cmd)
 					return false;
 				}
 		}
-		if(isAuth)
-			send(user->_fd, "\033[32mAUTHENTICATED\n\033[0m", strlen("\033[32mAUTHENTICATED\n\033[0m"), 0);
 		change_flag	= true;
 		return 1;
 	}

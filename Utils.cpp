@@ -15,7 +15,6 @@ void Utils::signalHandler(int signum) {
     std::cout << RED << "Interrupt signal (" << signum << ") received." << RESET << "\n";
 
     for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it) {
-            std::cout << "Closing socket: " << *it << std::endl;
             close(*it);
     }
 	shutdown(Server::serverSocket, SHUT_RDWR); //shutdown the server socket, suppose to handle still opened fds,if there is any data left before closing
@@ -28,8 +27,6 @@ void Utils::signalHandler(int signum) {
 
 void Utils::closeThis(User &user)
 {
-	std::cout << YELLOW << user.input << RESET;
-	std::cout << RED << "User " << user._fd << " closed" << RESET << std::endl;
 	close(user._fd);
 	std::vector<User>::iterator it_u;
 	std::vector<User>::iterator it_o;
@@ -80,7 +77,7 @@ std::string Utils::trim(std::string &str) {
 }
 
 void sendErrorMessage(int fd, const std::string& message, const std::string& key) {
-    std::string errorMsg = RED + key + " ERROR: " + message + RESET;
+    std::string errorMsg = key + " ERROR: " + message;
     send(fd, errorMsg.c_str(), strlen(errorMsg.c_str()), 0);
 }
 

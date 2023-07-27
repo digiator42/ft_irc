@@ -83,7 +83,7 @@ void Server::acceptConnection() {
 
     Server::_fds.push_back( Server::newSocket );
     Server::_users.push_back( User( Server::newSocket, Server::newSocket - serverSocket ) );
-    std::cout << GREEN << "New connection, socket fd is " << Server::newSocket << ", IP is : " << inet_ntoa(Server::address.sin_addr) << 
+    std::cout << GREEN << "New connection, " << "IP is : " << inet_ntoa(Server::address.sin_addr) << 
         ", port : " << Server::_port << RESET << std::endl;
 
     // flags = fcntl(newSocket, F_GETFL, 0);
