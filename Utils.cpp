@@ -100,10 +100,8 @@ void handleJoinCommand(const std::vector<std::string>& splitmsg, Command& cmd, U
 }
 
 void handleKickCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user) {
-    if (splitmsg.size() == 4) {
-        cmd.kick(splitmsg.at(1), splitmsg.at(2), splitmsg.at(3), *user);
-    } else if (splitmsg.size() == 3) {
-        cmd.kick(splitmsg.at(1), splitmsg.at(2), "", *user);
+    if (splitmsg.size() >= 3) {
+        cmd.kick(splitmsg.at(1), splitmsg.at(2), splitmsg, *user);
     } else {
         sendErrorMessage(user->_fd, "KICK command requires 3 or 4 arguments\n", TOO_MANY_ARGS);
     }

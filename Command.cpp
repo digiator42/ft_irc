@@ -163,15 +163,15 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 	}
 }
 
-void Command::kick(std::string channel, std::string user_kick, std::string reason, User user)
+void Command::kick(std::string channel, std::string user_kick, const std::vector<std::string>& splitmsg, User user)
 {
 	std::vector<Channel>::iterator it_c;
 
 	it_c = chan_exist(channel);
 	if (it_c != Server::_channels.end())
-		it_c->kickUser(user_kick, reason, user);
+		it_c->kickUser(user_kick, splitmsg, user);
 	else
-		sendErrorMessage(user._fd, (user.nickName + NO_CHAN_M), ERR_NOSUCHCHANNEL);
+		sendErrorMessage(user._fd, (channel + NO_CHAN_M), ERR_NOSUCHCHANNEL);
 }
 
 void Command::invite(std::string user, std::string channel, User user_o)

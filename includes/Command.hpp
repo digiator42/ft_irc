@@ -16,15 +16,13 @@ class Command{
 		std::vector<User>::iterator user_it;
 	public:
 		Command(void);
-		// copy contsructor
-		//assignent operator overlaod
 		~Command(void);
 
 		// - MEMEBER FUNCTIONS - 
 		// JOIN
 		void join(std::string channel_s, std::string key_s, User user); // probably references of these
 		// KICK
-		void kick(std::string channel, std::string user_kick, std::string reason, User user);
+		void kick(std::string channel, std::string user_kick, const std::vector<std::string>& splitmsg, User user);
 		// INVITE
 		void invite(std::string user, std::string channel, User user_o);
 		// TOPIC

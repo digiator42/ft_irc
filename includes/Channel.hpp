@@ -32,22 +32,23 @@ class User;
 class Channel{
 	private:
 		int user_limit;
-		std::string name;
 		std::string pass;
 		std::string topic;
 		std::map<char, int> mode;
-		std::string message;
 		Channel(void); //default
 	public:
+	// PUBLIC MEMBER VARIABLES
+	std::string name;
+	std::vector<User> invites;
 	std::vector<User> operators;
 	std::vector<User> users;
+	std::string message;
 	std::vector<User>::iterator it_u;
 	std::vector<User>::iterator it_o;
 	std::vector<User>::iterator it_i;
 	Channel(std::string str_n, std::string str_p);
-	// copy constructor
-	// assignment operator overload
 	~Channel(void);
+
 	// GETTERS
 	int getUserLimit(void); 
 	std::string getTopic(void);
@@ -65,7 +66,7 @@ class Channel{
 	
 	// MEMBER FUNCTIONS
 	void addUser(User new_user);
-	void kickUser(std::string user_kick, std::string reason, User user);
+	void kickUser(std::string user_kick, const std::vector<std::string>& splitmsg, User user);
 	void exec_mode(std::string mode, User &user, std::string arg);
 	std::vector<User>::iterator user_in_chan(int fd);
 	std::vector<User>::iterator op_in_chan(int fd);
@@ -77,8 +78,6 @@ class Channel{
 	int isOperator(User user);
 	int isUser(User user);
 	
-	// PUBLIC MEMBER VARIABLES
-	std::vector<User> invites;
 };
 
 // USER azra NICK azra PASS 4

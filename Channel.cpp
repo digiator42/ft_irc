@@ -2,9 +2,7 @@
 
 Channel::Channel(std::string str_n, std::string str_p)
 {
-	// std::cout << GREEN_OLIVE;
-	// std::cout << "Default Constructor for Channel called" << std::endl;
-	// std::cout << RESET;
+	// Constructor
 	this->name = str_n;
 	this->pass = str_p;
 	this->user_limit = 0;
@@ -19,9 +17,7 @@ Channel::Channel(std::string str_n, std::string str_p)
 
 Channel::~Channel(void)
 {
-	// std::cout << RED_LIGHT;
-	// std::cout << "Destructor for Channel called" << std::endl;
-	// std::cout << RESET;
+	// Destructor
 }
 
 // -- GETTERS --
@@ -120,11 +116,12 @@ void Channel::addUser(User new_user)
 	
 }
 
-void Channel::kickUser(std::string user_kick, std::string reason, User user)
+void Channel::kickUser(std::string user_kick, const std::vector<std::string>& splitmsg, User user)
 {
 	std::vector<User>::iterator it;
 	std::vector<User>::iterator it_s;
 	std::vector<User>::iterator it_o;
+	unsigned long i = 3;
 
 	for(it_s = this->users.begin(); it_s != this->users.end(); ++it_s)
 	{
@@ -143,14 +140,19 @@ void Channel::kickUser(std::string user_kick, std::string reason, User user)
 					return ;
 				}
 				send(it_s->_fd, "You have been kicked from the channel\n", strlen("You have been kicked from the channel\n"), 0);
+				if (splitmsg.size() > 3)
+					send(it_s->_fd, "Reason for kicking: ", strlen("Reason for kicking: "), 0);
+				while (i < splitmsg.size())
+				{
+					send(it_s->_fd, (splitmsg.at(i)).c_str(), strlen((splitmsg.at(i)).c_str()), 0);
+					send(it_s->_fd, " ", strlen(" "), 0);
+					i++;
+				}
+				send(it_s->_fd, "\n", strlen("\n"), 0);
 				this->users.erase(it_s);
 				for (it_o = this->operators.begin(); it_o != this->operators.end(); ++it_o)
 					if (it_o->nickName == user_kick)
 						this->operators.erase(it_o);
-				// send(user._fd, message.c_str(), strlen(message.c_str()), 0); // message to user about kicking
-				if (reason != "")
-					std::cout << "Reason for Kicking User: " << reason << std::endl;
-				std::cout << "User " << user_kick << " kicked from channel" << std::endl;
 				return ;
 			}
 		}
