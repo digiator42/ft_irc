@@ -303,3 +303,13 @@ std::vector<User>::iterator Channel::op_in_chan(int fd)
 	}
 	return (it_o);
 }
+
+std::vector<User>::iterator Channel::inv_in_chan(int fd)
+{
+	for (this->it_i = this->invites.begin(); this->it_i != this->invites.end(); it_i++)
+	{
+		if (this->it_i->_fd == fd)
+			return (it_i);
+	}
+	return (it_i);
+}

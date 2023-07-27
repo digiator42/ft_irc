@@ -43,6 +43,7 @@ class Channel{
 	std::vector<User> users;
 	std::vector<User>::iterator it_u;
 	std::vector<User>::iterator it_o;
+	std::vector<User>::iterator it_i;
 	Channel(std::string str_n, std::string str_p);
 	// copy constructor
 	// assignment operator overload
@@ -68,6 +69,7 @@ class Channel{
 	void exec_mode(std::string mode, User &user, std::string arg);
 	std::vector<User>::iterator user_in_chan(int fd);
 	std::vector<User>::iterator op_in_chan(int fd);
+	std::vector<User>::iterator inv_in_chan(int fd);
 	int user_len(void);
 
 	int isInvited(User user);

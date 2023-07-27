@@ -108,6 +108,7 @@ void Server::handleClientMessages() {
     int i = 0;
 	std::vector<User>::iterator it_u;
 	std::vector<User>::iterator it_o;
+	std::vector<User>::iterator it_i;
     for ( i = 0; i < static_cast<int>( Server::_fds.size() ); i++ ) {
         Server::sd = Server::_fds.at(i);
 
@@ -135,6 +136,9 @@ void Server::handleClientMessages() {
 						if (it_o != it->users.end() && it->operators.size() == 0)
 							it->operators.push_back(*it_o);
 					}
+					it_i = it->inv_in_chan(Server::sd);
+					if (it_i != it->invites.end())
+						it->invites.erase(it_i);
 				}
                 Server::showUsers();
                 Server::showChannels();

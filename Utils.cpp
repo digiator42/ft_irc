@@ -34,6 +34,7 @@ void Utils::closeThis(User &user)
 	close(user._fd);
 	std::vector<User>::iterator it_u;
 	std::vector<User>::iterator it_o;
+	std::vector<User>::iterator it_i;
 
     Server::_fds.erase(std::find(Server::_fds.begin(), Server::_fds.end(), user._fd));	
     Server::_users.erase(std::find(Server::_users.begin(), Server::_users.end(), user));
@@ -50,6 +51,9 @@ void Utils::closeThis(User &user)
 			if (it_o != it->users.end() && it->operators.size() == 0)
 				it->operators.push_back(*it_o);
 		}
+		it_i = it->inv_in_chan(Server::sd);
+		if (it_i != it->invites.end())
+			it->invites.erase(it_i);
 	}
 	Server::showUsers();
 	Server::showChannels();
@@ -106,8 +110,8 @@ void handleKickCommand(const std::vector<std::string>& splitmsg, Command& cmd, U
 }
 
 void handlePrivMsgCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user) {
-	if (splitmsg.size() == 3) {
-		cmd.privmsg(splitmsg.at(1), splitmsg.at(2), *user); // second argument will be the split message for mutiple words
+	if (splitmsg.size() >= 3) {
+		cmd.privmsg(splitmsg.at(1), splitmsg, *user); // second argument will be the split message for mutiple words
 	} else if (splitmsg.size() == 2) {
 		// no such nickname, if nickname doesn't exist
 		sendErrorMessage(user->_fd, "PRIVMSG command requires atleast 3 arguments\n", PRIVMSG_EMPTY);

@@ -65,6 +65,7 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 	std::vector<std::string> channel_split = ft_split(channel_s, ',');
 	std::vector<std::string> key_split = ft_split(key_s, ',');
 	std::vector<Channel>::iterator it;
+	std::vector<User>::iterator it_i;
 	std::vector<std::string>::iterator it_s;
 	std::vector<std::string>::iterator it_k = key_split.begin();
 	
@@ -94,7 +95,12 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 							if (it->isMode('i') == 1)
 							{
 								if (it->isInvited(user))
+								{
+									it_i = it->inv_in_chan(user._fd);
+									if (it_i != it->invites.end())
+										it->invites.erase(it_i);
 									it->addUser(user);
+								}
 								else
 									sendErrorMessage(user._fd, (channel_s + NO_INV_M), ERR_INVITEONLYCHAN);
 							}
@@ -117,7 +123,12 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 							if (it->isMode('k') == 1)
 								sendErrorMessage(user._fd, (channel_s + NO_KEY_M), ERR_BADCHANNELKEY);
 							else
+							{
+								it_i = it->inv_in_chan(user._fd);
+								if (it_i != it->invites.end())
+									it->invites.erase(it_i);
 								it->addUser(user);
+							}
 						}
 						else
 							sendErrorMessage(user._fd, (channel_s + NO_INV_M), ERR_INVITEONLYCHAN);
@@ -182,9 +193,19 @@ void Command::invite(std::string user, std::string channel, User user_o)
 					sendErrorMessage(user_o._fd, (user + " " + channel + YES_USR_M), ERR_USERONCHANNEL);
 				else
 				{
-					message = "You're invited to the Channel " + channel + " \n";
-					send(it_s->_fd, message.c_str(), strlen(message.c_str()), 0);
-					it_c->invites.push_back(*it_s);
+					if (it_c->isMode('i') == 1)
+					{
+						if (it_c->isInvited(*it_s))
+							send(user_o._fd, "User is already invited\n", strlen("You are already invited\n"), 0);
+						else
+						{
+							message = "You're invited to the Channel " + channel + " \n";
+							send(it_s->_fd, message.c_str(), strlen(message.c_str()), 0);
+							it_c->invites.push_back(*it_s);
+						}
+					}
+					else
+						send(user_o._fd, "Channel is not on +i mode\n", strlen("Channel is not on +i mode\n"), 0);
 				}
 			}
 		}
@@ -241,12 +262,13 @@ void Command::topic(std::string channel, std::string topic, User user)
 		sendErrorMessage(user._fd, (channel + NO_CHAN_M), ERR_NOSUCHCHANNEL);
 }
 
-void Command::privmsg(std::string reciever, std::string message, User user)
+void Command::privmsg(std::string reciever, const std::vector<std::string>& splitmsg, User user)
 {
 	std::vector<std::string> reciever_split = ft_split(reciever, ',');
 	std::vector<Channel>::iterator it_c;
 	std::vector<User>::iterator it_u;
 	std::vector<std::string>::iterator it_s;
+	unsigned long i = 2;
 
 	for (it_s = reciever_split.begin(); it_s != reciever_split.end(); it_s++)
 	{
@@ -273,7 +295,15 @@ void Command::privmsg(std::string reciever, std::string message, User user)
 			if(user._fd == it_u->_fd)
 				send(it_u->_fd, "can't send message to same user\n", strlen("can't send message to same user\n"), 0);
 			else
-				send(it_u->_fd, (message + "\n").c_str(), strlen((message + "\n").c_str()), 0);
+			{
+				while (i < splitmsg.size())
+				{
+					send(it_u->_fd, (splitmsg.at(i)).c_str(), strlen((splitmsg.at(i)).c_str()), 0);
+					send(it_u->_fd, " ", strlen(" "), 0);
+					i++;
+				}
+				send(it_u->_fd, "\n", strlen("\n"), 0);
+			}
 		}
 		if (it_u == Server::_users.end() && it_c == Server::_channels.end())
 			sendErrorMessage(user._fd, (*it_s + " :No such nickname" + " or channel.\n"), ERR_NOSUCHNICK);

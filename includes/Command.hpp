@@ -30,7 +30,7 @@ class Command{
 		// TOPIC
 		void topic(std::string channel, std::string topic, User user);
 		// PRIVMSG
-		void privmsg(std::string reciever, std::string message, User user);
+		void privmsg(std::string reciever, const std::vector<std::string>& splitmsg, User user);
 		// MODE
 		void mode(std::string channel, std::string mode, User user, std::string arg);
 		// PART
