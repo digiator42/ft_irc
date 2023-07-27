@@ -33,6 +33,8 @@ class Command{
 		void mode(std::string channel, std::string mode, User user, std::string arg);
 		// PART
 		void part(std::string channel, User user);
+		// NOTICE
+		void notice(std::string reciever, const std::vector<std::string>& splitmsg, User user);
 
 		std::vector<std::string> ft_split(std::string str, char delimiter);
 		std::vector<Channel>::iterator chan_exist(std::string channel);

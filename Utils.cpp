@@ -99,6 +99,14 @@ void handleJoinCommand(const std::vector<std::string>& splitmsg, Command& cmd, U
     }
 }
 
+// void handleKickCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user) {
+//     if (splitmsg.size() >= 3) {
+//         cmd.kick(splitmsg.at(1), splitmsg.at(2), splitmsg, *user);
+//     } else {
+//         sendErrorMessage(user->_fd, "KICK command requires 3 or 4 arguments\n", TOO_MANY_ARGS);
+//     }
+// }
+
 void handleKickCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user) {
     if (splitmsg.size() >= 3) {
         cmd.kick(splitmsg.at(1), splitmsg.at(2), splitmsg, *user);
@@ -120,6 +128,12 @@ void handlePrivMsgCommand(const std::vector<std::string>& splitmsg, Command& cmd
 		S.append(" :Not enough parameters\r\n");
 		send(user->_fd, S.c_str(), strlen(S.c_str()), 0);
 		return;
+	}
+}
+
+void handleNoticeCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user) {
+	if (splitmsg.size() >= 3) {
+		cmd.notice(splitmsg.at(1), splitmsg, *user); // second argument will be the split message for mutiple words
 	}
 }
 

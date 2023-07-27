@@ -149,6 +149,8 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
         handleTopicCommand(splitmsg, cmd, user);
     } else if (cmdType == PRIVMSG) {
         handlePrivMsgCommand(splitmsg, cmd, user);
+    }else if (cmdType == NOTICE) {
+        handleNoticeCommand(splitmsg, cmd, user);
     } else if (cmdType == INVITE) {
         handleInviteCommand(splitmsg, cmd, user);
     } else if (cmdType == PING) {

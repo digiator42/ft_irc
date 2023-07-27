@@ -12,6 +12,7 @@
 
 #define JOIN "JOIN"
 #define KICK "KICK"
+#define NOTICE "NOTICE"
 #define PRIVMSG "PRIVMSG"
 #define INVITE "INVITE"
 #define TOPIC "TOPIC"
@@ -119,6 +120,7 @@ void sendErrorMessage(int fd, const std::string& message, const std::string& key
 void handleJoinCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
 void handleKickCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
 void handlePrivMsgCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
+void handleNoticeCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
 void handleInviteCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
 void handleWhoisCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
 void handleModeCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);

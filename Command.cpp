@@ -272,7 +272,6 @@ void Command::privmsg(std::string reciever, const std::vector<std::string>& spli
 
 	for (it_s = reciever_split.begin(); it_s != reciever_split.end(); it_s++)
 	{
-		std::cout << "reciever = " << *it_s << std::endl;
 		it_u = user_exist(*it_s);
 		if (it_u == Server::_users.end())
 		{
@@ -284,7 +283,7 @@ void Command::privmsg(std::string reciever, const std::vector<std::string>& spli
 					std::vector<User> temp_users = it_c->getUsers();
 					for(std::vector<User>::iterator it = temp_users.begin(); it != temp_users.end(); ++it)
 						if(it->_fd != user._fd)
-							send((*it)._fd, (message + "\n").c_str(), strlen((message + "\n").c_str()), 0);
+							send((*it)._fd, (user.nickName + " :" + message + "\n").c_str(), strlen((user.nickName + " " + message + "\n").c_str()), 0);
 				}
 				else
 					sendErrorMessage(user._fd, (it_c->getName() + NOT_CHAN_USR), ERR_CANNOTSENDTOCHAN);
@@ -296,6 +295,7 @@ void Command::privmsg(std::string reciever, const std::vector<std::string>& spli
 				send(it_u->_fd, "can't send message to same user\n", strlen("can't send message to same user\n"), 0);
 			else
 			{
+				send(it_u->_fd, (user.nickName + " :" ).c_str(), strlen((user.nickName + " " ).c_str()), 0);
 				while (i < splitmsg.size())
 				{
 					send(it_u->_fd, (splitmsg.at(i)).c_str(), strlen((splitmsg.at(i)).c_str()), 0);
@@ -307,6 +307,48 @@ void Command::privmsg(std::string reciever, const std::vector<std::string>& spli
 		}
 		if (it_u == Server::_users.end() && it_c == Server::_channels.end())
 			sendErrorMessage(user._fd, (*it_s + " :No such nickname" + " or channel.\n"), ERR_NOSUCHNICK);
+	}
+}
+
+void Command::notice(std::string reciever, const std::vector<std::string>& splitmsg, User user)
+{
+	std::vector<std::string> reciever_split = ft_split(reciever, ',');
+	std::vector<Channel>::iterator it_c;
+	std::vector<User>::iterator it_u;
+	std::vector<std::string>::iterator it_s;
+	unsigned long i = 2;
+
+	for (it_s = reciever_split.begin(); it_s != reciever_split.end(); it_s++)
+	{
+		it_u = user_exist(*it_s);
+		if (it_u == Server::_users.end())
+		{
+			it_c = chan_exist(reciever);
+			if (it_c != Server::_channels.end())
+			{
+				if (it_c->isUser(user))
+				{
+					std::vector<User> temp_users = it_c->getUsers();
+					for(std::vector<User>::iterator it = temp_users.begin(); it != temp_users.end(); ++it)
+						if(it->_fd != user._fd)
+							send((*it)._fd, (user.nickName + " NOTICE: "  + message + "\n").c_str(), strlen((user.nickName + " NOTICE: "  + message + "\n").c_str()), 0);
+				}
+			}
+		}
+		else
+		{
+			if(user._fd != it_u->_fd)
+			{
+				send(it_u->_fd, (user.nickName + " NOTICE: " ).c_str(), strlen((user.nickName + " NOTICE: ").c_str()), 0);
+				while (i < splitmsg.size())
+				{
+					send(it_u->_fd, (splitmsg.at(i)).c_str(), strlen((splitmsg.at(i)).c_str()), 0);
+					send(it_u->_fd, " ", strlen(" "), 0);
+					i++;
+				}
+				send(it_u->_fd, "\n", strlen("\n"), 0);
+			}
+		}
 	}
 }
 
