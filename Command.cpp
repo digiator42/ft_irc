@@ -102,13 +102,13 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 									it->addUser(user);
 								}
 								else
-									sendErrorMessage(user._fd, (channel_s + NO_INV_M), ERR_INVITEONLYCHAN);
+									sendErrorMessage(user._fd, (it->getName() + NO_INV_M), ERR_INVITEONLYCHAN);
 							}
 							else
 								it->addUser(user);
 						}
 						else
-							sendErrorMessage(user._fd, (channel_s + NO_KEY_M), ERR_BADCHANNELKEY);
+							sendErrorMessage(user._fd, (it->getName() + NO_KEY_M), ERR_BADCHANNELKEY);
 					}
 					else
 						sendErrorMessage(user._fd, "Key Not required to join channel\n", ERR_BADCHANNELKEY);
@@ -121,7 +121,7 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 						if (it->isInvited(user))
 						{
 							if (it->isMode('k') == 1)
-								sendErrorMessage(user._fd, (channel_s + NO_KEY_M), ERR_BADCHANNELKEY);
+								sendErrorMessage(user._fd, (it->getName() + NO_KEY_M), ERR_BADCHANNELKEY);
 							else
 							{
 								it_i = it->inv_in_chan(user._fd);
@@ -131,12 +131,12 @@ void Command::join(std::string channel_s, std::string key_s, User user)
 							}
 						}
 						else
-							sendErrorMessage(user._fd, (channel_s + NO_INV_M), ERR_INVITEONLYCHAN);
+							sendErrorMessage(user._fd, (it->getName() + NO_INV_M), ERR_INVITEONLYCHAN);
 					}
 					else
 					{
 						if (it->isMode('k') == 1)
-								sendErrorMessage(user._fd, (channel_s + NO_KEY_M), ERR_BADCHANNELKEY);
+								sendErrorMessage(user._fd, (it->getName() + NO_KEY_M), ERR_BADCHANNELKEY);
 						else
 							it->addUser(user);
 					}
