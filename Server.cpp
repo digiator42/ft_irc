@@ -132,7 +132,7 @@ void Server::handleClientMessages() {
 					{
 						it->operators.erase(it_o);
 						it_o = it->users.begin();
-						if (it_o != it->users.end())
+						if (it_o != it->users.end() && it->operators.size() == 0)
 							it->operators.push_back(*it_o);
 					}
 				}

@@ -335,6 +335,17 @@ bool	User::parse_cmd(std::string str)
 				return false;
 			else
 				pass = *(++it);
+			if (*(it) != vector.back())
+			{
+				if(*(it + 1) != "NICK" && *(it + 1) != "USER")
+				{
+					std::string S = WRONG_PASS_CODE;
+					S.append(" : Password incorrect");
+					send(this->_fd, S.c_str(), strlen(S.c_str()), 0);
+					pass_issue = 1;
+					return false;
+				}
+			}
 		}
 		else
 			++it;
