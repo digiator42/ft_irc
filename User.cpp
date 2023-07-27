@@ -241,6 +241,34 @@ void User::execute(std::string cmd, User *user)
 	void (User::*f[3])(User &user) = { &User::whoAmI, &User::showClients, &User::showUsers};
 	std::vector<std::string> splitmsg = Utils::split(cmd);
 
+	if(!isAuth) {
+		int user_flag = 0, nick_flag = 0, pass_flag = 0;
+		for(size_t i = 0; splitmsg.size() > 0 && i < splitmsg.size(); i++)
+		{
+			if(splitmsg.at(i) == "USER" && user_flag == 1)
+			{
+				sendErrorMessage(user->_fd, "Unknown command\n", UNKNOWN_CMD);
+				return ;
+			}
+			if(splitmsg.at(i) == "NICK" && nick_flag == 1)
+			{
+				sendErrorMessage(user->_fd, "Unknown command\n", UNKNOWN_CMD);
+				return ;
+			}
+			if(splitmsg.at(i) == "PASS" && pass_flag == 1)
+			{
+				sendErrorMessage(user->_fd, "Unknown command\n", UNKNOWN_CMD);
+				return ;
+			}
+			if(splitmsg.at(i) == "USER")
+				user_flag = 1;
+			if(splitmsg.at(i) == "NICK")
+				nick_flag = 1;
+			if(splitmsg.at(i) == "PASS")
+				pass_flag = 1;
+		}
+	}
+
 	if (!user_options(user, splitmsg))
 		return ;
 	if(!authorise(user, cmd))
