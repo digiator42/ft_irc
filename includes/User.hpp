@@ -16,6 +16,7 @@
 #define INVITE "INVITE"
 #define TOPIC "TOPIC"
 #define MODE "MODE"
+#define PART "PART"
 #define WHOIS "WHOIS"
 #define PING "PING"
 #define PONG "TOPIC"
@@ -40,6 +41,7 @@
 # define ERR_UNKNOWNCOMMAND "421"
 # define ERR_CHANNELISFULL "471"
 # define ERR_NEEDMOREPARAMS "461"
+# define ERR_NOTONCHANNEL "442"
 /*
 # define ERR_NOSUCHSERVER "402"
 # define ERR_TOOMANYCHANNELS "405"
@@ -50,7 +52,6 @@
 # define ERR_NICKNAMEINUSE "433"
 # define ERR_NICKCOLLISION "436"
 # define ERR_USERNOTINCHANNEL "441"
-# define ERR_NOTONCHANNEL "442"
 # define ERR_ALREADYREGISTERED "462"
 # define ERR_PASSWDMISMATCH "464"
 # define ERR_BADCHANMASK "476"
@@ -122,6 +123,7 @@ void handleInviteCommand(const std::vector<std::string>& splitmsg, Command& cmd,
 void handleWhoisCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
 void handleModeCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
 void handleTopicCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
+void handlePartCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user);
 
 #endif
 

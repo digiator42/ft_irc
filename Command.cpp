@@ -305,3 +305,29 @@ void Command::mode(std::string channel, std::string mode, User user, std::string
 			sendErrorMessage(user._fd, OP_ERR_M, ERR_CHANOPRIVSNEEDED);
 	}
 }
+
+void Command::part(std::string channel, User user)
+{
+	std::vector<Channel>::iterator it_c;
+	std::vector<User>::iterator it_u;
+
+	it_c = chan_exist(channel);
+	if (it_c == Server::_channels.end())
+		sendErrorMessage(user._fd, (channel + NO_CHAN_M), ERR_NOSUCHCHANNEL);
+	
+	else
+	{
+		it_u = it_c->user_in_chan(user._fd);
+		if (it_u != it_c->users.end())
+		{
+			send(user._fd, ("You left the channel " + it_c->getName() + " \n").c_str(),
+				strlen(("You left the channel " + it_c->getName() + " \n").c_str()), 0);
+			it_c->users.erase(it_u);
+			it_u = it_c->op_in_chan(user._fd);
+			if (it_u != it_c->operators.end())
+				it_c->operators.erase(it_u);
+		}
+		else
+			sendErrorMessage(user._fd, (channel + NOT_USER_M), ERR_NOTONCHANNEL);
+	}
+}

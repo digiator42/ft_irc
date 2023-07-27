@@ -25,6 +25,7 @@
 # define INVALID_CHAN "Error: Invalid Channel Name. Channel name starts with \'#\' or \'&\'\n"
 # define INVALID_CHAN_NAME "Error: Invalid Channel Name. Channel should have more than one character\n"
 # define CHAN_FULL "  :Cannot join channel (+l)\n"
+# define NOT_USER_M "  :You're not on that channel\n"
 
 class User;
 
@@ -43,7 +44,6 @@ class Channel{
 	std::vector<User>::iterator it_u;
 	std::vector<User>::iterator it_o;
 	Channel(std::string str_n, std::string str_p);
-	int flag; // fixed the segfault
 	// copy constructor
 	// assignment operator overload
 	~Channel(void);

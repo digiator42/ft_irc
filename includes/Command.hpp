@@ -33,14 +33,13 @@ class Command{
 		void privmsg(std::string reciever, std::string message, User user);
 		// MODE
 		void mode(std::string channel, std::string mode, User user, std::string arg);
+		// PART
+		void part(std::string channel, User user);
 
 		std::vector<std::string> ft_split(std::string str, char delimiter);
 		std::vector<Channel>::iterator chan_exist(std::string channel);
 		std::vector<User>::iterator user_exist(std::string nick);
 
-// helper function for command.hpp
-
-// user_in_server = if user exists in server
 };
 
 #endif

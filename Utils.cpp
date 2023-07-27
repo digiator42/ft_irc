@@ -164,3 +164,13 @@ void handleModeCommand(const std::vector<std::string>& splitmsg, Command& cmd, U
 	}
 		
 }
+
+void handlePartCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user)
+{
+	if (splitmsg.size() == 2){
+		cmd.part(splitmsg.at(1), *user);
+	}
+	else {
+		sendErrorMessage(user->_fd, "PART command requires 1 argument\n", TOO_MANY_ARGS);
+	}
+}

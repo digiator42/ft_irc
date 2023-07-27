@@ -157,6 +157,8 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
 		handleWhoisCommand(splitmsg, cmd, user);
 	}else if (cmdType == MODE) {
 		handleModeCommand(splitmsg, cmd, user);
+	}else if (cmdType == PART){
+		handlePartCommand(splitmsg, cmd, user);
 	} else if (cmdType != "NICK" && cmdType != "PASS" && cmdType != "USER" && cmdType != "CAP"){
 		sendErrorMessage(user->_fd, "Unknown command\n", UNKNOWN_CMD);
 	}
@@ -203,6 +205,7 @@ void User::user_cmds(User* user, std::vector<std::string> splitmsg) {
 
 void User::change_user(User *user, std::vector<std::string> splitmsg)
 {
+	std::string old_name;
 	if(!this->isAuth)
 		return ;
 
@@ -224,7 +227,20 @@ void User::change_user(User *user, std::vector<std::string> splitmsg)
 				return ;
 			}
 		}
+		old_name = user->nickName;
 		user->nickName = splitmsg.at(1);
+		for (std::vector<Channel>::iterator it = Server::_channels.begin(); it != Server::_channels.end(); it++)
+		{
+			for (std::vector<User>::iterator it_u = it->users.begin(); it_u != it->users.end(); it_u++)
+				if (it_u->nickName == old_name)
+					it_u->nickName = splitmsg.at(1);
+			for (std::vector<User>::iterator it_u = it->operators.begin(); it_u != it->operators.end(); it_u++)
+				if (it_u->nickName == old_name)
+					it_u->nickName = splitmsg.at(1);
+			for (std::vector<User>::iterator it_i = it->invites.begin(); it_i != it->invites.end(); it_i++)
+				if (it_i->nickName == old_name)
+					it_i->nickName = splitmsg.at(1);
+		}
 	}
 	else // should be returned when PRIVMSG no nick name
 	{
