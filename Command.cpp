@@ -342,8 +342,20 @@ void Command::notice(std::string reciever, const std::vector<std::string>& split
 				{
 					std::vector<User> temp_users = it_c->getUsers();
 					for(std::vector<User>::iterator it = temp_users.begin(); it != temp_users.end(); ++it)
+					{
 						if(it->_fd != user._fd)
-							send((*it)._fd, (user.nickName + " NOTICE: "  + message + "\n").c_str(), strlen((user.nickName + " NOTICE: "  + message + "\n").c_str()), 0);
+						{
+							send(it->_fd, (user.nickName + " NOTICE: " ).c_str(), strlen((user.nickName + " NOTICE: " ).c_str()), 0);
+							while (i < splitmsg.size())
+							{
+								send(it->_fd, (splitmsg.at(i)).c_str(), strlen((splitmsg.at(i)).c_str()), 0);
+								send(it->_fd, " ", strlen(" "), 0);
+								i++;
+							}
+							send(it->_fd, "\n", strlen("\n"), 0);
+							i = 2;
+						}
+					}
 				}
 			}
 		}
@@ -359,6 +371,7 @@ void Command::notice(std::string reciever, const std::vector<std::string>& split
 					i++;
 				}
 				send(it_u->_fd, "\n", strlen("\n"), 0);
+				i = 2;
 			}
 		}
 	}
