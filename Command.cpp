@@ -281,8 +281,20 @@ void Command::privmsg(std::string reciever, const std::vector<std::string>& spli
 				{
 					std::vector<User> temp_users = it_c->getUsers();
 					for(std::vector<User>::iterator it = temp_users.begin(); it != temp_users.end(); ++it)
+					{
 						if(it->_fd != user._fd)
-							send((*it)._fd, (user.nickName + " :" + message + "\n").c_str(), strlen((user.nickName + " " + message + "\n").c_str()), 0);
+						{
+							send(it->_fd, (user.nickName + " :" ).c_str(), strlen((user.nickName + " :" ).c_str()), 0);
+							while (i < splitmsg.size())
+							{
+								send(it->_fd, (splitmsg.at(i)).c_str(), strlen((splitmsg.at(i)).c_str()), 0);
+								send(it->_fd, " ", strlen(" "), 0);
+								i++;
+							}
+							send(it->_fd, "\n", strlen("\n"), 0);
+							i = 2;
+						}
+					}
 				}
 				else
 					sendErrorMessage(user._fd, (it_c->getName() + NOT_CHAN_USR), ERR_CANNOTSENDTOCHAN);
@@ -294,7 +306,7 @@ void Command::privmsg(std::string reciever, const std::vector<std::string>& spli
 				send(it_u->_fd, "can't send message to same user\n", strlen("can't send message to same user\n"), 0);
 			else
 			{
-				send(it_u->_fd, (user.nickName + " :" ).c_str(), strlen((user.nickName + " " ).c_str()), 0);
+				send(it_u->_fd, (user.nickName + " :" ).c_str(), strlen((user.nickName + " :" ).c_str()), 0);
 				while (i < splitmsg.size())
 				{
 					send(it_u->_fd, (splitmsg.at(i)).c_str(), strlen((splitmsg.at(i)).c_str()), 0);
@@ -302,6 +314,7 @@ void Command::privmsg(std::string reciever, const std::vector<std::string>& spli
 					i++;
 				}
 				send(it_u->_fd, "\n", strlen("\n"), 0);
+				i = 2;
 			}
 		}
 		if (it_u == Server::_users.end() && it_c == Server::_channels.end())
