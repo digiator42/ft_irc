@@ -50,8 +50,17 @@ void Server::run( void ) {
         for ( i = 0; i < static_cast<int>(Server::_fds.size()); i++ ) {
         
             Server::sd = Server::_fds.at(i);
-            Server::sd >= MAX_CLIENTS - 1 ? 
-                throw ServerException( "Max clients reached" ) :
+            if ( Server::sd >= MAX_CLIENTS - 1 ) {
+                for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it) {
+                        close(*it);
+                }
+                shutdown(Server::serverSocket, SHUT_RDWR); 
+                close(Server::serverSocket);
+                Server::_fds.clear();
+                Server::_users.clear();
+                Server::_channels.clear();
+                throw ServerException( "Max clients reached" );
+            }
             Server::_fds.at(i) > 0 ? 
                 FD_SET( Server::sd, &Server::readfds ) : 
             ( void )0;

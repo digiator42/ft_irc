@@ -17,7 +17,7 @@ void Utils::signalHandler(int signum) {
     for(std::vector<int>::iterator it = Server::_fds.begin(); it != Server::_fds.end(); ++it) {
             close(*it);
     }
-	shutdown(Server::serverSocket, SHUT_RDWR); //shutdown the server socket, suppose to handle still opened fds,if there is any data left before closing
+	shutdown(Server::serverSocket, SHUT_RDWR);
     close(Server::serverSocket);
 	Server::_fds.clear();
 	Server::_users.clear();
@@ -88,18 +88,9 @@ void handleJoinCommand(const std::vector<std::string>& splitmsg, Command& cmd, U
 		cmd.join(splitmsg.at(1), splitmsg.at(2), *user);
 	}
 	else {
-		return ; // temporary
-        	// sendErrorMessage(user->_fd, "JOIN command requires 2 or 3 arguments\n", TOO_MANY_ARGS);
+		return ;
     }
 }
-
-// void handleKickCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user) {
-//     if (splitmsg.size() >= 3) {
-//         cmd.kick(splitmsg.at(1), splitmsg.at(2), splitmsg, *user);
-//     } else {
-//         sendErrorMessage(user->_fd, "KICK command requires 3 or 4 arguments\n", TOO_MANY_ARGS);
-//     }
-// }
 
 void handleKickCommand(const std::vector<std::string>& splitmsg, Command& cmd, User* user) {
     if (splitmsg.size() >= 3) {
